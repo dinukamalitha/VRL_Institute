@@ -1,0 +1,64 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout Code
+      - name: Checkout Code
+        uses: actions/chec
+
+      # setup node.js
+      - name: Setup Node.js
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      # Build backend docker image
+      - name: Build Backend Docker Image
+        working-directory: ./Backend
+        run: |
+          docker build -t vrl-backend:latest .
+
+      # Build frontend docker image
+      - name: Build Frontend Docker Image
+        working-directory: ./Frontend
+        run: |
+          docker build -t vrl-frontend:latest .
+
+      # Run Docker Compose (optional for testing)
+      - name: Test Docker Compose
+        run: |
+          docker compose up -d
+          docker ps
+
+      # Push Docker images to Docker Hub (optional)
+      # Add your secrets: DOCKER_HUB_USERNAME, DOCKER_HUB_PASSWORD
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+      # Push Backend Docker Image
+      - name: Push Backend Image
+        run: |
+          docker tag vrl-backend:latest yourdockerhubusername/vrl-backend:latest
+          docker push yourdockerhubusername/vrl-backend:latest
+
+      # Push Frontend Docker Image
+      - name: Push Frontend Image
+        run: |
+          docker tag vrl-frontend:latest yourdockerhubusername/vrl-frontend:latest
+          docker push yourdockerhubusername/vrl-frontend:latest
