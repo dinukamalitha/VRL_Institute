@@ -62,3 +62,16 @@ jobs:
         run: |
           docker tag vrl-frontend:latest yourdockerhubusername/vrl-frontend:latest
           docker push yourdockerhubusername/vrl-frontend:latest
+
+      # Deploy to server via SSH
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            cd ./VRL_Institute
+            docker-compose pull
+            docker-compose up -d
