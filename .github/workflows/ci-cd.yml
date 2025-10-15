@@ -41,6 +41,11 @@ jobs:
 
       # Run Docker Compose (optional for testing)
       - name: Test Docker Compose
+        env:
+          PORT: ${{ secrets.PORT }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          MONGO_URI: ${{secrets.MONGO_URI}}
+          NODE_ENV: ${{secrets.NODE_ENV}}
         run: |
           docker compose up -d
           docker ps
