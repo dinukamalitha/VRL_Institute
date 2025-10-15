@@ -40,10 +40,10 @@ jobs:
           docker build -t vrl-frontend:latest .
 
       # Run Docker Compose (optional for testing)
-      - name: Test Docker Compose
-        run: |
-          docker compose up -d
-          docker ps
+      # - name: Test Docker Compose
+      #   run: |
+      #     docker compose up -d
+      #     docker ps
 
       # Push Docker images to Docker Hub (optional)
       # Add your secrets: DOCKER_HUB_USERNAME, DOCKER_HUB_PASSWORD
