@@ -4,24 +4,26 @@ on:
   push:
     branches:
       - main
-      - dev
   pull_request:
     branches:
       - main
-      - dev
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    #    runs-on: ${{matrix.os}}
+#    strategy:
+#      matrix:
+#        os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
       # Checkout Code
       - name: Checkout Code
-        uses: actions/chec
+        uses: actions/checkout@v3
 
       # setup node.js
       - name: Setup Node.js
-      - uses: actions/setup-node@v3
+        uses: actions/setup-node@v3
         with:
           node-version: 20
 
@@ -54,24 +56,24 @@ jobs:
       # Push Backend Docker Image
       - name: Push Backend Image
         run: |
-          docker tag vrl-backend:latest yourdockerhubusername/vrl-backend:latest
-          docker push yourdockerhubusername/vrl-backend:latest
+          docker tag vrl-backend:latest ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-backend:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-backend:latest
 
       # Push Frontend Docker Image
       - name: Push Frontend Image
         run: |
-          docker tag vrl-frontend:latest yourdockerhubusername/vrl-frontend:latest
-          docker push yourdockerhubusername/vrl-frontend:latest
+          docker tag vrl-frontend:latest ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-frontend:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-frontend:latest
 
       # Deploy to server via SSH
-      - name: Deploy to Server
-        uses: appleboy/ssh-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
-          script: |
-            cd ./VRL_Institute
-            docker-compose pull
-            docker-compose up -d
+#      - name: Deploy to Server
+#        uses: appleboy/ssh-action@v0.1.7
+#        with:
+#          host: ${{ secrets.SERVER_IP }}
+#          username: ${{ secrets.SERVER_USER }}
+#          key: ${{ secrets.SSH_PRIVATE_KEY }}
+#          port: 22
+#          script: |
+#            cd ./VRL_Institute
+#            docker-compose pull
+#            docker-compose up -d
