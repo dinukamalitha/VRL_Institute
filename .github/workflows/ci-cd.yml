@@ -20,8 +20,8 @@ jobs:
       VPS_IP: ${{ secrets.VPS_IP }}
       VPS_USERNAME: ${{ secrets.VPS_USERNAME }}
       VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-      DOCKERHUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+      DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
     steps:
       # Checkout repository to GitHub runner
@@ -36,22 +36,22 @@ jobs:
       - name: Docker Hub Login
         uses: docker/login-action@v2
         with:
-          username: ${{ env.DOCKERHUB_USERNAME }}
-          password: ${{ env.DOCKERHUB_PASSWORD }}
+          username: ${{ env.DOCKER_HUB_USERNAME }}
+          password: ${{ env.DOCKER_HUB_PASSWORD }}
 
       # Build & push frontend docker image to dockerhub
       - name: Build Frontend Docker Image
         working-directory: ./Frontend
         run: |
-          docker build -t ${{ env.DOCKERHUB_USERNAME }}/vrl-frontend:latest .
-          docker push ${{ env.DOCKERHUB_USERNAME }}/vrl-frontend:latest
+          docker build -t ${{ env.DOCKER_HUB_USERNAME }}/vrl-frontend:latest .
+          docker push ${{ env.DOCKER_HUB_USERNAME }}/vrl-frontend:latest
 
       # Build & push backend docker image to dockerhub
       - name: Build Backend Docker Image
         working-directory: ./Backend
         run: |
-          docker build -t ${{ env.DOCKERHUB_USERNAME }}/vrl-backend:latest .
-          docker push ${{ env.DOCKERHUB_USERNAME }}/vrl-backend:latest
+          docker build -t ${{ env.DOCKER_HUB_USERNAME }}/vrl-backend:latest .
+          docker push ${{ env.DOCKER_HUB_USERNAME }}/vrl-backend:latest
 
       # Deploy to remote server
       - name: Deploy to VPS
@@ -87,14 +87,14 @@ jobs:
             EOF
       
             # Stop containers before cleanup
-            docker compose down || true
+            docker compose down 
             
             # Remove all unused containers, networks, images, and build cache
             docker system prune -af --volumes
             
-#             Pulling latest Docker images...
-#            docker pull ${{ env.DOCKERHUB_USERNAME }}/vrl-frontend:latest
-#            docker pull ${{ env.DOCKERHUB_USERNAME }}/vrl-backend:latest
+             Pulling latest Docker images...
+            docker pull ${{ env.DOCKER_HUB_USERNAME }}/vrl-frontend:latest
+            docker pull ${{ env.DOCKER_HUB_USERNAME }}/vrl-backend:latest
             
             # Starting new containers
-            docker compose up -d
+            docker compose up -d --build
