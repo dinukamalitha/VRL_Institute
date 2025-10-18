@@ -74,7 +74,7 @@ jobs:
             # Remove all unused containers, networks, images, and build cache
             docker system prune -af --volumes
             
-             Pulling latest Docker images...
+            # Pulling latest Docker images...
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-frontend:latest
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-backend:latest
             
