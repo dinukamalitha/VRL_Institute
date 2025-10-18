@@ -15,8 +15,21 @@ jobs:
         uses: actions/checkout@v3
 
       # Set up Docker
-      - name: Set up Docker
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+
+      # Create .env for BUILD (before building images)
+      - name: Create .env (build-time)
+        run: |
+          cat <<EOF > .env
+          NODE_ENV=${{ secrets.NODE_ENV }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          MONGO_URI=${{ secrets.MONGO_URI }}
+          PORT=${{ secrets.PORT }}
+          NEXT_PUBLIC_BACKEND_URL=${{ secrets.NEXT_PUBLIC_BACKEND_URL }}
+          NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${{ secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
+          NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=${{ secrets.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET }}
+          EOF
 
       # Login to Docker Hub
       - name: Docker Hub Login
@@ -25,18 +38,23 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
-      # Build & push frontend docker image to dockerhub
-      - name: Build Frontend Docker Image
+      # Build & push frontend docker image to dockerhub (inject .env as build-args)
+      - name: Build & Push Frontend Docker Image
         working-directory: ./Frontend
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-frontend:latest .
+          # Expand all KEY=VALUE pairs from ../.env into --build-arg KEY=VALUE
+          BUILD_ARGS=$(grep -v '^\s*#' ../.env | grep '=' | awk '{print "--build-arg " $0}' | xargs)
+          docker build $BUILD_ARGS -t ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-frontend:latest .
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-frontend:latest
 
       # Build & push backend docker image to dockerhub
-      - name: Build Backend Docker Image
+      # If backend DOES need build-time args, keep the pattern below (otherwise you can omit BUILD_ARGS)
+      - name: Build & Push Backend Docker Image
         working-directory: ./Backend
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-backend:latest .
+          # If your backend doesn't require build-time secrets, comment out BUILD_ARGS usage below.
+          BUILD_ARGS=$(grep -v '^\s*#' ../.env | grep '=' | awk '{print "--build-arg " $0}' | xargs)
+          docker build $BUILD_ARGS -t ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-backend:latest .
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-backend:latest
 
       # Deploy to remote server
@@ -48,6 +66,8 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           port: 22
           script: |
+            set -euo pipefail
+
             APP_DIR="$HOME/myapp"
             REPO_URL="https://github.com/dinukamalitha/VRL_Institute.git"
 
@@ -61,7 +81,7 @@ jobs:
               cd "$APP_DIR"
             fi
 
-            echo "Creating .env file..."
+            echo "Creating runtime .env file for docker compose..."
             cat <<EOF > .env
             NODE_ENV=${{ secrets.NODE_ENV }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
@@ -71,16 +91,18 @@ jobs:
             NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${{ secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
             NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=${{ secrets.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET }}
             EOF
-      
-            # Stop containers before cleanup
-            docker compose down 
-            
-            # Remove all unused containers, networks, images, and build cache
+
+            # Ensure docker-compose.yml uses: env_file: .env (so runtime envs are injected)
+
+            echo "Stopping any running stack..."
+            docker compose down || true
+
+            echo "Pruning unused resources..."
             docker system prune -af --volumes
-            
-             Pulling latest Docker images...
+
+            echo "Pulling latest Docker images..."
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-frontend:latest
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-backend:latest
-            
-            # Starting new containers
+
+            echo "Starting new containers..."
             docker compose up -d --build
