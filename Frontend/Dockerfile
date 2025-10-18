@@ -16,9 +16,8 @@
 ## Expose the port your app runs on
 #EXPOSE 3000
 #
-## Start the application
-#CMD ["npm", "start"]
-
+## Start the application (dev mode)
+#CMD ["npm", "run", "dev"]
 
 # Dockerfile for Frontend (Production)
 
@@ -54,7 +53,6 @@ WORKDIR /app
 # Copy only the necessary files from the 'builder' stage
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
 
 # Install ONLY the production dependencies
 RUN npm install --production
