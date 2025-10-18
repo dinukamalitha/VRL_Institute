@@ -1,0 +1,21 @@
+# docker-compose.prod.yml
+services:
+  backend:
+    image: ${{secrets.DOCKER_HUB_USERNAME}}/vrl-backend:latest
+    container_name: vrl-backend
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./.env # Load the .env file created by the script
+    restart: always
+
+  frontend:
+    image: ${{secrets.DOCKER_HUB_USERNAME}}/vrl-frontend:latest
+    container_name: vrl-frontend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./.env # Load the .env file created by the script
+    depends_on:
+      - backend
+    restart: always
