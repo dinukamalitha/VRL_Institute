@@ -8,6 +8,8 @@ services:
       - "5000:5000"
 #    env_file:
 #      - ./Backend/.env
+    environment:
+      - NODE_ENV=development
     volumes:
       - ./Backend:/usr/src/app
       - /usr/src/app/node_modules
