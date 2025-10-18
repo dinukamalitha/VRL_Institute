@@ -6,7 +6,7 @@ services:
     ports:
       - "5000:5000"
     env_file:
-      - ./.env # Load the .env file created by the script
+      - ./.env
     restart: always
 
   frontend:
@@ -15,7 +15,7 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - ./.env # Load the .env file created by the script
+      - ./.env
     depends_on:
       - backend
     restart: always

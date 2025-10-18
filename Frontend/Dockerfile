@@ -16,5 +16,5 @@ COPY . .
 # Expose the port your app runs on
 EXPOSE 3000
 
-# Start the application (dev mode)
-CMD ["npm", "run", "dev"]
+# Start the application
+CMD ["npm", "start"]
