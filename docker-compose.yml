@@ -6,8 +6,8 @@ services:
     container_name: vrl-backend
     ports:
       - "5000:5000"
-#    env_file:
-#      - ./Backend/.env
+    env_file:
+      - ./Backend/.env
     environment:
       - NODE_ENV=development
     volumes:
@@ -22,8 +22,8 @@ services:
     container_name: vrl-frontend
     ports:
       - "3000:3000"
-#    env_file:
-#      - ./Frontend/.env
+    env_file:
+      - ./Frontend/.env
     volumes:
       - ./Frontend:/app
       - /app/node_modules
