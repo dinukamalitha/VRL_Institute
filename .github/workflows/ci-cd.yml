@@ -5,23 +5,23 @@ on:
     branches:
       - main
 
-env:
-  NODE_ENV=${{ secrets.NODE_ENV }}
-  JWT_SECRET=${{ secrets.JWT_SECRET }}
-  MONGO_URI=${{ secrets.MONGO_URI }}
-  PORT=${{secrets.PORT}}
-  NEXT_PUBLIC_BACKEND_URL=${{secrets.NEXT_PUBLIC_BACKEND_URL}}
-  NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${{secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}}
-  NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=${{secrets.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}}
-  VPS_IP=${{ secrets.VPS_IP }}
-  VPS_USERNAME=${{ secrets.VPS_USERNAME }}
-  VPS_PASSWORD=${{ secrets.VPS_PASSWORD }}
-  DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
-  DOCKERHUB_PASSWORD=${{ secrets.DOCKERHUB_PASSWORD }}
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
+    env:
+      NODE_ENV=${{ secrets.NODE_ENV }}
+      JWT_SECRET=${{ secrets.JWT_SECRET }}
+      MONGO_URI=${{ secrets.MONGO_URI }}
+      PORT=${{secrets.PORT}}
+      NEXT_PUBLIC_BACKEND_URL=${{secrets.NEXT_PUBLIC_BACKEND_URL}}
+      NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${{secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}}
+      NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=${{secrets.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}}
+      VPS_IP=${{ secrets.VPS_IP }}
+      VPS_USERNAME=${{ secrets.VPS_USERNAME }}
+      VPS_PASSWORD=${{ secrets.VPS_PASSWORD }}
+      DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_PASSWORD=${{ secrets.DOCKERHUB_PASSWORD }}
 
     steps:
       # Checkout repository to GitHub runner
