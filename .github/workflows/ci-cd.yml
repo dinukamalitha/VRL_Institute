@@ -92,9 +92,9 @@ jobs:
             # Remove all unused containers, networks, images, and build cache
             docker system prune -af --volumes
             
-            # Pulling latest Docker images...
-            docker pull ${{ env.DOCKERHUB_USERNAME }}/vrl-frontend:latest
-            docker pull ${{ env.DOCKERHUB_USERNAME }}/vrl-backend:latest
+#             Pulling latest Docker images...
+#            docker pull ${{ env.DOCKERHUB_USERNAME }}/vrl-frontend:latest
+#            docker pull ${{ env.DOCKERHUB_USERNAME }}/vrl-backend:latest
             
             # Starting new containers
             docker compose up -d
