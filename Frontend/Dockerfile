@@ -39,6 +39,10 @@ RUN npm install
 COPY . .
 
 # *** THIS IS THE CRITICAL MISSING STEP ***
+# Accept a build-time argument
+ARG NEXT_PUBLIC_BACKEND_URL
+# Set it as an environment variable for the next command
+ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
 # Run the build script to create the .next directory
 RUN npm run build
 
