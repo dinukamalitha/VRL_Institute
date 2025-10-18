@@ -1,7 +1,7 @@
 # docker-compose.prod.yml
 services:
   backend:
-    image: ${{secrets.DOCKER_HUB_USERNAME}}/vrl-backend:latest
+    image: ${DOCKER_HUB_USERNAME}/vrl-backend:latest
     container_name: vrl-backend
     ports:
       - "5000:5000"
@@ -10,7 +10,7 @@ services:
     restart: always
 
   frontend:
-    image: ${{secrets.DOCKER_HUB_USERNAME}}/vrl-frontend:latest
+    image: ${DOCKER_HUB_USERNAME}/vrl-frontend:latest
     container_name: vrl-frontend
     ports:
       - "3000:3000"
