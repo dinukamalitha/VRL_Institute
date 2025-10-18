@@ -9,20 +9,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    env:
-      NODE_ENV: ${{ secrets.NODE_ENV }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      MONGO_URI: ${{ secrets.MONGO_URI }}
-      PORT: ${{secrets.PORT}}
-      NEXT_PUBLIC_BACKEND_URL: ${{secrets.NEXT_PUBLIC_BACKEND_URL}}
-      NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ${{secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}}
-      NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: ${{secrets.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}}
-      VPS_IP: ${{ secrets.VPS_IP }}
-      VPS_USERNAME: ${{ secrets.VPS_USERNAME }}
-      VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
-      DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-      DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-
     steps:
       # Checkout repository to GitHub runner
       - name: Checkout code
@@ -36,30 +22,30 @@ jobs:
       - name: Docker Hub Login
         uses: docker/login-action@v2
         with:
-          username: ${{ env.DOCKER_HUB_USERNAME }}
-          password: ${{ env.DOCKER_HUB_PASSWORD }}
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
       # Build & push frontend docker image to dockerhub
       - name: Build Frontend Docker Image
         working-directory: ./Frontend
         run: |
-          docker build -t ${{ env.DOCKER_HUB_USERNAME }}/vrl-frontend:latest .
-          docker push ${{ env.DOCKER_HUB_USERNAME }}/vrl-frontend:latest
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-frontend:latest .
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-frontend:latest
 
       # Build & push backend docker image to dockerhub
       - name: Build Backend Docker Image
         working-directory: ./Backend
         run: |
-          docker build -t ${{ env.DOCKER_HUB_USERNAME }}/vrl-backend:latest .
-          docker push ${{ env.DOCKER_HUB_USERNAME }}/vrl-backend:latest
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-backend:latest .
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-backend:latest
 
       # Deploy to remote server
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v0.1.7
         with:
-          host: ${{ env.VPS_IP }}
-          username: ${{ env.VPS_USERNAME }}
-          password: ${{ env.VPS_PASSWORD }}
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USERNAME }}
+          password: ${{ secrets.VPS_PASSWORD }}
           port: 22
           script: |
             APP_DIR="$HOME/myapp"
@@ -77,13 +63,13 @@ jobs:
 
             echo "Creating .env file..."
             cat <<EOF > .env
-            NODE_ENV=${{ env.NODE_ENV }}
-            JWT_SECRET=${{ env.JWT_SECRET }}
-            MONGO_URI=${{ env.MONGO_URI }}
-            PORT=${{ env.PORT }}
-            NEXT_PUBLIC_BACKEND_URL=${{ env.NEXT_PUBLIC_BACKEND_URL }}
-            NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${{ env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
-            NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=${{ env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET }}
+            NODE_ENV=${{ secrets.NODE_ENV }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            MONGO_URI=${{ secrets.MONGO_URI }}
+            PORT=${{ secrets.PORT }}
+            NEXT_PUBLIC_BACKEND_URL=${{ secrets.NEXT_PUBLIC_BACKEND_URL }}
+            NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${{ secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
+            NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=${{ secrets.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET }}
             EOF
       
             # Stop containers before cleanup
@@ -93,8 +79,8 @@ jobs:
             docker system prune -af --volumes
             
              Pulling latest Docker images...
-            docker pull ${{ env.DOCKER_HUB_USERNAME }}/vrl-frontend:latest
-            docker pull ${{ env.DOCKER_HUB_USERNAME }}/vrl-backend:latest
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-frontend:latest
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-backend:latest
             
             # Starting new containers
             docker compose up -d --build
