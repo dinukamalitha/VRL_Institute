@@ -58,7 +58,7 @@ jobs:
               cd "$APP_DIR"
             fi
             echo "Creating .env file..."
-            cat <<EOF > .env
+            cat <<EOF > .env.frontend
             DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}
             NEXT_PUBLIC_BACKEND_URL=${{ secrets.NEXT_PUBLIC_BACKEND_URL }}
             NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${{ secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
