@@ -5,6 +5,20 @@ on:
     branches:
       - main
 
+env:
+  NODE_ENV=${{ secrets.NODE_ENV }}
+  JWT_SECRET=${{ secrets.JWT_SECRET }}
+  MONGO_URI=${{ secrets.MONGO_URI }}
+  PORT=${{secrets.PORT}}
+  NEXT_PUBLIC_BACKEND_URL=${{secrets.NEXT_PUBLIC_BACKEND_URL}}
+  NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${{secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}}
+  NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=${{secrets.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}}
+  VPS_IP=${{ secrets.VPS_IP }}
+  VPS_USERNAME=${{ secrets.VPS_USERNAME }}
+  VPS_PASSWORD=${{ secrets.VPS_PASSWORD }}
+  DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+  DOCKERHUB_PASSWORD=${{ secrets.DOCKERHUB_PASSWORD }}
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -18,60 +32,69 @@ jobs:
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
 
-#      # Login to Docker Hub
-#      - name: Docker Hub Login
-#        uses: docker/login-action@v2
-#        with:
-#          username: ${{ secrets.DOCKERHUB_USERNAME }}
-#          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      # Login to Docker Hub
+      - name: Docker Hub Login
+        uses: docker/login-action@v2
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_PASSWORD }}
 
-#      # Build and push Docker image
-#      - name: Build & Push Docker Image
-#        run: |
-#          IMAGE_NAME=myapp
-#          docker build -t $IMAGE_NAME:latest .
-#          docker tag $IMAGE_NAME:latest ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:latest
-#          docker push ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:latest
+      # Build & push frontend docker image to dockerhub
+      - name: Build Frontend Docker Image
+        working-directory: ./Frontend
+        run: |
+          docker build -t ${{ env.DOCKERHUB_USERNAME }}/vrl-frontend:latest .
+          docker push ${{ env.DOCKERHUB_USERNAME }}/vrl-frontend:latest
+
+      # Build & push backend docker image to dockerhub
+      - name: Build Backend Docker Image
+        working-directory: ./Backend
+        run: |
+          docker build -t ${{ env.DOCKERHUB_USERNAME }}/vrl-backend:latest .
+          docker push ${{ env.DOCKERHUB_USERNAME }}/vrl-backend:latest
 
       # Deploy to remote server
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v0.1.7
         with:
-          host: ${{ secrets.VPS_IP }}
-          username: ${{ secrets.VPS_USERNAME }}
-          password: ${{ secrets.VPS_PASSWORD }}
+          host: ${{ env.VPS_IP }}
+          username: ${{ env.VPS_USERNAME }}
+          password: ${{ env.VPS_PASSWORD }}
           port: 22
           script: |
-            echo "Cloning / ensuring app dir..."
             APP_DIR="$HOME/myapp"
             REPO_URL="https://github.com/dinukamalitha/VRL_Institute.git"
-            
-            # Case 1: ~/myapp exists and is the repo → update it
-            if [ -d "$APP_DIR/.git" ]; then
-            cd "$APP_DIR"
-            git fetch --all
-            git reset --hard origin/main
-            
-            # Case 2: ~/myapp exists but is NOT a git repo → recreate it cleanly
-            elif [ -d "$APP_DIR" ]; then
-            rm -rf "$APP_DIR"
-            git clone "$REPO_URL" "$APP_DIR"
-            cd "$APP_DIR"
-            
-            # Case 3: ~/myapp does not exist → create by cloning into it
-            else
-            git clone "$REPO_URL" "$APP_DIR"
-            cd "$APP_DIR"
-            fi
-  
-            echo "Writing environment variables..."
-            cat <<EOF > .env
-            NODE_ENV=${{ secrets.NODE_ENV }}
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
-            MONGO_URI=${{ secrets.MONGO_URI }}
-            PORT=${{secrets.PORT}}
-            EOF
 
-            echo "Bringing up Docker Compose..."
-            docker compose down
-            docker compose up -d --build
+            if [ -d "$APP_DIR/.git" ]; then
+              cd "$APP_DIR"
+              git fetch --all
+              git reset --hard origin/main
+            else
+              rm -rf "$APP_DIR"
+              git clone "$REPO_URL" "$APP_DIR"
+              cd "$APP_DIR"
+            fi
+
+            echo "Creating .env file..."
+            cat <<EOF > .env
+            NODE_ENV=${{ env.NODE_ENV }}
+            JWT_SECRET=${{ env.JWT_SECRET }}
+            MONGO_URI=${{ env.MONGO_URI }}
+            PORT=${{ env.PORT }}
+            NEXT_PUBLIC_BACKEND_URL=${{ env.NEXT_PUBLIC_BACKEND_URL }}
+            NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${{ env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
+            NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=${{ env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET }}
+            EOF
+      
+            # Stop containers before cleanup
+            docker compose down || true
+            
+            # Remove all unused containers, networks, images, and build cache
+            docker system prune -af --volumes
+            
+            # Pulling latest Docker images...
+            docker pull ${{ env.DOCKERHUB_USERNAME }}/vrl-frontend:latest
+            docker pull ${{ env.DOCKERHUB_USERNAME }}/vrl-backend:latest
+            
+            # Starting new containers
+            docker compose up -d
