@@ -60,7 +60,6 @@ jobs:
             echo "Creating .env file..."
             cat <<EOF > .env
             DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}
-            NODE_ENV=${{ secrets.NODE_ENV }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             MONGO_URI=${{ secrets.MONGO_URI }}
             PORT=${{ secrets.PORT }}
