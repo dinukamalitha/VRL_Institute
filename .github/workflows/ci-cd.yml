@@ -42,19 +42,28 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           port: 22
           script: |
-            echo "Pruning existing Docker images..."
-            docker system prune -af
-
-            echo "Cloning repo..."
-            if [ -d ~/myapp ]; then
-              cd ~/myapp
-              git reset --hard
-              git pull
+            echo "Cloning / ensuring app dir..."
+            APP_DIR="$HOME/myapp"
+            REPO_URL="https://github.com/dinukamalitha/VRL_Institute.git"
+            
+            # Case 1: ~/myapp exists and is the repo → update it
+            if [ -d "$APP_DIR/.git" ]; then
+            cd "$APP_DIR"
+            git fetch --all
+            git reset --hard origin/main
+            
+            # Case 2: ~/myapp exists but is NOT a git repo → recreate it cleanly
+            elif [ -d "$APP_DIR" ]; then
+            rm -rf "$APP_DIR"
+            git clone "$REPO_URL" "$APP_DIR"
+            cd "$APP_DIR"
+            
+            # Case 3: ~/myapp does not exist → create by cloning into it
             else
-              git clone https://github.com/dinukamalitha/VRL_Institute.git
-              cd ~/myapp
+            git clone "$REPO_URL" "$APP_DIR"
+            cd "$APP_DIR"
             fi
-
+  
             echo "Writing environment variables..."
             cat <<EOF > .env
             NODE_ENV=${{ secrets.NODE_ENV }}
