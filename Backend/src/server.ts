@@ -2,6 +2,8 @@ import app from "./app";
 import { ENV } from "./config/env";
 import { logger } from "./utils/logger";
 
-app.listen(ENV.PORT, "0.0.0.0", () => {
-    logger.info(`Server running on port ${ENV.PORT} in ${ENV.NODE_ENV} mode`);
+const port = Number(ENV.PORT) || 5000;
+
+app.listen(port, "0.0.0.0", () => {
+    logger.info(`✅ Server running on http://0.0.0.0:${port} in ${ENV.NODE_ENV} mode`);
 });
