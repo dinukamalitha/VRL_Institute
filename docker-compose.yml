@@ -6,13 +6,13 @@ services:
     container_name: vrl-backend
     ports:
       - "5000:5000"
-#    env_file:
-#      - ./Backend/.env
     env_file:
-      - .env
+      - ./Backend/.env
     volumes:
       - ./Backend:/usr/src/app
       - /usr/src/app/node_modules
+    networks:
+      - internal
     command: npm start
 
   frontend:
@@ -23,12 +23,12 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - .env
-#    env_file:
-#      - ./Frontend/.env
+      - ./Frontend/.env
     volumes:
       - ./Frontend:/app
       - /app/node_modules
+    networks:
+      - internal
     command: npm run dev
     depends_on:
       - backend
