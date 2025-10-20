@@ -33,12 +33,14 @@ jobs:
             --build-arg NEXT_PUBLIC_BACKEND_URL=${{ secrets.NEXT_PUBLIC_BACKEND_URL }} \
             -t ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-frontend:latest .
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-frontend:latest
+
       # Build & push backend docker image to dockerhub
       - name: Build Backend Docker Image
         working-directory: ./Backend
         run: |
           docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-backend:latest .
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-backend:latest
+
       # Deploy to remote server
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v0.1.7
@@ -76,7 +78,7 @@ jobs:
             EOF
             
             # Stop any running containers from the previous version
-            docker compose -f docker-compose.prod.yml down
+            docker compose -f docker-compose.yml down
             
             # Clean up old images and volumes to save space
             docker system prune -af --volumes
@@ -88,4 +90,4 @@ jobs:
             
             # Start the new containers using the production compose file
             echo "Starting new containers..."
-            docker compose -f docker-compose.prod.yml up -d
+            docker compose -f docker-compose.yml up -d
