@@ -1,45 +1,34 @@
-# ---- Stage 1: The Builder ----
-# This stage installs all dependencies (including devDependencies)
-# and builds the Next.js application.
-FROM node:20-alpine AS builder
-
-# Set the working directory
-WORKDIR /app
-
-# Copy package.json and lock files
-COPY package*.json ./
-
-# Install all dependencies needed for the build
-RUN npm install
-
-# Copy the rest of the source code
-COPY . .
-
-# *** THIS IS THE CRITICAL MISSING STEP ***
-# Accept a build-time argument
-ARG NEXT_PUBLIC_BACKEND_URL
-# Set it as an environment variable for the next command
-ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
-# Run the build script to create the .next directory
-RUN npm run build
-
-
-# ---- Stage 2: The Production Image ----
-# This stage starts from a fresh image and copies only the
-# built application and production dependencies.
 FROM node:20-alpine
 
+# Set working directory
 WORKDIR /app
 
-# Copy only the necessary files from the 'builder' stage
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/.next ./.next
+# Copy package files
+COPY package*.json ./
 
-# Install ONLY the production dependencies
-RUN npm install --production
+# Install dependencies (including devDependencies for the build)
+RUN npm install
 
-# Expose the port the application will run on
+# Copy the entire source code
+COPY . .
+
+# Accept a build-time argument and set as env variable
+ARG NEXT_PUBLIC_BACKEND_URL
+ARG NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+ARG NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+
+ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
+ENV NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=$NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+ENV NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=$NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+
+# Build the Next.js app
+RUN npm run build
+
+# Remove devDependencies to reduce image size (optional optimization)
+RUN npm prune --production
+
+# Expose app port
 EXPOSE 3000
 
-# The command to start the optimized production server
+# Start the production server
 CMD ["npm", "start"]
