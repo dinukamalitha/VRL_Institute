@@ -78,7 +78,7 @@ jobs:
             MONGO_URI=${{ secrets.MONGO_URI }}
             PORT=${{ secrets.PORT }}
             EOF
-            
+          
             # Stop any running containers from the previous version
             docker compose -f docker-compose.yml down
             
