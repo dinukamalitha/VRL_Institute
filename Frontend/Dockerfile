@@ -27,8 +27,11 @@ RUN npm run build
 # Remove devDependencies to reduce image size (optional optimization)
 RUN npm prune --production
 
+# Create logs directory with correct permissions
+RUN mkdir -p log/frontend && chmod 755 log
+
 # Expose app port
 EXPOSE 3000
 
-# Start the production server
-CMD ["npm", "start"]
+# Start the production server and log output to both console & file
+CMD sh -c "npm run start | tee -a log/frontend/app.log"
