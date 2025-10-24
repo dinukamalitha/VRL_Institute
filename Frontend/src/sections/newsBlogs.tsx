@@ -100,7 +100,7 @@ export default function NewsBlogSection({ onDataFetched }: NewsBlogSectionProps)
         </Grid>
 
         {/* Show More */}
-        {newsItems.length > 5 && (
+        {newsItems.length > 6 && (
           <Box sx={{ textAlign: 'center' }}>
             <Button
               variant="outlined"

@@ -13,15 +13,11 @@ import {
   Pagination,
   Breadcrumbs,
   Link,
-  IconButton,
   Divider,
-  Avatar
 } from '@mui/material'
 import { useRouter, useSearchParams } from 'next/navigation'
 import SearchIcon from '@mui/icons-material/Search'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import ShareIcon from '@mui/icons-material/Share'
-import BookmarkIcon from '@mui/icons-material/Bookmark'
 import FacebookIcon from '@mui/icons-material/Facebook'
 import TwitterIcon from '@mui/icons-material/Twitter'
 import LinkedInIcon from '@mui/icons-material/LinkedIn'
@@ -194,6 +190,16 @@ export default function NewsBlogsPage() {
       </Box>
     )
   }
+
+  const currentUrl =
+      typeof window !== 'undefined'
+          ? window.location.href
+          : `${process.env.NEXT_PUBLIC_BASE_URL}/news-blogs`
+
+  const shareUrl = encodeURIComponent(currentUrl)
+  const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`
+  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`
+  const twitterUrl = `https://twitter.com/intent/tweet?url=${shareUrl}&text=${encodeURIComponent(selectedArticle?.title || '')}`
 
   return (
     <>
@@ -409,30 +415,12 @@ export default function NewsBlogsPage() {
                         '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' }
                       }}
                     >
-                      {"Back to Writer's Hub"}
+                      {"Back"}
                     </Button>
                   </Box>
 
                   {/* Article Header */}
                   <Box sx={{ mb: 4 }}>
-                    <Breadcrumbs sx={{ mb: 2 }}>
-                      <Link
-                        color="inherit"
-                        href="/"
-                        sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
-                      >
-                        Home
-                      </Link>
-                      <Link
-                        color="inherit"
-                        onClick={handleBackToList}
-                        sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
-                      >
-                        {"Writer's Hub"}
-                      </Link>
-                      <Typography color="text.primary">{selectedArticle?.category}</Typography>
-                    </Breadcrumbs>
-
                     <Box sx={{ mb: 3 }}>
                       <Chip
                         label={selectedArticle?.category}
@@ -446,10 +434,18 @@ export default function NewsBlogsPage() {
                       <Typography variant="h3" sx={{ fontWeight: 'bold', color: '#333', mb: 2, lineHeight: 1.2 }}>
                         {selectedArticle?.title}
                       </Typography>
+                      <Typography variant="h5" sx={{ fontWeight: 'semibold', color: '#333', mb: 2, lineHeight: 1.2 }}>
+                        {`By ${
+                            Array.isArray(selectedArticle?.authors)
+                                ? selectedArticle.authors.map((a: { name: string }) => a.name).join(', ')
+                                : selectedArticle?.authors?.name || selectedArticle?.author || ''
+                        }`}
+                      </Typography>
+
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-                        <Avatar sx={{ width: 40, height: 40, bgcolor: 'primary.main' }}>
-                          {selectedArticle?.author?.charAt(0) || 'V'}
-                        </Avatar>
+                        {/*<Avatar sx={{ width: 40, height: 40, bgColor: 'primary.main' }}>*/}
+                        {/*  {selectedArticle?.author?.charAt(0) || 'V'}*/}
+                        {/*</Avatar>*/}
                         <Box>
                           <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
                             {selectedArticle?.author}
@@ -458,16 +454,17 @@ export default function NewsBlogsPage() {
                             {selectedArticle?.date} • {selectedArticle?.time}
                           </Typography>
                         </Box>
-                        <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
-                          <IconButton sx={{ color: 'text.secondary' }}>
-                            <ShareIcon />
-                          </IconButton>
-                          <IconButton sx={{ color: 'text.secondary' }}>
-                            <BookmarkIcon />
-                          </IconButton>
-                        </Box>
+                        {/*<Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>*/}
+                        {/*  <IconButton sx={{ color: 'text.secondary' }}>*/}
+                        {/*    <ShareIcon />*/}
+                        {/*  </IconButton>*/}
+                        {/*  <IconButton sx={{ color: 'text.secondary' }}>*/}
+                        {/*    <BookmarkIcon />*/}
+                        {/*  </IconButton>*/}
+                        {/*</Box>*/}
                       </Box>
                     </Box>
+                    <Divider sx={{ my: 4 }} />
                   </Box>
 
                   {/* Article Content */}
@@ -553,16 +550,25 @@ export default function NewsBlogsPage() {
                       <Button variant="outlined" size="small" startIcon={<TwitterIcon />}>
                         Share on Twitter
                       </Button>
-                      <Button variant="outlined" size="small" startIcon={<LinkedInIcon />}>
+                      <Button
+                          variant="outlined"
+                          size="small"
+                          startIcon={<LinkedInIcon />}
+                          onClick={() => {
+                            const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`
+                            window.open(linkedInUrl, '_blank', 'noopener,noreferrer')
+                          }}
+                      >
                         Share on LinkedIn
                       </Button>
+
                     </Box>
                   </Box>
                 </Container>
               </Box>
             )}
           </Box>
-          
+
           <EventsSidebar/>
         </Box>
       </main>
