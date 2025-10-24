@@ -198,8 +198,8 @@ export default function NewsBlogsPage() {
 
   const shareUrl = encodeURIComponent(currentUrl)
   const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`
-  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`
-  const twitterUrl = `https://twitter.com/intent/tweet?url=${shareUrl}&text=${encodeURIComponent(selectedArticle?.title || '')}`
+  // const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`
+  // const twitterUrl = `https://twitter.com/intent/tweet?url=${shareUrl}&text=${encodeURIComponent(selectedArticle?.title || '')}`
 
   return (
     <>
@@ -555,7 +555,6 @@ export default function NewsBlogsPage() {
                           size="small"
                           startIcon={<LinkedInIcon />}
                           onClick={() => {
-                            const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`
                             window.open(linkedInUrl, '_blank', 'noopener,noreferrer')
                           }}
                       >
