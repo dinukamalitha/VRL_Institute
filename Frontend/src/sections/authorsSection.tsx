@@ -43,7 +43,7 @@ export default function AuthorsSection({
   return (
     <Container maxWidth="md" sx={{ py: 1 }}>
       <Typography variant="h5" fontWeight="bold" gutterBottom>
-        {isEvent ? "Resource Person/s:" : "Authored by:"}
+        {isEvent ? "Organized By:" : "Authored by:"}
       </Typography>
       {authors.map((author) => (
         <AuthorCard key={author._id || author.name} author={author} />

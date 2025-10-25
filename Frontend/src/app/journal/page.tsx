@@ -26,7 +26,7 @@ export default function JournalPage() {
         <Box sx={{ display: 'flex', minHeight: '100vh' }}>
 
           {/* Main Journal Content */}
-          <Box sx={{ flex: 1, py: 8, px: 3, bgcolor: '#fff' }}>
+          <Box sx={{ flex: 1, py: 8, px: 3, bgColor: '#fff' }}>
             <Container maxWidth="md">
               <Typography
                 variant="h3"
@@ -43,13 +43,12 @@ export default function JournalPage() {
               </Typography>
 
               {/* Journal Image */}
-              <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+              <Box sx={{ position: 'relative', width: '100%', height: 600, mb: 3 }}>
                 <Image
-                  src={journalImage}
-                  alt="VRL Journal Cover"
-                  width={400}
-                  height={600}
-                  style={{ borderRadius: '12px' }}
+                    src={journalImage}
+                    alt="VRL Journal Cover"
+                    fill
+                    style={{ objectFit: 'cover', borderRadius: '12px' }}
                 />
               </Box>
 

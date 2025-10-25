@@ -19,15 +19,15 @@ const JournalSection = () => {
         </Typography>
 
         {/* Journal Image */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+        <Box sx={{ position: 'relative', width: '100%', height: 600, mb: 3 }}>
           <Image
-            src={journalImage} 
-            alt="VRL Journal Cover"
-            width={400}
-            height={600}
-            style={{ borderRadius: '12px' }}
+              src={journalImage}
+              alt="VRL Journal Cover"
+              fill
+              style={{ objectFit: 'cover', borderRadius: '12px' }}
           />
         </Box>
+
 
         <Typography align="center" color="text.secondary" paragraph>
           Explore - Learn - Transform. <br />

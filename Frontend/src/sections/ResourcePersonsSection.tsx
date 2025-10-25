@@ -3,6 +3,7 @@ import ResourcePersonCard from './ResourcePersonCard';
 import { getAllResourcePersons } from '@/api/resourcePersons'
 import { useEffect, useState } from 'react'
 import { ResourcePerson } from '@/types/components'
+import SupportStaffCard from "@/components/SupportStaffCard";
 
 export default function ResourcePersonsSection() {
   const [resourcePersons, setResourcePersons] = useState<ResourcePerson[]>([]);
@@ -19,6 +20,21 @@ export default function ResourcePersonsSection() {
 
   const firstRow = resourcePersons.slice(0, 3);
   const secondRow = resourcePersons.slice(3);
+
+    const staffMembers = [
+        {
+            name: 'Jane Doe',
+            role: 'Program Coordinator',
+            image: "staff1Img",
+            description: 'Jane coordinates all VRL events and assists researchers with publication processes.',
+        },
+        {
+            name: 'John Smith',
+            role: 'Research Assistant',
+            image: "staff2Img",
+            description: 'John supports data collection, statistical analysis, and manuscript preparation.',
+        },
+    ];
 
   return (
     <Container id="resource-persons" maxWidth="lg" sx={{ py: 8 }}>
@@ -49,6 +65,23 @@ export default function ResourcePersonsSection() {
           ))}
         </Grid>
       )}
+
+        <Typography variant="h4" sx={{ fontWeight: 'bold', textAlign: 'center', mt: 8, mb:4 }}>
+            Admin & Tech Support
+        </Typography>
+
+        <Grid container spacing={3}>
+            {staffMembers.map((staff, index) => (
+                <Grid item xs={12} sm={6} key={index}>
+                    <SupportStaffCard
+                        name={staff.name}
+                        role={staff.role}
+                        image={staff.image}
+                        description={staff.description}
+                    />
+                </Grid>
+            ))}
+        </Grid>
     </Container>
   );
 }

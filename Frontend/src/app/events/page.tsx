@@ -31,6 +31,8 @@ import { useHydration } from '@/hooks/useHydration'
 import { getAllEvents } from '@/api/events'
 import EventsSidebar from '@/sections/events-sidebar'
 import NewsSidebar from '@/sections/news-sidebar'
+import {NavLink} from "@/types/navbar";
+import EventView from "@/sections/eventView";
 
 const categories = [
   'All',
@@ -116,11 +118,11 @@ export default function EventsPage() {
     }
   }, [searchParams, mounted, allEvents])
 
-  const navLinks = [
+  const navLinks: NavLink[] = [
     { label: 'Home', href: '/' },
-    { label: 'Events', href: '/events' },
     { label: 'Services', href: '/#services' },
     { label: "Writer's Hub", href: '/news-blogs' },
+    { label: 'Events & Programs', href: '/events' },
     { label: 'Publications', href: '/#publications' },
     { label: 'VRL Journal', href: '/#journals' },
     { label: 'Contact', href: '/#contact' },
@@ -428,244 +430,7 @@ export default function EventsPage() {
                 </Box>
               </>
             ) : (
-              /* Full Event View */
-              <Box sx={{ py: 4, px: 4 }}>
-                <Container maxWidth="lg">
-                  {/* Back Button */}
-                  <Box sx={{ mb: 4 }}>
-                    <Button
-                      startIcon={<ArrowBackIcon />}
-                      onClick={handleBackToList}
-                      sx={{
-                        color: 'text.secondary',
-                        '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' },
-                      }}
-                    >
-                      Back to Events
-                    </Button>
-                  </Box>
-
-                  {/* Breadcrumbs */}
-                  <Breadcrumbs sx={{ mb: 3 }}>
-                    <Link
-                      color="inherit"
-                      href="/"
-                      sx={{
-                        cursor: 'pointer',
-                        '&:hover': { textDecoration: 'underline' },
-                      }}
-                    >
-                      Home
-                    </Link>
-                    <Link
-                      color="inherit"
-                      onClick={handleBackToList}
-                      sx={{
-                        cursor: 'pointer',
-                        '&:hover': { textDecoration: 'underline' },
-                      }}
-                    >
-                      Events
-                    </Link>
-                    <Typography color="text.primary">
-                      {selectedEvent?.category}
-                    </Typography>
-                  </Breadcrumbs>
-
-                  {/* Event Header */}
-                  <Box sx={{ mb: 4 }}>
-                    <Typography
-                      variant="h4"
-                      sx={{
-                        fontWeight: 'bold',
-                        color: '#333',
-                        mb: 2,
-                        lineHeight: 1.2,
-                      }}
-                    >
-                      {selectedEvent?.title}
-                    </Typography>
-
-                    <Divider sx={{ my: 4 }} />
-
-                    {/* Metadata */}
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 1,
-                        mb: 3,
-                      }}
-                    >
-                      {selectedEvent?.date && (
-                        <Box sx={{ display: 'flex', gap: 1 }}>
-                          <Typography color="text.primary" fontWeight="bold">
-                            Date:
-                          </Typography>
-                          <Typography variant="body1" color="text.secondary">
-                            📅 {selectedEvent.date}
-                          </Typography>
-                        </Box>
-                      )}
-
-                      {selectedEvent?.time && (
-                        <Box sx={{ display: 'flex', gap: 1 }}>
-                          <Typography color="text.primary" fontWeight="bold">
-                            Time:
-                          </Typography>
-                          <Typography variant="body1" color="text.secondary">
-                            ⏰ {selectedEvent.time}
-                          </Typography>
-                        </Box>
-                      )}
-
-                      {selectedEvent?.location && (
-                        <Box sx={{ display: 'flex', gap: 1 }}>
-                          <Typography color="text.primary" fontWeight="bold">
-                            Mode/Venue:
-                          </Typography>
-                          <Typography variant="body1" color="text.secondary">
-                            📍 {selectedEvent.location}
-                          </Typography>
-                        </Box>
-                      )}
-
-                      {selectedEvent?.medium && (
-                        <Box sx={{ display: 'flex', gap: 1 }}>
-                          <Typography color="text.primary" fontWeight="bold">
-                            Medium of Delivery:
-                          </Typography>
-                          <Typography variant="body1" color="text.secondary">
-                            🎤 {selectedEvent.medium}
-                          </Typography>
-                        </Box>
-                      )}
-                    </Box>
-
-                    {/*/!* Share Buttons *!/*/}
-                    {/*<Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>*/}
-                    {/*  <IconButton sx={{ color: 'text.secondary' }}><ShareIcon /></IconButton>*/}
-                    {/*  <IconButton sx={{ color: 'text.secondary' }}><BookmarkIcon /></IconButton>*/}
-                    {/*</Box>*/}
-                  </Box>
-
-                  {/* Event Description */}
-                  <Box
-                    sx={{ mb: 4 }}
-                    dangerouslySetInnerHTML={{
-                      __html: selectedEvent?.description || '',
-                    }}
-                  />
-
-                  {/* Authors Section (Organizers) */}
-                  <AuthorsSection
-                    authors={selectedEvent?.authors || []}
-                    isEvent={true}
-                  />
-
-                  {/* Resource Persons / Speakers */}
-                  {selectedEvent?.speakers?.length > 0 && (
-                    <Box sx={{ mb: 4 }}>
-                      <Typography
-                        variant="h5"
-                        sx={{ fontWeight: 'bold', mb: 2 }}
-                      >
-                        Resource Persons
-                      </Typography>
-                      <Grid container spacing={3}>
-                        {selectedEvent.speakers.map(
-                          (speaker: any, idx: number) => (
-                            <Grid item xs={12} sm={6} md={4} key={idx}>
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  flexDirection: 'column',
-                                  alignItems: 'center',
-                                  textAlign: 'center',
-                                  p: 2,
-                                  border: '1px solid #eee',
-                                  borderRadius: 2,
-                                }}
-                              >
-                                <Avatar
-                                  src={speaker.photo}
-                                  alt={speaker.name}
-                                  sx={{ width: 80, height: 80, mb: 2 }}
-                                />
-                                <Typography
-                                  variant="subtitle1"
-                                  sx={{ fontWeight: 'bold', mb: 1 }}
-                                >
-                                  {speaker.name}
-                                </Typography>
-                                <Typography
-                                  variant="body2"
-                                  color="text.secondary"
-                                >
-                                  {speaker.description}
-                                </Typography>
-                              </Box>
-                            </Grid>
-                          )
-                        )}
-                      </Grid>
-                    </Box>
-                  )}
-
-                  {/* Register Button */}
-                  <Box
-                    sx={{ mb: 4, display: 'flex', justifyContent: 'center' }}
-                  >
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      size="large"
-                      href={selectedEvent.registrationLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      sx={{ borderRadius: 2, textTransform: 'none' }}
-                    >
-                      Register Now
-                    </Button>
-                  </Box>
-
-                  <Divider sx={{ my: 1 }} />
-
-                  {/* Share Section */}
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'flex-end',
-                      alignItems: 'center',
-                      mb: 4,
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', gap: 1 }}>
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        startIcon={<FacebookIcon />}
-                      >
-                        Facebook
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        startIcon={<TwitterIcon />}
-                      >
-                        Twitter
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        startIcon={<LinkedInIcon />}
-                      >
-                        LinkedIn
-                      </Button>
-                    </Box>
-                  </Box>
-                </Container>
-              </Box>
+                <EventView selectedEvent={selectedEvent} handleBackToList={handleBackToList}/>
             )}
           </Box>
 

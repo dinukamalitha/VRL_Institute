@@ -84,7 +84,7 @@ export default function NewsBlogSection({ onDataFetched }: NewsBlogSectionProps)
 
         {/* News grid */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          {newsItems.slice(0, 5).map((news, index) => (
+          {newsItems.slice(0, 6).map((news, index) => (
             <Grid item xs={12} sm={6} md={4} key={index}>
               <Box
                 sx={{ cursor: 'pointer' }}
