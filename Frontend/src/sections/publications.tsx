@@ -2,8 +2,22 @@
 
 import {Box, Container, Grid, Typography} from '@mui/material';
 import PublicationsCard from "@/components/PublicationsCard";
+import {useEffect, useState} from "react";
+import {Publication} from "@/types/sections";
+import {getAllPublications} from "@/api/publications";
 
 export default function PublicationsSection() {
+  const [publications, setPublications] = useState<Publication[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await getAllPublications();
+      console.log("API response:", res);
+      setPublications(Array.isArray(res) ? res : []);
+    };
+    fetchData();
+  }, []);
+
   const publicationData = [
     {
       category: 'Books',

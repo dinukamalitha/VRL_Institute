@@ -4,9 +4,9 @@ import Staff from "../models/staff";
 // Create a new Staff Member
 export const createStaffMember = async (req: Request, res: Response) => {
     try {
-        const { name, photo, description } = req.body;
+        const { name, photo, role, description } = req.body;
 
-        const newPerson = new Staff({ name, photo, description });
+        const newPerson = new Staff({ name, photo, role, description });
         const savedPerson = await newPerson.save();
 
         res.status(201).json({

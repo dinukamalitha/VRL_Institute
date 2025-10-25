@@ -3,6 +3,7 @@ import mongoose, { Schema } from "mongoose";
 export interface IStaff {
     name?: string;
     photo?: string;
+    role: string;
     description?: string;
 }
 
@@ -22,6 +23,7 @@ export const StaffSchema: Schema = new Schema(
                 message: (props: any) => `Invalid author photo URL: ${props.value}`,
             },
         },
+        role: { type: String, required: true },
         description: { type: String, required: false },
     },
     { timestamps: true }

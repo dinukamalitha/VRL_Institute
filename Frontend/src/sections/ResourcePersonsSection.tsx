@@ -4,9 +4,12 @@ import { getAllResourcePersons } from '@/api/resourcePersons'
 import { useEffect, useState } from 'react'
 import { ResourcePerson } from '@/types/components'
 import SupportStaffCard from "@/components/SupportStaffCard";
+import {getAllStaffMembers} from "@/api/staff";
+import {StaffMember} from "@/types/sections";
 
 export default function ResourcePersonsSection() {
   const [resourcePersons, setResourcePersons] = useState<ResourcePerson[]>([]);
+  const [supportStaff, setSupportStaff] = useState<StaffMember[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -16,6 +19,15 @@ export default function ResourcePersonsSection() {
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+      const fetchData = async () => {
+          const res = await getAllStaffMembers();
+          console.log("API response:", res);
+          setSupportStaff(Array.isArray(res) ? res : []);
+      };
+      fetchData();
+ }, []);
 
 
   const firstRow = resourcePersons.slice(0, 3);
@@ -71,13 +83,11 @@ export default function ResourcePersonsSection() {
         </Typography>
 
         <Grid container spacing={3}>
-            {staffMembers.map((staff, index) => (
+            {supportStaff.map((staff, index) => (
                 <Grid item xs={12} sm={6} key={index}>
                     <SupportStaffCard
-                        name={staff.name}
-                        role={staff.role}
-                        image={staff.image}
-                        description={staff.description}
+                        staff={staff}
+                        width={250}
                     />
                 </Grid>
             ))}
