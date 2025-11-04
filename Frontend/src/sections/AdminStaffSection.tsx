@@ -5,9 +5,6 @@ import {
     Container,
     Typography,
     Grid,
-    Card,
-    CardContent,
-    CardActions,
     Button,
     Dialog,
     DialogTitle,
@@ -176,7 +173,7 @@ export default function AdminStaffSection() {
                                 Delete
                             </Button>
 
-                            <SupportStaffCard staff={staff} height={250} width={500} />
+                            <SupportStaffCard staff={staff}  />
                         </Box>
                     </Grid>
                 ))}

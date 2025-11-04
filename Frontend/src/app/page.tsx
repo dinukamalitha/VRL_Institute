@@ -20,7 +20,7 @@ export default function HomePage() {
   const navLinks: NavLink[] = [
     { label: 'Home', href: '#hero' },
     { label: 'Services', href: '#services' },
-    { label: "Writer's Hub", href: '#newsblog' },
+    { label: "Writers' Hub", href: '#newsblog' },
     { label: 'Events & Programs', href: '#events' },
     { label: 'Publications', href: '#publications' },
     { label: 'VRL Journal', href: '#journals' },

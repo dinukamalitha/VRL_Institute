@@ -14,6 +14,7 @@ export default function PublicationsSection() {
       const res = await getAllPublications();
       console.log("API response:", res);
       setPublications(Array.isArray(res) ? res : []);
+      console.log(publications)
     };
     fetchData();
   }, []);
@@ -21,17 +22,17 @@ export default function PublicationsSection() {
   const publicationData = [
     {
       category: 'Books',
-      image: '/images/books.jpg',
+      image: '/images/books.png',
       count: 0,
     },
     {
       category: 'Monographs',
-      image: '/images/monographs.jpg',
+      image: '/images/monograph.jpg',
       count: 0,
     },
     {
       category: 'Dissertations',
-      image: '/images/dissertations.jpg',
+      image: '/images/dissertation.jpg',
       count: 0,
     },
     {

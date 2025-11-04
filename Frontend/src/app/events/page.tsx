@@ -12,21 +12,18 @@ import {
   Chip,
   Pagination,
   Breadcrumbs,
-  Link,
-  Divider,
-  Avatar,
+  Link
 } from '@mui/material'
 import { useRouter, useSearchParams } from 'next/navigation'
 import SearchIcon from '@mui/icons-material/Search'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import FacebookIcon from '@mui/icons-material/Facebook'
-import TwitterIcon from '@mui/icons-material/Twitter'
-import LinkedInIcon from '@mui/icons-material/LinkedIn'
+// import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+// import FacebookIcon from '@mui/icons-material/Facebook'
+// import TwitterIcon from '@mui/icons-material/Twitter'
+// import LinkedInIcon from '@mui/icons-material/LinkedIn'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import InfoCard from '@/components/InfoCard'
 import CategoryDropdown from '@/components/CategoryDropdown'
-import AuthorsSection from '@/sections/authorsSection'
 import { useHydration } from '@/hooks/useHydration'
 import { getAllEvents } from '@/api/events'
 import EventsSidebar from '@/sections/events-sidebar'
@@ -121,7 +118,7 @@ export default function EventsPage() {
   const navLinks: NavLink[] = [
     { label: 'Home', href: '/' },
     { label: 'Services', href: '/#services' },
-    { label: "Writer's Hub", href: '/news-blogs' },
+    { label: "Writers' Hub", href: '/news-blogs' },
     { label: 'Events & Programs', href: '/events' },
     { label: 'Publications', href: '/#publications' },
     { label: 'VRL Journal', href: '/#journals' },
@@ -195,13 +192,13 @@ export default function EventsPage() {
         <style jsx>{`
           @keyframes gradientShift {
             0% {
-              background-position: 0% 50%;
+              background-position: 0 50%;
             }
             50% {
               background-position: 100% 50%;
             }
             100% {
-              background-position: 0% 50%;
+              background-position: 0 50%;
             }
           }
         `}</style>
