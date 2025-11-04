@@ -2,22 +2,37 @@
 
 import {Box, Container, Grid, Typography} from '@mui/material';
 import PublicationsCard from "@/components/PublicationsCard";
+import {useEffect, useState} from "react";
+import {Publication} from "@/types/sections";
+import {getAllPublications} from "@/api/publications";
 
 export default function PublicationsSection() {
+  const [publications, setPublications] = useState<Publication[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await getAllPublications();
+      console.log("API response:", res);
+      setPublications(Array.isArray(res) ? res : []);
+      console.log(publications)
+    };
+    fetchData();
+  }, []);
+
   const publicationData = [
     {
       category: 'Books',
-      image: '/images/books.jpg',
+      image: '/images/books.png',
       count: 0,
     },
     {
       category: 'Monographs',
-      image: '/images/monographs.jpg',
+      image: '/images/monograph.jpg',
       count: 0,
     },
     {
       category: 'Dissertations',
-      image: '/images/dissertations.jpg',
+      image: '/images/dissertation.jpg',
       count: 0,
     },
     {

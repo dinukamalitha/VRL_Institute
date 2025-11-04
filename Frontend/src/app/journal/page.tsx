@@ -10,8 +10,8 @@ import Footer from '@/components/Footer'
 
 const navLinks: NavLink[] = [
   { label: 'Home', href: '/' },
-  { label: 'News Blog', href: '/news-blogs' },
   { label: 'Services', href: '/#services' },
+  { label: "Writers' Hub", href: '/news-blogs' },
   { label: 'Events & Programs', href: '#events' },
   { label: 'Publications', href: '/#publications' },
   { label: 'VRL Journal', href: '/#journals' },

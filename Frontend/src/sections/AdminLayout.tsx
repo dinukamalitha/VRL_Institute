@@ -31,7 +31,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   const menuItems = [
     { text: 'Dashboard', href: '/admin/dashboard' },
-    { text: "Writer's Hub", href: '/admin/news-blogs' },
+    { text: "Writers' Hub", href: '/admin/news-blogs' },
     { text: 'Events & Programs', href: '/admin/events' },
     { text: 'Publications', href: '/admin/publications' },
     { text: 'VRL Journal', href: '/admin/journal' },

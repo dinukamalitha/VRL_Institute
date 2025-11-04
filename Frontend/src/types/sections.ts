@@ -31,4 +31,23 @@ export interface ResourcePersonsSectionProps {
 export interface ResourcePersonCardProps {
   person: ResourcePerson
   showDetails?: boolean
-} 
+}
+
+export interface Publication{
+  title: string;
+  documentUrl: string;
+  category: string;
+  authors: string;
+  thumbnail?: string;
+  authorImage?: string;
+}
+
+export interface StaffMember {
+  _id: string;
+  name: string;
+  photo?: string;
+  role: string;
+  description?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}

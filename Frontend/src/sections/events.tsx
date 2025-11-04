@@ -61,7 +61,7 @@ export default function EventsSection({ onDataFetched }: EventsSectionProps) {
         </Box>
 
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          {(showAllEvents ? events : events.slice(0, 5)).map((event, index) => (
+          {(showAllEvents ? events : events.slice(0, 6)).map((event, index) => (
             <Grid item xs={12} sm={6} md={4} key={event.id || index}>
               <Box
                 sx={{ cursor: 'pointer' }}
@@ -80,9 +80,15 @@ export default function EventsSection({ onDataFetched }: EventsSectionProps) {
           ))}
         </Grid>
 
-        {events.length > 5 && !showAllEvents && (
+        {events.length > 6 && !showAllEvents && (
           <Box sx={{ textAlign: 'center' }}>
-            <Button onClick={() => setShowAllEvents(true)}>Show More Events</Button>
+              <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => setShowAllEvents(true)}
+              >
+                Show More News
+              </Button>
           </Box>
         )}
       </Container>

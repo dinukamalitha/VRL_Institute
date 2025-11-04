@@ -53,7 +53,7 @@ export default function NewsBlogSection({ onDataFetched }: NewsBlogSectionProps)
       <Container maxWidth="lg">
         <Box sx={{ textAlign: 'center', mb: 6 }}>
           <Typography variant="h3" gutterBottom sx={{ fontWeight: 'bold', color: '#333' }}>
-            Writer&#39;s Hub
+              Writers' Hub
           </Typography>
 
           <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 700, mx: 'auto', mb: 2 }}>

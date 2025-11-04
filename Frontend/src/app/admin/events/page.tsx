@@ -155,7 +155,7 @@ export default function EventsPage() {
           { id: 'title', label: 'Event Title', minWidth: 150, align: 'left' },
           {
             id: 'authors',
-            label: 'Resource Person/s',
+            label: 'Coordinator/s',
             minWidth: 120,
             align: 'left',
             format: (authors: { name: string }[]) =>

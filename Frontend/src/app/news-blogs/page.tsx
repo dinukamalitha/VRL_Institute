@@ -109,7 +109,7 @@ export default function NewsBlogsPage() {
   const navLinks: NavLink[] = [
     { label: 'Home', href: '/' },
     { label: 'Services', href: '/#services' },
-    { label: "Writer's Hub", href: '/news-blogs' },
+    { label: "Writers' Hub", href: '/news-blogs' },
     { label: 'Events & Programs', href: '/#events' },
     { label: 'Publications', href: '/#publications' },
     { label: 'VRL Journal', href: '/#journals' },
@@ -175,9 +175,9 @@ export default function NewsBlogsPage() {
         </Typography>
         <style jsx>{`
           @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
+            0% { background-position: 0 50%; }
             50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            100% { background-position: 0 50%; }
           }
         `}</style>
       </Box>

@@ -5,6 +5,7 @@ import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
 import AdminResourcePersonsSection from '@/sections/Admin_ResourcePersonsSection'
 import AdminHome from '@/sections/AdminHome'
+import AdminStaffSection from "@/sections/AdminStaffSection";
 
 export default function DashboardPage() {
 
@@ -109,6 +110,9 @@ export default function DashboardPage() {
 
       {/* Resource Persons Section */}
       <AdminResourcePersonsSection/>
+
+      {/*Admin & Tech Support Section*/}
+      <AdminStaffSection/>
 
       {/* Services Section */}
       <Box sx={{ mb: 4 }}>

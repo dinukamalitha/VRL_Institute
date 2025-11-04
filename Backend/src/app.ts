@@ -8,6 +8,8 @@ import newsBlogRoutes from "./routes/newsBlogRoutes";
 import eventsRoutes from "./routes/eventsRoutes";
 import resourcePersonsRoutes from "./routes/resourcePersonsRoutes";
 import homeContentRoutes from "./routes/homeContentRoutes";
+import staffRoutes from "./routes/staffRoutes";
+import publicationRoutes from "./routes/publicationRoutes";
 
 const app = express();
 
@@ -25,6 +27,8 @@ app.use("/api/news-blogs", newsBlogRoutes);
 app.use("/api/events", eventsRoutes);
 app.use("/api/resource-persons", resourcePersonsRoutes);
 app.use("/api/home-content", homeContentRoutes);
+app.use("/api/staff", staffRoutes);
+app.use("/api/publications", publicationRoutes);
 
 // Error Handler
 app.use(errorHandler);
