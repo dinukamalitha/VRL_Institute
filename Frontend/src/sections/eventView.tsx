@@ -1,15 +1,7 @@
 'use client'
 
 import React from 'react'
-import {
-    Box,
-    Button,
-    Container,
-    Typography,
-    Divider,
-    Avatar,
-    Grid,
-} from '@mui/material'
+import {Avatar, Box, Button, Container, Divider, Grid, Typography,} from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import FacebookIcon from '@mui/icons-material/Facebook'
 import TwitterIcon from '@mui/icons-material/Twitter'
@@ -147,7 +139,7 @@ const EventView: React.FC<EventViewProps> = ({
                 <AuthorsSection authors={selectedEvent?.authors || []} isEvent={true} />
 
                 {/* Speakers */}
-                {selectedEvent?.speakers?.length > 0 && (
+                {Array.isArray(selectedEvent?.speakers) && selectedEvent.speakers.length > 0 && (
                     <Box sx={{ mb: 4 }}>
                         <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2 }}>
                             Organized By:
@@ -245,8 +237,7 @@ const EventView: React.FC<EventViewProps> = ({
                             size="small"
                             startIcon={<LinkedInIcon />}
                             onClick={() => {
-                                const url = `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`
-                                window.open(url, '_blank', 'noopener,noreferrer')
+                                window.open(linkedInUrl, '_blank', 'noopener,noreferrer')
                             }}
                         >
                             LinkedIn

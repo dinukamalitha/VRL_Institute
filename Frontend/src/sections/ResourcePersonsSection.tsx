@@ -33,20 +33,20 @@ export default function ResourcePersonsSection() {
   const firstRow = resourcePersons.slice(0, 3);
   const secondRow = resourcePersons.slice(3);
 
-    const staffMembers = [
-        {
-            name: 'Jane Doe',
-            role: 'Program Coordinator',
-            image: "staff1Img",
-            description: 'Jane coordinates all VRL events and assists researchers with publication processes.',
-        },
-        {
-            name: 'John Smith',
-            role: 'Research Assistant',
-            image: "staff2Img",
-            description: 'John supports data collection, statistical analysis, and manuscript preparation.',
-        },
-    ];
+    // const staffMembers = [
+    //     {
+    //         name: 'Jane Doe',
+    //         role: 'Program Coordinator',
+    //         image: "staff1Img",
+    //         description: 'Jane coordinates all VRL events and assists researchers with publication processes.',
+    //     },
+    //     {
+    //         name: 'John Smith',
+    //         role: 'Research Assistant',
+    //         image: "staff2Img",
+    //         description: 'John supports data collection, statistical analysis, and manuscript preparation.',
+    //     },
+    // ];
 
   return (
     <Container id="resource-persons" maxWidth="lg" sx={{ py: 8 }}>
@@ -87,7 +87,6 @@ export default function ResourcePersonsSection() {
                 <Grid item xs={12} sm={6} key={index}>
                     <SupportStaffCard
                         staff={staff}
-                        width={250}
                     />
                 </Grid>
             ))}
