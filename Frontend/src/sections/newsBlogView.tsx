@@ -228,8 +228,7 @@ const NewsBlogView: React.FC<NewsBlogViewProps> = ({
                             size="small"
                             startIcon={<LinkedInIcon />}
                             onClick={() => {
-                                const url = `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`
-                                window.open(url, '_blank', 'noopener,noreferrer')
+                                window.open(linkedInUrl, '_blank', 'noopener,noreferrer')
                             }}
                         >
                             Share on LinkedIn
