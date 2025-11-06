@@ -19,7 +19,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import FileUpload from '@/components/FileUpload';
-import ResourcePersonCard from './ResourcePersonCard';
+import ResourcePersonCard from '../Other/ResourcePersonCard';
 
 import {
   getAllResourcePersons,

@@ -2,8 +2,8 @@
 
 import React, { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import AdminLayout from '@/sections/AdminLayout'
-import { useAuth } from '@/app/context/authContext'
+import AdminLayout from '@/sections/Admin/AdminLayout'
+import { useAuth } from '@/context/authContext'
 
 interface AdminLayoutProps {
   children: React.ReactNode

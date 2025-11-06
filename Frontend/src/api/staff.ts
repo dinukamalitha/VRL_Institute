@@ -1,4 +1,4 @@
-import api from "../app/utils/api";
+import api from "../utils/api";
 
 // Create a new staff member
 export const createStaffMember = async (payload: any) => {

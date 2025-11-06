@@ -1,4 +1,4 @@
-import api from "../app/utils/api";
+import api from "../utils/api";
 
 // Create a new resource person
 export const createResourcePerson = async (payload: any) => {

@@ -10,7 +10,7 @@ import {
 import {useCallback, useEffect, useState} from 'react'
 import AddIcon from '@mui/icons-material/Add'
 import PublicationsCard from '@/components/PublicationsCard'
-import PublicationDialog from '@/sections/Admin/AddPublicationModal'
+import PublicationDialog from '@/sections/Publications/AddPublicationModal'
 import {createPublication, getAllPublications, getPublicationCountsByCategory} from '@/api/publications'
 import {Publication} from "@/types/publications";
 

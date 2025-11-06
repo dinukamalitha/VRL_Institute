@@ -6,7 +6,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import FacebookIcon from '@mui/icons-material/Facebook'
 import TwitterIcon from '@mui/icons-material/Twitter'
 import LinkedInIcon from '@mui/icons-material/LinkedIn'
-import AuthorsSection from '@/sections/authorsSection'
+import AuthorsSection from '@/sections/Other/authorsSection'
 import {Author} from "@/types/author";
 
 interface EventViewProps {

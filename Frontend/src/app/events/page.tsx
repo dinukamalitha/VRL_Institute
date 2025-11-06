@@ -26,10 +26,10 @@ import InfoCard from '@/components/InfoCard'
 import CategoryDropdown from '@/components/CategoryDropdown'
 import { useHydration } from '@/hooks/useHydration'
 import { getAllEvents } from '@/api/events'
-import EventsSidebar from '@/sections/events-sidebar'
-import NewsSidebar from '@/sections/news-sidebar'
+import EventsSidebar from '@/sections/Events/events-sidebar'
+import NewsSidebar from '@/sections/NewsBlog/news-sidebar'
 import {NavLink} from "@/types/navbar";
-import EventView from "@/sections/eventView";
+import EventView from "@/sections/Events/eventView";
 
 const categories = [
   'All',

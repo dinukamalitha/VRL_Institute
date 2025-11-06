@@ -1,4 +1,4 @@
-import api from "../app/utils/api";
+import api from "../utils/api";
 import {Publication} from "@/types/publications";
 
 // Create a new publication

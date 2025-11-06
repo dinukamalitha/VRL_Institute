@@ -15,8 +15,8 @@ import { useState, useEffect, useMemo } from 'react'
 import AddIcon from '@mui/icons-material/Add'
 import DataTable from '@/components/DataTable'
 import SearchBar from '@/components/SearchBar'
-import AddNewsBlogModal from '@/sections/AddNewsBlogModal'
-import EditNewsBlogModal from '@/sections/EditNewsBlogModal'
+import AddNewsBlogModal from '@/sections/NewsBlog/AddNewsBlogModal'
+import EditNewsBlogModal from '@/sections/NewsBlog/EditNewsBlogModal'
 import { getAllNewsBlogs, removeNewsBlog } from '@/api/news-blogs'
 
 export default function NewsBlogsPage() {
