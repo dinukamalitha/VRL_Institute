@@ -11,7 +11,7 @@ interface CategoryDropdownProps {
   required?: boolean
   fullWidth?: boolean
   size?: 'small' | 'medium'
-  variant?: SelectProps['variant']   // <-- add this
+  variant?: SelectProps['variant']
   sx?: any
 }
 
@@ -19,24 +19,11 @@ export default function CategoryDropdown({
                                            value,
                                            onChange,
                                            label = "Category",
-                                           categories = [
-                                             "Partnerships",
-                                             "Events",
-                                             "Achievements",
-                                             "Courses",
-                                             "Research",
-                                             "Healthcare",
-                                             "Sustainability",
-                                             "Cybersecurity",
-                                             "Technology",
-                                             "Education",
-                                             "Innovation",
-                                             "Industry",
-                                           ],
+                                           categories = [],
                                            required = false,
                                            fullWidth = true,
                                            size = 'small',
-                                           variant = 'outlined',   // ✅ now valid
+                                           variant = 'outlined',
                                            sx,
                                          }: CategoryDropdownProps) {
   return (

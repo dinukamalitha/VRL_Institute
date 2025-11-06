@@ -5,7 +5,7 @@ import { Box, Typography, Card, CardContent } from '@mui/material';
 import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import { ResourcePerson } from '@/types/components';
 
-interface ResourcePersonCardProps {
+export interface ResourcePersonCardProps {
   person: ResourcePerson;
   isExpanded?: boolean;
   onToggle?: () => void;

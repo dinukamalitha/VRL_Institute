@@ -1,7 +1,8 @@
 import api from "../app/utils/api";
+import {Publication} from "@/types/publications";
 
 // Create a new publication
-export const createPublication = async (payload: any) => {
+export const createPublication = async (payload: Publication) => {
     try {
         const response = await api.post("/api/publications", payload);
 
@@ -29,6 +30,22 @@ export const getAllPublications = async () => {
     } catch (error) {
         console.error("Failed to fetch publications", error);
         return [];
+    }
+};
+
+// Get publications count by category
+export const getPublicationCountsByCategory = async () => {
+    try {
+        const response = await api.get("/api/publications/countsByCategory");
+
+        if (response.status === 200) {
+            return response.data;
+        }
+
+        return {};
+    } catch (error) {
+        console.error("Failed to fetch publications", error);
+        return {};
     }
 };
 

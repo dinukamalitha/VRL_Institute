@@ -22,7 +22,7 @@ import { useRouter } from 'next/navigation'
 import { alpha } from '@mui/material/styles'
 import Image from 'next/image'
 import { NavLink, NavbarProps } from '@/types/navbar'
-import LoginDialog from '@/sections/AdminLogin'
+import LoginDialog from '@/sections/Admin/AdminLogin'
 
 const Navbar: React.FC<NavbarProps> = ({ navLinks, elevation = 1 }) => {
   const [mobileOpen, setMobileOpen] = useState(false)

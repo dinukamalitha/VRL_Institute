@@ -7,7 +7,6 @@ export interface IPublication extends Document {
     category: string;
     authors: IAuthor[];
     thumbnail?: string;
-    authorImage?: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -39,15 +38,7 @@ const PublicationSchema: Schema = new Schema(
                 validator: (url: string) => !url || urlValidator(url),
                 message: (props: any) => `Invalid thumbnail URL: ${props.value}`,
             },
-        },
-        authorImage: {
-            type: String,
-            required: false,
-            validate: {
-                validator: (url: string) => !url || urlValidator(url),
-                message: (props: any) => `Invalid author image URL: ${props.value}`,
-            },
-        },
+        }
     },
     { timestamps: true }
 );

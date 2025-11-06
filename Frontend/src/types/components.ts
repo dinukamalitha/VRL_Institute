@@ -11,12 +11,6 @@ export interface InfoCardProps {
   image?: string | string[]
 }
 
-export interface HeroSectionProps {
-  title?: string
-  subtitle?: string
-  backgroundImage?: string
-}
-
 export interface ResourcePerson {
   _id: string
   name: string
@@ -24,10 +18,21 @@ export interface ResourcePerson {
   description: string
 }
 
-export interface ResourcePersonCardProps {
-  person: ResourcePerson
+export interface FileUploadProps {
+  accept?: string;
+  label?: string;
+  buttonText?: string;
+  onFileSelect?: (file: File) => void;
+  currentFile?: string | string[];
+  required?: boolean;
+  showPreview?: boolean;
+  id?: string;
 }
 
-export interface ThemeRegistryProps {
-  children: React.ReactNode
-} 
+export interface PublicationsCardProps {
+  category: string;
+  image: string;
+  count: number;
+  width?: number;
+  height?: number;
+}

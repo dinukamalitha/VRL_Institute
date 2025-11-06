@@ -2,14 +2,9 @@
 
 import { Card, CardContent, Typography, Box } from '@mui/material';
 import Image from 'next/image';
+import {PublicationsCardProps} from "@/types/components";
 
-interface PublicationsCardProps {
-    category: string;
-    image: string;
-    count: number;
-}
-
-export default function PublicationsCard({ category, image, count }: PublicationsCardProps) {
+export default function PublicationsCard({ category, image, count, width=100, height=100 }: PublicationsCardProps) {
     return (
         <Card
             sx={{
@@ -45,8 +40,8 @@ export default function PublicationsCard({ category, image, count }: Publication
                     <Image
                         src={image}
                         alt={category}
-                        width={100}
-                        height={100}
+                        width={width}
+                        height={height}
                         style={{
                             borderRadius: '12px',
                             objectFit: 'cover',

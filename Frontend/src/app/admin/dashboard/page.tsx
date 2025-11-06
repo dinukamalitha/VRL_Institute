@@ -3,9 +3,9 @@
 import { Box, Container, Typography, Grid, Card, CardContent, Button, Chip } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
-import AdminResourcePersonsSection from '@/sections/Admin_ResourcePersonsSection'
-import AdminHome from '@/sections/AdminHome'
-import AdminStaffSection from "@/sections/AdminStaffSection";
+import AdminResourcePersonsSection from '@/sections/Admin/Admin_ResourcePersonsSection'
+import AdminHome from '@/sections/Admin/AdminHome'
+import AdminStaffSection from "@/sections/Admin/AdminStaffSection";
 
 export default function DashboardPage() {
 

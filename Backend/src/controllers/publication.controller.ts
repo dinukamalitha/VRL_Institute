@@ -129,3 +129,42 @@ export const deletePublication = async (req: Request, res: Response) => {
         res.status(500).json({ success: false, message: err.message });
     }
 };
+
+// Get publication counts grouped by category
+export const getPublicationCountsByCategory = async (_req: Request, res: Response) => {
+    try {
+        // MongoDB aggregation pipeline to group by category and count
+        const categoryCounts = await Publication.aggregate([
+            {
+                $group: {
+                    _id: "$category",
+                    count: { $sum: 1 },
+                },
+            },
+            {
+                $project: {
+                    _id: 0,
+                    category: "$_id",
+                    count: 1,
+                },
+            },
+        ]);
+
+        // resultArray = [{ category: 'Books', count: 5 }, { category: 'Thesis', count: 10 }]
+        // To make it easier to consume, let's transform it into a key-value object:
+        // { "Books": 5, "Thesis": 10 }
+        const formattedCounts = categoryCounts.reduce((acc, item) => {
+            acc[item.category] = item.count;
+            return acc;
+        }, {} as Record<string, number>);
+
+
+        res.status(200).json({
+            success: true,
+            data: formattedCounts,
+        });
+
+    } catch (err: any) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};

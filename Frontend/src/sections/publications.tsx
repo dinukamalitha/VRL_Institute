@@ -2,43 +2,54 @@
 
 import {Box, Container, Grid, Typography} from '@mui/material';
 import PublicationsCard from "@/components/PublicationsCard";
-import {useEffect, useState} from "react";
-import {Publication} from "@/types/sections";
-import {getAllPublications} from "@/api/publications";
+import {useCallback, useEffect, useState} from "react";
+import {Publication} from "@/types/publications";
+import {getAllPublications, getPublicationCountsByCategory} from "@/api/publications";
 
 export default function PublicationsSection() {
   const [publications, setPublications] = useState<Publication[]>([]);
+  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({})
+
+  // Fetch publications data
+  const fetchPageData = useCallback(async () => {
+    try {
+      const [publicationsResponse, countsResponse] = await Promise.all([
+        getAllPublications(),
+        getPublicationCountsByCategory()
+      ]);
+
+      setPublications(Array.isArray(publicationsResponse) ? publicationsResponse : []);
+      setCategoryCounts(countsResponse.data || {});
+
+    } catch (error) {
+      console.error('Failed to fetch page data:', error)
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const res = await getAllPublications();
-      console.log("API response:", res);
-      setPublications(Array.isArray(res) ? res : []);
-      console.log(publications)
-    };
-    fetchData();
-  }, []);
+    fetchPageData();
+  }, [fetchPageData]);
 
   const publicationData = [
     {
       category: 'Books',
       image: '/images/books.png',
-      count: 0,
+      count: categoryCounts.Books || 0,
     },
     {
       category: 'Monographs',
       image: '/images/monograph.jpg',
-      count: 0,
+      count: categoryCounts.Monographs || 0,
     },
     {
       category: 'Dissertations',
       image: '/images/dissertation.jpg',
-      count: 0,
+      count: categoryCounts.Dissertations || 0,
     },
     {
       category: 'Thesis',
       image: '/images/thesis.jpg',
-      count: 0,
+      count: categoryCounts.Thesis || 0,
     },
   ];
 
