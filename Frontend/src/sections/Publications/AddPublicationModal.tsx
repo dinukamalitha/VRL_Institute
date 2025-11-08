@@ -15,7 +15,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import FormTextField from '@/components/FormTextField';
 import FileUpload from '@/components/FileUpload';
-import { uploadToCloudinary } from '@/app/utils/fileUpload';
+import { uploadToCloudinary } from '@/utils/fileUpload';
 import { PublicationDialogProps, Publication } from '@/types/publications';
 import { Author } from "@/types/author";
 import CategoryDropdown from "@/components/CategoryDropdown";

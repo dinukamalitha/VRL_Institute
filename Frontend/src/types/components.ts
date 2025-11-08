@@ -36,3 +36,12 @@ export interface PublicationsCardProps {
   width?: number;
   height?: number;
 }
+
+export interface RichTextEditorProps {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  onImageUpload?: (file: File) => Promise<string>;
+  height?: number | string;
+  uploadFolder?: string;
+}

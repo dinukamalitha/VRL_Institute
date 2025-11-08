@@ -5,7 +5,7 @@ import { useState } from 'react'
 import FormTextField from '@/components/FormTextField'
 import FileUpload from '@/components/FileUpload'
 import axios from 'axios'
-import { uploadToCloudinary } from '@/app/utils/fileUpload'
+import { uploadToCloudinary } from '@/utils/fileUpload'
 import { Add, Delete } from '@mui/icons-material'
 import RichTextEditor from '@/components/RichTextEditor'
 import { createEvent } from '@/api/events'
@@ -231,6 +231,7 @@ export default function AddEventModal({ open, onClose, width = 'lg', height = '8
             onChange={setDescription}
             placeholder="Write the event description here..."
             height="300px"
+            uploadFolder="publications/events"
           />
         </Box>
       </DialogContent>

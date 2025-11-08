@@ -18,7 +18,7 @@ import axios from "axios"
 import RichTextEditor from '@/components/RichTextEditor'
 import FormTextField from '@/components/FormTextField'
 import FileUpload from '@/components/FileUpload'
-import { uploadToCloudinary } from '@/app/utils/fileUpload'
+import { uploadToCloudinary } from '@/utils/fileUpload'
 import { updateNewsBlogById } from '@/api/news-blogs'
 import { Author } from '@/types/author'
 import { EditNewsBlogModalProps } from '@/types/news'
@@ -235,6 +235,7 @@ export default function EditNewsBlogModal({
             onChange={setContent}
             placeholder="Write your article here..."
             height="300px"
+            uploadFolder="publications/news-blogs"
           />
         </Box>
       </DialogContent>

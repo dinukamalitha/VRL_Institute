@@ -17,7 +17,7 @@ import FileUpload from '@/components/FileUpload'
 import RichTextEditor from '@/components/RichTextEditor'
 import { Add, Delete } from '@mui/icons-material'
 import axios from 'axios'
-import { uploadToCloudinary } from '@/app/utils/fileUpload'
+import { uploadToCloudinary } from '@/utils/fileUpload'
 import { updateEventById } from '@/api/events'
 import { EditEventModalProps } from '@/types/event'
 import { Author } from '@/types/author'
@@ -318,6 +318,7 @@ export default function EditEventModal({
             onChange={setDescription}
             placeholder="Write the event description here..."
             height="300px"
+            uploadFolder="publications/events"
           />
         </Box>
       </DialogContent>

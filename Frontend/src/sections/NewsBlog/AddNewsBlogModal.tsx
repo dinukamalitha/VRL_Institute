@@ -16,7 +16,7 @@ import RichTextEditor from '@/components/RichTextEditor'
 import FormTextField from '@/components/FormTextField'
 import axios from "axios"
 import FileUpload from '@/components/FileUpload'
-import { uploadToCloudinary } from '@/app/utils/fileUpload'
+import { uploadToCloudinary } from '@/utils/fileUpload'
 import { Add, Delete } from '@mui/icons-material'
 import { createNewsBlog } from '@/api/news-blogs'
 import { Author } from '@/types/author'
@@ -91,7 +91,7 @@ export default function AddNewsBlogModal({
     try {
       // Upload main thumbnail
       let uploadedImageUrl: string | undefined
-      if (imageFile) uploadedImageUrl = await uploadToCloudinary(imageFile)
+      if (imageFile) uploadedImageUrl = await uploadToCloudinary(imageFile, "publications/news-blogs")
 
       // Upload author photos
       const uploadedAuthors = []
@@ -247,6 +247,7 @@ export default function AddNewsBlogModal({
             onChange={setContent}
             placeholder="Write your article here..."
             height="300px"
+            uploadFolder="publications/news-blogs"
           />
           {errors.content && (
             <Typography color="error" variant="caption">{errors.content}</Typography>

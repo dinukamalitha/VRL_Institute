@@ -28,7 +28,7 @@ import {
   removeResourcePerson,
 } from '@/api/resourcePersons';
 import { ResourcePerson } from '@/types/components';
-import { uploadToCloudinary } from '@/app/utils/fileUpload';
+import { uploadToCloudinary } from '@/utils/fileUpload';
 
 export default function AdminResourcePersonsSection() {
   const [resourcePersons, setResourcePersons] = useState<ResourcePerson[]>([]);

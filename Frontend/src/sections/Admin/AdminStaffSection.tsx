@@ -25,7 +25,7 @@ import {
     removeStaffMember,
 } from '@/api/staff';
 import { StaffMember } from '@/types/sections';
-import { uploadToCloudinary } from '@/app/utils/fileUpload';
+import { uploadToCloudinary } from '@/utils/fileUpload';
 
 export default function AdminStaffSection() {
     const [staffMembers, setStaffMembers] = useState<StaffMember[]>([]);
