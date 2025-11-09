@@ -28,6 +28,7 @@ export default function PublicationsPage() {
             ]);
 
             setPublications(Array.isArray(publicationsResponse) ? publicationsResponse : []);
+            console.log(publications)
             setCategoryCounts(countsResponse.data || {});
 
         } catch (error) {
@@ -129,6 +130,7 @@ export default function PublicationsPage() {
                             count={item.count}
                             width={250}
                             height={200}
+                            isLink={false}
                         />
                     </Grid>
                 ))}

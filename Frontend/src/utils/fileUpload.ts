@@ -17,7 +17,6 @@ export const uploadToCloudinary = async (
     throw new Error("Cloudinary environment variables are not configured");
   }
 
-  let resourceType = "image";
   let destinationFolder = folder;
 
   // Check for PDF and DOCX file types
@@ -27,7 +26,6 @@ export const uploadToCloudinary = async (
       file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
       file.name.endsWith(".docx")
   ) {
-    resourceType = "raw";
     destinationFolder = "publications/documents";
   }
 
@@ -38,7 +36,7 @@ export const uploadToCloudinary = async (
 
   try {
     const response = await axios.post(
-        `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
+        `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
     );

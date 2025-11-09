@@ -25,7 +25,9 @@
   "homepage": "https://github.com/dinukamalitha/VRL_Backend#readme",
   "dependencies": {
     "@vercel/node": "^5.3.24",
+    "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
+    "cloudinary": "^2.8.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",

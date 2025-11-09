@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import Publication from "../models/publication";
+import axios from "axios";
+import { v2 as cloudinary } from "cloudinary";
 
 // Create a new Publication
 export const createPublication = async (req: Request, res: Response) => {
@@ -168,3 +170,62 @@ export const getPublicationCountsByCategory = async (_req: Request, res: Respons
         res.status(500).json({ success: false, message: err.message });
     }
 };
+
+// Get a Publication by Category
+export const getPublicationsByCategory = async (req: Request, res: Response) => {
+    try {
+        const { category } = req.params;
+        const publications = await Publication.find({
+            category: category
+        }).sort({ createdAt: -1 });
+
+        if (publications.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: `No publications found in category '${category}'`,
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: publications,
+        });
+    } catch (err: any) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+// generates a signed URL
+export const generateSignedPdfUrl = async (req: Request, res: Response) => {
+    cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
+
+    const fullPath = req.query.fullPath || req.query.fullpath;
+    const fullPathString = Array.isArray(fullPath) ? fullPath[0] : fullPath as string;
+
+    if (!fullPathString) {
+        return res.status(400).json({ error: "Missing 'fullPath' query parameter" });
+    }
+
+    try {
+        if (typeof fullPathString === "string") {
+            const signedUrl = cloudinary.utils.private_download_url(fullPathString, '', {
+                resource_type: 'raw',
+                type: 'upload',
+                expires_at: Math.floor(Date.now() / 1000) + 600
+            });
+
+            res.status(200).json({ url: signedUrl });
+        }
+
+
+
+    } catch (err) {
+        console.error("Error generating signed PDF URL:", err);
+        res.status(500).json({ error: "Cannot generate a URL for the PDF" });
+    }
+};
+

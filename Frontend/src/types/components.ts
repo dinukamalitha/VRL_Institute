@@ -35,6 +35,7 @@ export interface PublicationsCardProps {
   count: number;
   width?: number;
   height?: number;
+  isLink: boolean;
 }
 
 export interface RichTextEditorProps {
