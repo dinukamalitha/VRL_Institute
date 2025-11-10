@@ -1,7 +1,7 @@
 import {Author} from "@/types/author";
 
 export interface Publication {
-    _id: string;
+    _id?: string;
     title: string;
     documentUrl: string;
     category: string;

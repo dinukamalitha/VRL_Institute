@@ -88,7 +88,7 @@ export default function PublicationsPage() {
 
     // Open delete confirmation
     const handleDelete = (row: Publication) => {
-        setDeleteId(row._id)
+        setDeleteId(row._id || '')
         setDeleteConfirmOpen(true)
     }
 

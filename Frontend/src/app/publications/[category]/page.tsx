@@ -65,6 +65,8 @@ export default function PublicationCategoryPage() {
 
         if (!fullPath) return alert("Invalid document URL");
 
+        setPreviewingId(pub._id || null);
+
         // Open backend proxy URL
         window.open(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/publications/stream/pdf?fullPath=${encodeURIComponent(fullPath)}`, "_blank");
     };
