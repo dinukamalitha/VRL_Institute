@@ -71,7 +71,7 @@ export default function AdminStaffSection() {
         try {
             let photoUrl = currentStaff.photo;
             if (selectedFile) {
-                photoUrl = await uploadToCloudinary(selectedFile);
+                photoUrl = await uploadToCloudinary(selectedFile, "VRL/staff");
             }
 
             const payload: StaffMember = { ...currentStaff, photo: photoUrl || '' };

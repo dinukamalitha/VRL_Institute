@@ -85,16 +85,16 @@ const PublicationDialog: React.FC<Omit<PublicationDialogProps, 'publication'>> =
             const uploadPromises: Promise<void>[] = [];
 
             if (thumbnailFile) {
-                uploadPromises.push(uploadToCloudinary(thumbnailFile).then(url => { thumbnailUrl = url; }));
+                uploadPromises.push(uploadToCloudinary(thumbnailFile, "VRL/publications/images/thumbnails").then(url => { thumbnailUrl = url; }));
             }
             if (documentFile) {
-                uploadPromises.push(uploadToCloudinary(documentFile).then(url => { documentUrl = url; }));
+                uploadPromises.push(uploadToCloudinary(documentFile, "VRL/publications/documents").then(url => { documentUrl = url; }));
             }
 
             const updatedAuthors = await Promise.all(
                 formData.authors.map(async (author) => {
                     if (author.photoFile) {
-                        const newPhotoUrl = await uploadToCloudinary(author.photoFile);
+                        const newPhotoUrl = await uploadToCloudinary(author.photoFile, "VRL/publications/images/authors").then(url => "https://res.cloudinary.com/vrl/image/upload/VRL/publications/authors/" + url.split("/").pop() + ".jpg");
                         return { ...author, photoUrl: newPhotoUrl, photoFile: null };
                     }
                     return author;

@@ -64,13 +64,13 @@ export default function AddEventModal({ open, onClose, width = 'lg', height = '8
 
     try {
       let uploadedImageUrl: string | undefined
-      if (imageFile) uploadedImageUrl = await uploadToCloudinary(imageFile)
+      if (imageFile) uploadedImageUrl = await uploadToCloudinary(imageFile, "VRL/events/thumbnails")
 
       const uploadedAuthors = []
       for (const author of authors) {
         let photoUrl: string | undefined
         if (author.photoFile) {
-          photoUrl = await uploadToCloudinary(author.photoFile)
+          photoUrl = await uploadToCloudinary(author.photoFile, "VRL/events/authors")
         }
         uploadedAuthors.push({
           name: author.name || '',
@@ -231,7 +231,7 @@ export default function AddEventModal({ open, onClose, width = 'lg', height = '8
             onChange={setDescription}
             placeholder="Write the event description here..."
             height="300px"
-            uploadFolder="publications/events"
+            uploadFolder="VRL/events/assets"
           />
         </Box>
       </DialogContent>

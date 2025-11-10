@@ -10,7 +10,7 @@ const getCloudinaryConfig = () => {
 
 export const uploadToCloudinary = async (
     file: File,
-    folder = "publications/assets"
+    folder = "VRL/common"
 ): Promise<string> => {
   const { cloudName, uploadPreset } = getCloudinaryConfig();
   if (!cloudName || !uploadPreset) {
@@ -26,7 +26,7 @@ export const uploadToCloudinary = async (
       file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
       file.name.endsWith(".docx")
   ) {
-    destinationFolder = "publications/documents";
+    destinationFolder = "VRL/publications/documents";
   }
 
   const formData = new FormData();

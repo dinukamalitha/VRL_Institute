@@ -91,13 +91,13 @@ export default function AddNewsBlogModal({
     try {
       // Upload main thumbnail
       let uploadedImageUrl: string | undefined
-      if (imageFile) uploadedImageUrl = await uploadToCloudinary(imageFile, "publications/news-blogs")
+      if (imageFile) uploadedImageUrl = await uploadToCloudinary(imageFile, "VRL/news-blogs/thumbnails")
 
       // Upload author photos
       const uploadedAuthors = []
       for (const author of authors) {
         let photoUrl: string | undefined
-        if (author.photoFile) photoUrl = await uploadToCloudinary(author.photoFile)
+        if (author.photoFile) photoUrl = await uploadToCloudinary(author.photoFile, "VRL/news-blogs/authors")
         uploadedAuthors.push({
           name: author.name,
           description: author.description,
@@ -247,7 +247,7 @@ export default function AddNewsBlogModal({
             onChange={setContent}
             placeholder="Write your article here..."
             height="300px"
-            uploadFolder="publications/news-blogs"
+            uploadFolder="VRL/news-blogs/assets"
           />
           {errors.content && (
             <Typography color="error" variant="caption">{errors.content}</Typography>

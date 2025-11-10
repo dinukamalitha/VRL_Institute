@@ -77,6 +77,9 @@ jobs:
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             MONGO_URI=${{ secrets.MONGO_URI }}
             PORT=${{ secrets.PORT }}
+            CLOUDINARY_CLOUD_NAME=${{secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}} 
+            CLOUDINARY_API_KEY=${{secrets.CLOUDINARY_API_KEY}}
+            CLOUDINARY_API_SECRET=${{secrets.CLOUDINARY_API_SECRET}}
             EOF
             
             # Stop any running containers from the previous version
@@ -89,6 +92,13 @@ jobs:
             echo "Pulling latest Docker images..."
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-frontend:latest
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-backend:latest
+            
+            # Run MongoDB migrations before starting backend
+#            echo "Running MongoDB migrations..."
+#            docker run --rm \
+#              -e MONGO_URI="${{ secrets.MONGO_URI }}" \
+#              -v "$APP_DIR/Backend:/app" \
+#              -w /app node:20 bash -c "npm install && npx migrate-mongo up"
             
             # Start the new containers using the production compose file
             echo "Starting new containers..."

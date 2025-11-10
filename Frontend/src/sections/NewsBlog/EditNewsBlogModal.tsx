@@ -94,7 +94,7 @@ export default function EditNewsBlogModal({
         : (newsItem?.image as string | undefined)
 
       if (imageFile) {
-        uploadedImageUrl = await uploadToCloudinary(imageFile)
+        uploadedImageUrl = await uploadToCloudinary(imageFile,"VRL/news-blogs/thumbnails")
       }
 
       // Upload author photos (optional)
@@ -103,7 +103,7 @@ export default function EditNewsBlogModal({
         if (!author.name.trim()) continue
         let photoUrl = author.photoUrl
         if (author.photoFile) {
-          photoUrl = await uploadToCloudinary(author.photoFile)
+          photoUrl = await uploadToCloudinary(author.photoFile, "VRL/news-blogs/authors")
         }
         uploadedAuthors.push({
           name: author.name,
@@ -235,7 +235,7 @@ export default function EditNewsBlogModal({
             onChange={setContent}
             placeholder="Write your article here..."
             height="300px"
-            uploadFolder="publications/news-blogs"
+            uploadFolder="VRL/news-blogs/assets"
           />
         </Box>
       </DialogContent>

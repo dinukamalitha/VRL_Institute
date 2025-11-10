@@ -82,7 +82,7 @@ export default function AdminResourcePersonsSection() {
       let photoUrl = currentPerson.photo;
 
       if (selectedFile) {
-        photoUrl = await uploadToCloudinary(selectedFile);
+        photoUrl = await uploadToCloudinary(selectedFile, "VRL/common");
       }
 
       const payload: ResourcePerson = {
