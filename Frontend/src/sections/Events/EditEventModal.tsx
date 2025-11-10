@@ -17,7 +17,7 @@ import FileUpload from '@/components/FileUpload'
 import RichTextEditor from '@/components/RichTextEditor'
 import { Add, Delete } from '@mui/icons-material'
 import axios from 'axios'
-import { uploadToCloudinary } from '@/app/utils/fileUpload'
+import { uploadToCloudinary } from '@/utils/fileUpload'
 import { updateEventById } from '@/api/events'
 import { EditEventModalProps } from '@/types/event'
 import { Author } from '@/types/author'
@@ -104,7 +104,7 @@ export default function EditEventModal({
       // Upload thumbnail if changed
       let uploadedImageUrl = eventItem?.thumbnail
       if (imageFile) {
-        uploadedImageUrl = await uploadToCloudinary(imageFile)
+        uploadedImageUrl = await uploadToCloudinary(imageFile, "VRL/events/thumbnails")
       }
 
       // Upload author photos
@@ -112,7 +112,7 @@ export default function EditEventModal({
       for (const author of authors) {
         let photoUrl = author.photoUrl
         if (author.photoFile) {
-          photoUrl = await uploadToCloudinary(author.photoFile)
+          photoUrl = await uploadToCloudinary(author.photoFile, "VRL/events/authors")
         }
         uploadedAuthors.push({
           name: author.name,
@@ -318,6 +318,7 @@ export default function EditEventModal({
             onChange={setDescription}
             placeholder="Write the event description here..."
             height="300px"
+            uploadFolder="VRL/events/assets"
           />
         </Box>
       </DialogContent>

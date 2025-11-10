@@ -4,17 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Box, Button, Typography, Paper } from "@mui/material";
 import UploadIcon from "@mui/icons-material/Upload";
 import DescriptionIcon from "@mui/icons-material/Description";
-
-interface FileUploadProps {
-  accept?: string;
-  label?: string;
-  buttonText?: string;
-  onFileSelect?: (file: File) => void;
-  currentFile?: string | string[];
-  required?: boolean;
-  showPreview?: boolean;
-  id?: string;
-}
+import {FileUploadProps} from "@/types/components";
 
 export default function FileUpload({
   accept,

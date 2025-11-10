@@ -19,7 +19,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import FileUpload from '@/components/FileUpload';
-import ResourcePersonCard from './ResourcePersonCard';
+import ResourcePersonCard from '../Other/ResourcePersonCard';
 
 import {
   getAllResourcePersons,
@@ -28,7 +28,7 @@ import {
   removeResourcePerson,
 } from '@/api/resourcePersons';
 import { ResourcePerson } from '@/types/components';
-import { uploadToCloudinary } from '@/app/utils/fileUpload';
+import { uploadToCloudinary } from '@/utils/fileUpload';
 
 export default function AdminResourcePersonsSection() {
   const [resourcePersons, setResourcePersons] = useState<ResourcePerson[]>([]);
@@ -82,7 +82,7 @@ export default function AdminResourcePersonsSection() {
       let photoUrl = currentPerson.photo;
 
       if (selectedFile) {
-        photoUrl = await uploadToCloudinary(selectedFile);
+        photoUrl = await uploadToCloudinary(selectedFile, "VRL/common");
       }
 
       const payload: ResourcePerson = {

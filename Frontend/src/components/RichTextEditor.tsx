@@ -3,7 +3,8 @@
 import React, { useMemo, useCallback, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import type ReactQuillType from 'react-quill-new';
-import { uploadToCloudinary } from '@/app/utils/fileUpload' // <-- import your Cloudinary util
+import { uploadToCloudinary } from '@/utils/fileUpload';
+import {RichTextEditorProps} from "@/types/components";
 
 // ---- Dynamic import with typing ----
 const ReactQuill = dynamic(async () => {
@@ -11,17 +12,8 @@ const ReactQuill = dynamic(async () => {
   return RQ;
 }, {
   ssr: false,
-  loading: () => <div>Loading editor...</div>
+  loading: () => <div>Loading editor...</div>,
 }) as unknown as typeof ReactQuillType;
-
-// ---- Props ----
-export interface RichTextEditorProps {
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  onImageUpload?: (file: File) => Promise<string>;
-  height?: number | string;
-}
 
 // ---- Quill modules + formats ----
 const buildModules = (imageHandler: () => void) => ({
@@ -79,11 +71,12 @@ export default function RichTextEditor({
                                          onChange,
                                          placeholder,
                                          onImageUpload,
-                                         height
+                                         height,
+                                         uploadFolder = 'publications'
                                        }: RichTextEditorProps) {
   const quillRef = useRef<ReactQuillType | null>(null);
 
-  // ✅ Image handler
+  // ---- Image handler ----
   const imageHandler = useCallback(async () => {
     const quill = quillRef.current?.getEditor();
     if (!quill) return;
@@ -98,10 +91,9 @@ export default function RichTextEditor({
       if (!file) return;
 
       try {
-        // Use custom handler if provided
         const imageUrl = onImageUpload
-          ? await onImageUpload(file)
-          : await uploadToCloudinary(file, 'editor_uploads');
+            ? await onImageUpload(file)
+            : await uploadToCloudinary(file, uploadFolder);
 
         const range = quill.getSelection(true);
         quill.insertEmbed(range?.index || 0, 'image', imageUrl);
@@ -111,9 +103,9 @@ export default function RichTextEditor({
         alert('Image upload failed. Please try again.');
       }
     };
-  }, [onImageUpload]);
+  }, [onImageUpload, uploadFolder]);
 
-  // ---- Column insertion ----
+  // ---- Column handler ----
   const columnHandler = useCallback(() => {
     const quill = quillRef.current?.getEditor();
     if (!quill) return;
@@ -160,18 +152,18 @@ export default function RichTextEditor({
   const modules = useMemo(() => buildModules(imageHandler), [imageHandler]);
 
   return (
-    <>
-      <style>{columnStyles}</style>
-      <ReactQuill
-        ref={quillRef as any}
-        theme="snow"
-        value={value}
-        onChange={onChange}
-        modules={modules}
-        formats={formats}
-        placeholder={placeholder}
-        style={height ? { height } : undefined}
-      />
-    </>
+      <>
+        <style>{columnStyles}</style>
+        <ReactQuill
+            ref={quillRef as any}
+            theme="snow"
+            value={value}
+            onChange={onChange}
+            modules={modules}
+            formats={formats}
+            placeholder={placeholder}
+            style={height ? { height } : undefined}
+        />
+      </>
   );
 }

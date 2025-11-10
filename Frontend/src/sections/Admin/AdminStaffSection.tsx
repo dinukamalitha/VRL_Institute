@@ -25,7 +25,7 @@ import {
     removeStaffMember,
 } from '@/api/staff';
 import { StaffMember } from '@/types/sections';
-import { uploadToCloudinary } from '@/app/utils/fileUpload';
+import { uploadToCloudinary } from '@/utils/fileUpload';
 
 export default function AdminStaffSection() {
     const [staffMembers, setStaffMembers] = useState<StaffMember[]>([]);
@@ -71,7 +71,7 @@ export default function AdminStaffSection() {
         try {
             let photoUrl = currentStaff.photo;
             if (selectedFile) {
-                photoUrl = await uploadToCloudinary(selectedFile);
+                photoUrl = await uploadToCloudinary(selectedFile, "VRL/staff");
             }
 
             const payload: StaffMember = { ...currentStaff, photo: photoUrl || '' };

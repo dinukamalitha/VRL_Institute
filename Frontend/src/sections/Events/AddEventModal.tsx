@@ -1,49 +1,35 @@
 'use client'
 
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Box,
-  Typography,
-  IconButton,
-  Paper
-} from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography, IconButton, Paper} from '@mui/material'
 import { useState } from 'react'
-import RichTextEditor from '@/components/RichTextEditor'
 import FormTextField from '@/components/FormTextField'
-import axios from "axios"
 import FileUpload from '@/components/FileUpload'
-import { uploadToCloudinary } from '@/app/utils/fileUpload'
+import axios from 'axios'
+import { uploadToCloudinary } from '@/utils/fileUpload'
 import { Add, Delete } from '@mui/icons-material'
-import { createNewsBlog } from '@/api/news-blogs'
+import RichTextEditor from '@/components/RichTextEditor'
+import { createEvent } from '@/api/events'
+import { AddEventModalProps } from '@/types/event'
 import { Author } from '@/types/author'
-import { AddNewsBlogModalProps } from '@/types/news'
 
-export default function AddNewsBlogModal({
-                                           open,
-                                           onClose,
-                                           width = 'lg',
-                                           height = '85vh'
-                                         }: AddNewsBlogModalProps) {
+export default function AddEventModal({ open, onClose, width = 'lg', height = '85vh' }: AddEventModalProps) {
   const [title, setTitle] = useState('')
-  const [category, setCategory] = useState('')
-  const [content, setContent] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [date, setDate] = useState('')
+  const [time, setTime] = useState('')
+  const [location, setLocation] = useState('')
+  const [medium, setMedium] = useState('')
+  const [description, setDescription] = useState('')
+  const [registrationLink, setRegistrationLink] = useState('')
+  const [authors, setAuthors] = useState<Author[]>([{ name: '', description: '', photoFile: null }])
   const [imageFile, setImageFile] = useState<File | null>(null)
-  const [authors, setAuthors] = useState<Author[]>([
-    { name: '', description: '', photoFile: null }
-  ])
+  const [loading, setLoading] = useState(false)
 
   // Inline validation errors
   const [errors, setErrors] = useState({
     title: '',
-    content: '',
-    authorName: ''
   })
 
+  // Handlers for authors
   const handleAddAuthor = () =>
     setAuthors([...authors, { name: '', description: '', photoFile: null }])
 
@@ -52,11 +38,7 @@ export default function AddNewsBlogModal({
     setAuthors(authors.filter((_, i) => i !== index))
   }
 
-  const handleAuthorChange = (
-    index: number,
-    field: keyof Author,
-    value: any
-  ) => {
+  const handleAuthorChange = (index: number, field: keyof Author, value: any) => {
     const updated = [...authors]
     updated[index] = { ...updated[index], [field]: value }
     setAuthors(updated)
@@ -64,18 +46,10 @@ export default function AddNewsBlogModal({
 
   const validate = () => {
     let isValid = true
-    const newErrors = { title: '', content: '', authorName: '' }
+    const newErrors = { title: '' }
 
     if (!title.trim()) {
       newErrors.title = 'Title is required'
-      isValid = false
-    }
-    if (!content.trim()) {
-      newErrors.content = 'Description/Content is required'
-      isValid = false
-    }
-    if (!authors[0].name.trim()) {
-      newErrors.authorName = 'At least one author name is required'
       isValid = false
     }
 
@@ -89,42 +63,51 @@ export default function AddNewsBlogModal({
     setLoading(true)
 
     try {
-      // Upload main thumbnail
       let uploadedImageUrl: string | undefined
-      if (imageFile) uploadedImageUrl = await uploadToCloudinary(imageFile)
+      if (imageFile) uploadedImageUrl = await uploadToCloudinary(imageFile, "VRL/events/thumbnails")
 
-      // Upload author photos
       const uploadedAuthors = []
       for (const author of authors) {
         let photoUrl: string | undefined
-        if (author.photoFile) photoUrl = await uploadToCloudinary(author.photoFile)
+        if (author.photoFile) {
+          photoUrl = await uploadToCloudinary(author.photoFile, "VRL/events/authors")
+        }
         uploadedAuthors.push({
-          name: author.name,
-          description: author.description,
+          name: author.name || '',
+          description: author.description || '',
           photo: photoUrl
         })
       }
 
-      const payload = {
+      const payload: any = {
         title,
-        description: content,
-        category,
-        date: new Date().toISOString(),
-        status: "Published",
-        images: uploadedImageUrl ? [uploadedImageUrl] : [],
-        authors: uploadedAuthors
+        date: date || null,
+        time: time || null,
+        location: location || '',
+        medium: medium || '',
+        description: description || '',
+        registrationLink: registrationLink || '',
+        authors: uploadedAuthors,
+        status: "active"
       }
 
-      const res = await createNewsBlog(payload)
-      console.log("News created:", res)
+      if (uploadedImageUrl) {
+        payload.thumbnail = uploadedImageUrl
+      }
+
+      await createEvent(payload)
 
       // Reset form
       setTitle('')
-      setCategory('')
-      setContent('')
-      setImageFile(null)
+      setDate('')
+      setTime('')
+      setLocation('')
+      setMedium('')
+      setDescription('')
+      setRegistrationLink('')
       setAuthors([{ name: '', description: '', photoFile: null }])
-      setErrors({ title: '', content: '', authorName: '' })
+      setImageFile(null)
+      setErrors({ title: '' })
 
       onClose()
     } catch (error) {
@@ -144,11 +127,9 @@ export default function AddNewsBlogModal({
       onClose={onClose}
       fullWidth
       maxWidth={width ? (width as "xs" | "sm" | "md" | "lg" | "xl") : false}
-      PaperProps={{
-        sx: height ? { height } : undefined,
-      }}
+      PaperProps={{ sx: height ? { height } : undefined }}
     >
-      <DialogTitle>Add New News Blog</DialogTitle>
+      <DialogTitle>Add New Event</DialogTitle>
       <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <FormTextField
           label="Title"
@@ -159,32 +140,33 @@ export default function AddNewsBlogModal({
           error={!!errors.title}
           helperText={errors.title}
         />
-
-        <FormTextField
-          label="Category"
-          value={category}
-          onChange={setCategory}
-          size="small"
-        />
-
-        <FileUpload
-          id="image-upload"
-          accept="image/*"
-          label="Thumbnail Image"
-          buttonText="Choose Image"
-          onFileSelect={setImageFile}
-          currentFile={undefined}
-          showPreview
-        />
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <FormTextField
+            label=""
+            type="date"
+            value={date}
+            onChange={setDate}
+            size="small"
+          />
+          <FormTextField
+            label="Time"
+            value={time}
+            onChange={setTime}
+            size="small"
+            placeholder="00:00 AM - 00:00 PM"
+          />
+        </Box>
+        <FormTextField label="Location" value={location} onChange={setLocation} size="small" />
+        <FormTextField label="Medium" value={medium} onChange={setMedium} size="small" />
+        <FormTextField label="Registration link" value={registrationLink} onChange={setRegistrationLink} size="small"  />
 
         {/* Authors Section */}
         <Box>
-          <Typography variant="subtitle1" sx={{ mb: 1 }}>Authors</Typography>
-
+          <Typography variant="subtitle1" sx={{ mb: 1 }}>Organizers</Typography>
           {authors.map((author, index) => (
             <Paper key={index} variant="outlined" sx={{ p: 2, mb: 2 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="body2" fontWeight="bold">Author {index + 1}</Typography>
+                <Typography variant="body2" fontWeight="bold">Organizer {index + 1}</Typography>
                 {index > 0 && (
                   <IconButton color="error" size="small" onClick={() => handleRemoveAuthor(index)}>
                     <Delete />
@@ -192,24 +174,19 @@ export default function AddNewsBlogModal({
                 )}
               </Box>
 
-              {/* Author Name */}
               <Box sx={{ mt: 1 }}>
                 <FormTextField
-                  label="Author Name"
+                  label="Organizer Name"
                   value={author.name}
                   onChange={(val) => handleAuthorChange(index, 'name', val)}
                   size="small"
                   fullWidth
-                  required
-                  error={index === 0 && !!errors.authorName}
-                  helperText={index === 0 ? errors.authorName : ''}
                 />
               </Box>
 
-              {/* Author Description */}
               <Box sx={{ mt: 2 }}>
                 <FormTextField
-                  label="Author Description"
+                  label="Organizer Description"
                   value={author.description}
                   onChange={(val) => handleAuthorChange(index, 'description', val)}
                   size="small"
@@ -219,12 +196,11 @@ export default function AddNewsBlogModal({
                 />
               </Box>
 
-              {/* Author Photo */}
               <Box sx={{ mt: 2 }}>
                 <FileUpload
                   id={`author-photo-${index}`}
                   accept="image/*"
-                  label="Author Photo"
+                  label="Organizer Photo"
                   buttonText="Upload Photo"
                   onFileSelect={(file) => handleAuthorChange(index, 'photoFile', file)}
                   currentFile={undefined}
@@ -233,24 +209,30 @@ export default function AddNewsBlogModal({
               </Box>
             </Paper>
           ))}
-
           <Button startIcon={<Add />} onClick={handleAddAuthor} sx={{ mt: 1 }}>
-            Add Author
+            Add Organizer
           </Button>
         </Box>
 
-        {/* Content */}
+        <FileUpload
+          id="event-thumbnail-upload"
+          accept="image/*"
+          label="Thumbnail Image (optional)"
+          buttonText="Choose Image"
+          onFileSelect={setImageFile}
+          currentFile={undefined}
+          showPreview
+        />
+
         <Box sx={{ mt: 2, flex: 1, minHeight: 300 }}>
-          <Typography variant="subtitle1" sx={{ mb: 1 }}>Content</Typography>
+          <Typography variant="subtitle1" sx={{ mb: 1 }}>Event Description</Typography>
           <RichTextEditor
-            value={content}
-            onChange={setContent}
-            placeholder="Write your article here..."
+            value={description}
+            onChange={setDescription}
+            placeholder="Write the event description here..."
             height="300px"
+            uploadFolder="VRL/events/assets"
           />
-          {errors.content && (
-            <Typography color="error" variant="caption">{errors.content}</Typography>
-          )}
         </Box>
       </DialogContent>
       <DialogActions>

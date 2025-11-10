@@ -5,7 +5,7 @@ import '@fontsource/roboto/500.css'
 import '@fontsource/roboto/700.css'
 import 'react-quill/dist/quill.snow.css'
 import ThemeRegistry from '@/components/ThemeRegistry'
-import { AuthProvider } from '@/app/context/authContext'
+import { AuthProvider } from '@/context/authContext'
 
 export const metadata: Metadata = {
   title: 'VRL Institute',

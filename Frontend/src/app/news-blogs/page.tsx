@@ -21,9 +21,9 @@ import InfoCard from '@/components/InfoCard'
 import CategoryDropdown from '@/components/CategoryDropdown'
 import { useHydration } from '@/hooks/useHydration'
 import { getAllNewsBlogs, getNewsBlogsCategories } from '@/api/news-blogs'
-import NewsSidebar from '@/sections/news-sidebar'
-import NewsBlogView from "@/sections/newsBlogView";
-import EventsSidebar from "@/sections/events-sidebar";
+import NewsSidebar from '@/sections/NewsBlog/news-sidebar'
+import NewsBlogView from "@/sections/NewsBlog/newsBlogView";
+import EventsSidebar from "@/sections/Events/events-sidebar";
 
 
 export default function NewsBlogsPage() {

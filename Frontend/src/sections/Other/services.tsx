@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Container, Typography, Card, CardContent, Grid } from '@mui/material';
-import { services } from '@/app/data/data'
+import { services } from '@/sections/Other/servicesData'
 
 export default function ServicesSection() {
 

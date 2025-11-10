@@ -2,15 +2,19 @@
 
 import { Card, CardContent, Typography, Box } from '@mui/material';
 import Image from 'next/image';
+import { PublicationsCardProps } from "@/types/components";
+import Link from "next/link";
 
-interface PublicationsCardProps {
-    category: string;
-    image: string;
-    count: number;
-}
+export default function PublicationsCard({
+                                             category,
+                                             image,
+                                             count,
+                                             width = 100,
+                                             height = 100,
+                                             isLink = false
+                                         }: PublicationsCardProps) {
 
-export default function PublicationsCard({ category, image, count }: PublicationsCardProps) {
-    return (
+    const cardContent = (
         <Card
             sx={{
                 textAlign: 'center',
@@ -20,9 +24,10 @@ export default function PublicationsCard({ category, image, count }: Publication
                 height: '100%',
                 border: '1px solid #e0e0e0',
                 '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: '0 6px 16px rgba(0,0,0,0.1)',
+                    transform: isLink ? 'translateY(-4px)' : 'none',
+                    boxShadow: isLink ? '0 6px 16px rgba(0,0,0,0.1)' : 'none',
                 },
+                cursor: isLink ? 'pointer' : 'default',
             }}
         >
             <CardContent>
@@ -45,8 +50,8 @@ export default function PublicationsCard({ category, image, count }: Publication
                     <Image
                         src={image}
                         alt={category}
-                        width={100}
-                        height={100}
+                        width={width}
+                        height={height}
                         style={{
                             borderRadius: '12px',
                             objectFit: 'cover',
@@ -71,4 +76,14 @@ export default function PublicationsCard({ category, image, count }: Publication
             </CardContent>
         </Card>
     );
+
+    if (isLink) {
+        return (
+            <Link href={`/publications/${category}`} style={{ textDecoration: 'none' }}>
+                {cardContent}
+            </Link>
+        );
+    }
+
+    return cardContent;
 }

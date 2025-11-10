@@ -22,6 +22,12 @@ export interface ResourcePerson {
   linkedin?: string
 }
 
+export interface ResourcePersonCardProps {
+  person: ResourcePerson;
+  isExpanded?: boolean;
+  onToggle?: () => void;
+}
+
 export interface ResourcePersonsSectionProps {
   persons: ResourcePerson[]
   title?: string
@@ -31,15 +37,6 @@ export interface ResourcePersonsSectionProps {
 export interface ResourcePersonCardProps {
   person: ResourcePerson
   showDetails?: boolean
-}
-
-export interface Publication{
-  title: string;
-  documentUrl: string;
-  category: string;
-  authors: string;
-  thumbnail?: string;
-  authorImage?: string;
 }
 
 export interface StaffMember {

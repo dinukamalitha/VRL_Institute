@@ -3,7 +3,7 @@
 import { Box, Container, Typography, Divider } from '@mui/material'
 import Navbar from '@/components/Navbar'
 import { NavLink } from '@/types/navbar'
-import EventsSidebar from '@/sections/events-sidebar'
+import EventsSidebar from '@/sections/Events/events-sidebar'
 import Image from 'next/image'
 import journalImage from '@/app/assets/images/journal-Image.jpg'
 import Footer from '@/components/Footer'
