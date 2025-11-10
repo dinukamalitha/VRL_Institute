@@ -197,35 +197,49 @@ export const getPublicationsByCategory = async (req: Request, res: Response) => 
 
 // generates a signed URL
 export const generateSignedPdfUrl = async (req: Request, res: Response) => {
+    const fullPath = (req.query.fullPath || req.query.fullpath) as string;
+    if (!fullPath) return res.status(400).send("Missing 'fullPath' query param");
+
     cloudinary.config({
         cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
         api_key: process.env.CLOUDINARY_API_KEY,
         api_secret: process.env.CLOUDINARY_API_SECRET,
     });
 
-    const fullPath = req.query.fullPath || req.query.fullpath;
-    const fullPathString = Array.isArray(fullPath) ? fullPath[0] : fullPath as string;
-
-    if (!fullPathString) {
-        return res.status(400).json({ error: "Missing 'fullPath' query parameter" });
-    }
-
     try {
-        if (typeof fullPathString === "string") {
-            const signedUrl = cloudinary.utils.private_download_url(fullPathString, '', {
-                resource_type: 'raw',
-                type: 'upload',
-                expires_at: Math.floor(Date.now() / 1000) + 600
-            });
+        const signedUrl = cloudinary.utils.private_download_url(fullPath, '', {
+            resource_type: 'raw',
+            type: 'upload',
+            expires_at: Math.floor(Date.now() / 1000) + 300 // 5 min
+        });
 
-            res.status(200).json({ url: signedUrl });
-        }
+        const filename = fullPath.split('/').pop() || 'file';
+        const ext = filename.split('.').pop()?.toLowerCase() || '';
 
+        // Map extensions to MIME types
+        const mimeTypes: Record<string, string> = {
+            pdf: 'application/pdf',
+            doc: 'application/msword',
+            docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            xls: 'application/vnd.ms-excel',
+            xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            txt: 'text/plain',
+            csv: 'text/csv',
+        };
 
+        const contentType = mimeTypes[ext] || 'application/octet-stream';
+
+        const cloudinaryResponse = await axios.get(signedUrl, { responseType: 'stream' });
+
+        res.setHeader('Content-Type', contentType);
+        res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+        res.setHeader('Content-Length', cloudinaryResponse.headers['content-length'] || '');
+
+        cloudinaryResponse.data.pipe(res);
 
     } catch (err) {
-        console.error("Error generating signed PDF URL:", err);
-        res.status(500).json({ error: "Cannot generate a URL for the PDF" });
+        console.error("Error streaming file:", err);
+        res.status(500).send("Failed to load file");
     }
 };
 

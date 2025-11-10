@@ -18,7 +18,7 @@ import {
     Tooltip,
     CircularProgress
 } from '@mui/material';
-import {getPublicationsByCategory, streamPublicationPdf} from '@/api/publications';
+import {getPublicationsByCategory} from '@/api/publications';
 import { Publication } from '@/types/publications';
 import Link from 'next/link';
 import { NavLink } from "@/types/navbar";
@@ -57,34 +57,16 @@ export default function PublicationCategoryPage() {
         setSearchTerm(event.target.value);
     };
 
-    const handlePreview = async (pub: Publication) => {
-        if (!pub._id || !pub.documentUrl) return;
-        setPreviewingId(pub._id);
+    const handlePreview = (pub: Publication) => {
+        if (!pub.documentUrl) return;
 
-        try {
-            const match = pub.documentUrl.match(/\/v\d+\/(.*)/);
-            const fullPath = match ? match[1] : null;
+        const match = pub.documentUrl.match(/\/v\d+\/(.*)/);
+        const fullPath = match ? match[1] : pub.documentUrl;
 
-            if (!fullPath) {
-                console.error("Could not extract the full public ID path from the URL:", pub.documentUrl);
-                alert("Sorry, the document preview URL seems to be invalid.");
-                setPreviewingId(null); // Reset state on failure
-                return;
-            }
+        if (!fullPath) return alert("Invalid document URL");
 
-            const url = await streamPublicationPdf(fullPath);
-
-            if (url) {
-                window.open(url, "_blank", "noopener,noreferrer");
-            } else {
-                alert("Sorry, the document preview is currently unavailable.");
-            }
-        } catch (error) {
-            console.error("Preview failed:", error);
-            alert("An error occurred while trying to load the document preview.");
-        } finally {
-            setPreviewingId(null);
-        }
+        // Open backend proxy URL
+        window.open(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/publications/stream/pdf?fullPath=${encodeURIComponent(fullPath)}`, "_blank");
     };
 
     const filteredPublications = publications.filter(pub =>

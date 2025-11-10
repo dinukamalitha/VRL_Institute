@@ -49,23 +49,6 @@ export const getPublicationsByCategory = async (category: string) => {
     }
 };
 
-export const streamPublicationPdf = async (fullpath: string) => {
-    try {
-        const response = await api.get("/api/publications/stream/pdf", {
-            params: { fullpath: fullpath }
-        });
-
-        if (response.status === 200) {
-            return response.data.url;
-        }
-
-        return null;
-    } catch (error) {
-        console.error("Failed to fetch publications document url", error);
-        return null;
-    }
-};
-
 // Get publications count by category
 export const getPublicationCountsByCategory = async () => {
     try {
