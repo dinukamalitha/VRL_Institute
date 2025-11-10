@@ -10,22 +10,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout repository to GitHub runner
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Set up Docker
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
 
-      # Login to Docker Hub
       - name: Docker Hub Login
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
-      # Build & push frontend docker image to dockerhub
       - name: Build Frontend Docker Image
         working-directory: ./Frontend
         run: |
@@ -36,14 +32,12 @@ jobs:
             -t ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-frontend:latest .
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-frontend:latest
 
-      # Build & push backend docker image to dockerhub
       - name: Build Backend Docker Image
         working-directory: ./Backend
         run: |
           docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-backend:latest .
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-backend:latest
 
-      # Deploy to remote server
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -54,6 +48,7 @@ jobs:
           script: |
             APP_DIR="$HOME/myapp"
             REPO_URL="https://github.com/dinukamalitha/VRL_Institute.git"
+
             if [ -d "$APP_DIR/.git" ]; then
               cd "$APP_DIR"
               git fetch --all
@@ -63,43 +58,39 @@ jobs:
               git clone "$REPO_URL" "$APP_DIR"
               cd "$APP_DIR"
             fi
-            echo "Creating .env file..."
+
+            echo "Creating .env files..."
             cat <<EOF > .env.frontend
-            DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}
-            NEXT_PUBLIC_BACKEND_URL=${{ secrets.NEXT_PUBLIC_BACKEND_URL }}
-            NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${{ secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
-            NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=${{ secrets.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET }}
-            EOF
-            
+              DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}
+              NEXT_PUBLIC_BACKEND_URL=${{ secrets.NEXT_PUBLIC_BACKEND_URL }}
+              NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${{ secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
+              NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=${{ secrets.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET }}
+              EOF
+
             cat <<EOF > .env.backend
-            DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}
-            NODE_ENV=production
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
-            MONGO_URI=${{ secrets.MONGO_URI }}
-            PORT=${{ secrets.PORT }}
-            CLOUDINARY_CLOUD_NAME=${{secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}} 
-            CLOUDINARY_API_KEY=${{secrets.CLOUDINARY_API_KEY}}
-            CLOUDINARY_API_SECRET=${{secrets.CLOUDINARY_API_SECRET}}
-            EOF
-            
-            # Stop any running containers from the previous version
+              DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}
+              NODE_ENV=production
+              JWT_SECRET=${{ secrets.JWT_SECRET }}
+              MONGO_URI=${{ secrets.MONGO_URI }}
+              PORT=${{ secrets.PORT }}
+              CLOUDINARY_CLOUD_NAME=${{ secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
+              CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}
+              CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}
+              EOF
+
             docker compose -f docker-compose.yml down
-            
-            # Clean up old images and volumes to save space
-            docker system prune -a
-            
-            # Pull the new images from Docker Hub
+            docker system prune -af
+
             echo "Pulling latest Docker images..."
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-frontend:latest
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/vrl-backend:latest
-            
-            # Run MongoDB migrations before starting backend
-#            echo "Running MongoDB migrations..."
-#            docker run --rm \
-#              -e MONGO_URI="${{ secrets.MONGO_URI }}" \
-#              -v "$APP_DIR/Backend:/app" \
-#              -w /app node:20 bash -c "npm install && npx migrate-mongo up"
-            
-            # Start the new containers using the production compose file
+
+            # Run MongoDB migrations (optional, uncomment if needed)
+            # echo "Running MongoDB migrations..."
+            # docker run --rm \
+            #   -e MONGO_URI="${{ secrets.MONGO_URI }}" \
+            #   -v "$APP_DIR/Backend:/app" \
+            #   -w /app node:20 bash -c "npm install && npx migrate-mongo up"
+
             echo "Starting new containers..."
             docker compose -f docker-compose.yml up -d
