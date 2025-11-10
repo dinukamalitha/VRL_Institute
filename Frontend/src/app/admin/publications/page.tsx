@@ -2,37 +2,55 @@
 
 import {
     Box,
-    Container,
-    Typography,
-    Grid,
     Button,
+    Chip,
+    Container,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Grid,
+    Typography,
 } from '@mui/material'
 import {useCallback, useEffect, useState} from 'react'
 import AddIcon from '@mui/icons-material/Add'
 import PublicationsCard from '@/components/PublicationsCard'
 import PublicationDialog from '@/sections/Publications/AddPublicationModal'
-import {createPublication, getAllPublications, getPublicationCountsByCategory} from '@/api/publications'
+import {
+    createPublication,
+    getAllPublications,
+    getPublicationCountsByCategory,
+    removePublication
+} from '@/api/publications'
 import {Publication} from "@/types/publications";
+import DataTable from "@/components/DataTable";
 
 export default function PublicationsPage() {
     const [openDialog, setOpenDialog] = useState(false)
     const [publications, setPublications] = useState<Publication[]>([])
     const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({})
+    const [loading, setLoading] = useState(true)
+
+    // Delete confirmation dialog state
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+    const [deleteId, setDeleteId] = useState<string | null>(null)
 
     // Fetch publications data
     const fetchPageData = useCallback(async () => {
+        setLoading(true)
         try {
             const [publicationsResponse, countsResponse] = await Promise.all([
                 getAllPublications(),
                 getPublicationCountsByCategory()
             ]);
 
-            setPublications(Array.isArray(publicationsResponse) ? publicationsResponse : []);
-            console.log(publications)
+            setPublications(Array.isArray(publicationsResponse.data) ? publicationsResponse.data : []);
             setCategoryCounts(countsResponse.data || {});
-
+            console.log(publicationsResponse);
         } catch (error) {
             console.error('Failed to fetch page data:', error)
+        } finally {
+            setLoading(false)
         }
     }, []);
 
@@ -65,6 +83,28 @@ export default function PublicationsPage() {
         } catch (error) {
             console.error("An error occurred while saving the publication:", error);
             alert('An error occurred while saving the publication.');
+        }
+    }
+
+    // Open delete confirmation
+    const handleDelete = (row: Publication) => {
+        setDeleteId(row._id)
+        setDeleteConfirmOpen(true)
+    }
+
+    // Confirm delete API call
+    const confirmDelete = async () => {
+        if (!deleteId) return
+        try {
+            const result = await removePublication(deleteId)
+            if (result) {
+                fetchPageData()
+            }
+        } catch (err) {
+            console.error('Failed to delete news:', err)
+        } finally {
+            setDeleteConfirmOpen(false)
+            setDeleteId(null)
         }
     }
 
@@ -136,11 +176,88 @@ export default function PublicationsPage() {
                 ))}
             </Grid>
 
+            <Box sx={{ mt: 4 }}>
+                <DataTable
+                    columns={[
+                        {
+                            id: 'title',
+                            label: 'Title',
+                            minWidth: 150,
+                            format: (value) => (
+                                <Typography variant="body2" sx={{ fontWeight: 500, color: '#333' }}>
+                                    {value || "-"}
+                                </Typography>
+                            )
+                        },
+                        {
+                            id: 'authors',
+                            label: 'Author',
+                            minWidth: 120,
+                            align: 'left',
+                            format: (value) => Array.isArray(value) ? value.map(a => a.name).join(', ') : value
+                        },
+                        {
+                            id: 'category',
+                            label: 'Category',
+                            minWidth: 120,
+                            align: 'center',
+                            format: (value) => (
+                                <Chip
+                                    label={value || "Empty"}
+                                    size="small"
+                                    sx={{ backgroundColor: '#E91E63', color: 'white', fontWeight: 'bold', fontSize: '0.75rem' }}
+                                />
+                            )
+                        },
+                        {
+                            id: 'createdAt',
+                            label: 'Date Published',
+                            minWidth: 120,
+                            align: 'center',
+                            format: (value: string) => {
+                                if (!value) return "-";
+                                const date = new Date(value);
+                                // Format as YYYY-MM-DD HH:mm:ss
+                                return date.toISOString().split('T').join(' ').split('.')[0];
+                            }
+                        },
+                        {
+                            id: 'updatedAt',
+                            label: 'Last Updated',
+                            minWidth: 120,
+                            align: 'center',
+                            format: (value: string) => {
+                                if (!value) return "-";
+                                const date = new Date(value);
+                                return date.toISOString().split('T').join(' ').split('.')[0];;
+                            }
+                        }
+
+                    ]}
+                    data={publications}
+                    filteredData={publications}
+                    onDelete={handleDelete}
+                    loading={loading}
+                />
+            </Box>
+
             <PublicationDialog
                 open={openDialog}
                 onClose={handleClose}
                 onSave={handleSave}
             />
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={deleteConfirmOpen} onClose={() => setDeleteConfirmOpen(false)}>
+                <DialogTitle>Confirm Deletion</DialogTitle>
+                <DialogContent>
+                    <Typography>Are you sure you want to delete this news post?</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setDeleteConfirmOpen(false)}>Cancel</Button>
+                    <Button color="error" variant="contained" onClick={confirmDelete}>Delete</Button>
+                </DialogActions>
+            </Dialog>
         </Container>
     )
 }
