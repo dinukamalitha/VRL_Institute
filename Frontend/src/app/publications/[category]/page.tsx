@@ -68,6 +68,10 @@ export default function PublicationCategoryPage() {
 
         // Open backend proxy URL
         window.open(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/publications/stream/pdf?fullPath=${encodeURIComponent(fullPath)}`, "_blank");
+
+        setTimeout(() => {
+            setPreviewingId(null);
+        }, 500);
     };
 
     const filteredPublications = publications.filter(pub =>
@@ -245,7 +249,6 @@ export default function PublicationCategoryPage() {
                                                                 <IconButton
                                                                     sx={{ color: 'white', fontSize: '1rem' }}
                                                                     onClick={() => handlePreview(pub)}
-                                                                    disabled={previewingId === pub._id}
                                                                 >
                                                                     {previewingId === pub._id ? (
                                                                         <CircularProgress size={36} color="inherit" />
