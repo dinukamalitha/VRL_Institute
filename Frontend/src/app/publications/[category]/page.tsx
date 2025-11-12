@@ -9,7 +9,6 @@ import {
     Grid,
     Card,
     CardMedia,
-    CardContent,
     Button,
     Chip,
     TextField,
@@ -187,65 +186,86 @@ export default function PublicationCategoryPage() {
                                 <Grid container spacing={4}>
                                     {filteredPublications.map((pub) => (
                                         <Grid item xs={12} sm={4} md={3} key={pub._id}>
-                                            <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', borderRadius: 2, boxShadow: 3, transition: '0.3s', '&:hover': { transform: 'scale(1.03)', boxShadow: 6 } }}>
-                                                <CardMedia
-                                                    component="img"
-                                                    height="150"
-                                                    image={pub.thumbnail || 'no thumbnail available'}
-                                                    alt={pub.title}
-                                                />
-                                                <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                                                    <Box sx={{ flexGrow: 1 }}>
-                                                        <Typography variant="h6" fontWeight="bold" gutterBottom>
-                                                            {pub.title}
-                                                        </Typography>
+                                            <Card sx={{
+                                                height: '100%',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                borderRadius: 2,
+                                                boxShadow: 3,
+                                                transition: '0.3s',
+                                                '&:hover': { transform: 'scale(1.03)', boxShadow: 6 }
+                                            }}>
+                                                <Box
+                                                    sx={{
+                                                        position: 'relative',
+                                                        height: 350,
+                                                        width: '100%',
+                                                        overflow: 'hidden',
+                                                    }}
+                                                >
+                                                    <CardMedia
+                                                        component="img"
+                                                        sx={{
+                                                            height: '100%',
+                                                            width: '100%',
+                                                            objectFit: 'cover',
+                                                        }}
+                                                        image={pub.thumbnail || 'no thumbnail available'}
+                                                        alt={pub.title}
+                                                    />
 
-                                                        {pub.authors && pub.authors.length > 0 && (
-                                                            <Box sx={{ mb: 1, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                                                {pub.authors.map((author, index) => (
-                                                                    <Chip
-                                                                        key={index}
-                                                                        label={`By ${author.name}`}
-                                                                        size="small"
-                                                                    />
-                                                                ))}
-                                                            </Box>
-                                                        )}
-                                                    </Box>
-
-                                                    <Box sx={{ mt: 2 }}>
-                                                        {pub.createdAt && (
-                                                            <Typography variant="caption" color="text.secondary" display="block">
-                                                                Published on {new Date(pub.createdAt).toLocaleDateString()}
-                                                            </Typography>
-                                                        )}
-
-                                                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 1 }}>
+                                                    <Box
+                                                        className="card-overlay"
+                                                        sx={{
+                                                            position: 'absolute',
+                                                            top: 0,
+                                                            left: 0,
+                                                            right: 0,
+                                                            bottom: 0,
+                                                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                                            color: 'white',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            padding: 2,
+                                                            opacity: 0,
+                                                            transition: 'opacity 0.3s ease-in-out',
+                                                            '&:hover': {
+                                                                opacity: 1,
+                                                            },
+                                                            // Ensure hover works by targeting the parent card
+                                                            '.MuiCard-root:hover &': {
+                                                                opacity: 1,
+                                                            }
+                                                        }}
+                                                    >
+                                                        {/* Buttons (Download and Preview) */}
+                                                        <Box sx={{ display: 'flex', gap: 2 }}>
                                                             <Tooltip title="Preview">
                                                                 <IconButton
-                                                                    color="primary"
+                                                                    sx={{ color: 'white', fontSize: '1rem' }}
                                                                     onClick={() => handlePreview(pub)}
                                                                     disabled={previewingId === pub._id}
                                                                 >
                                                                     {previewingId === pub._id ? (
-                                                                        <CircularProgress size={24} />
+                                                                        <CircularProgress size={36} color="inherit" />
                                                                     ) : (
-                                                                        <VisibilityIcon />
+                                                                        <VisibilityIcon/>
                                                                     )}
                                                                 </IconButton>
                                                             </Tooltip>
                                                             <Tooltip title="Download">
                                                                 <IconButton
-                                                                    color="secondary"
+                                                                    sx={{ color: 'white', fontSize: '1rem' }}
                                                                     href={pub.documentUrl}
                                                                     download
                                                                 >
-                                                                    <DownloadIcon />
+                                                                    <DownloadIcon/>
                                                                 </IconButton>
                                                             </Tooltip>
                                                         </Box>
                                                     </Box>
-                                                </CardContent>
+                                                </Box>
                                             </Card>
                                         </Grid>
                                     ))}

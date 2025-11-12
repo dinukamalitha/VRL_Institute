@@ -18,6 +18,7 @@ export const uploadToCloudinary = async (
   }
 
   let destinationFolder = folder;
+  let resourceType = "auto";
 
   // Check for PDF and DOCX file types
   if (
@@ -27,16 +28,18 @@ export const uploadToCloudinary = async (
       file.name.endsWith(".docx")
   ) {
     destinationFolder = "VRL/publications/documents";
+    resourceType = "raw"
   }
 
   const formData = new FormData();
   formData.append("file", file);
   formData.append("upload_preset", uploadPreset);
   formData.append("folder", destinationFolder);
+  formData.append("resource_type", resourceType);
 
   try {
     const response = await axios.post(
-        `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
+        `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
     );
