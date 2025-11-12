@@ -13,8 +13,8 @@ import {
     Chip,
     TextField,
     InputAdornment,
-    IconButton,
-    Tooltip,
+    // IconButton,
+    // Tooltip,
     CircularProgress
 } from '@mui/material';
 import {getPublicationsByCategory} from '@/api/publications';
@@ -23,14 +23,14 @@ import Link from 'next/link';
 import { NavLink } from "@/types/navbar";
 import Navbar from "@/components/Navbar";
 import SearchIcon from "@mui/icons-material/Search";
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import DownloadIcon from '@mui/icons-material/Download';
+// import VisibilityIcon from '@mui/icons-material/Visibility';
+// import DownloadIcon from '@mui/icons-material/Download';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 export default function PublicationCategoryPage() {
     const { category } = useParams<{ category: string }>();
     const [publications, setPublications] = useState<Publication[]>([]);
-    const [previewingId, setPreviewingId] = useState<string | null>(null);
+    //const [previewingId, setPreviewingId] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
 
@@ -64,14 +64,14 @@ export default function PublicationCategoryPage() {
 
         if (!fullPath) return alert("Invalid document URL");
 
-        setPreviewingId(pub._id || null);
+        // setPreviewingId(pub._id || null);
 
         // Open backend proxy URL
         window.open(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/publications/stream/pdf?fullPath=${encodeURIComponent(fullPath)}`, "_blank");
 
-        setTimeout(() => {
-            setPreviewingId(null);
-        }, 500);
+        // setTimeout(() => {
+        //     setPreviewingId(null);
+        // }, 500);
     };
 
     const filteredPublications = publications.filter(pub =>
@@ -240,33 +240,35 @@ export default function PublicationCategoryPage() {
                                                             // Ensure hover works by targeting the parent card
                                                             '.MuiCard-root:hover &': {
                                                                 opacity: 1,
-                                                            }
+                                                            },
+                                                            cursor: 'pointer',
                                                         }}
+                                                        onClick={() => handlePreview(pub)}
                                                     >
                                                         {/* Buttons (Download and Preview) */}
-                                                        <Box sx={{ display: 'flex', gap: 2 }}>
-                                                            <Tooltip title="Preview">
-                                                                <IconButton
-                                                                    sx={{ color: 'white', fontSize: '1rem' }}
-                                                                    onClick={() => handlePreview(pub)}
-                                                                >
-                                                                    {previewingId === pub._id ? (
-                                                                        <CircularProgress size={36} color="inherit" />
-                                                                    ) : (
-                                                                        <VisibilityIcon/>
-                                                                    )}
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                            <Tooltip title="Download">
-                                                                <IconButton
-                                                                    sx={{ color: 'white', fontSize: '1rem' }}
-                                                                    href={pub.documentUrl}
-                                                                    download
-                                                                >
-                                                                    <DownloadIcon/>
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                        </Box>
+                                                        {/*<Box sx={{ display: 'flex', gap: 2 }}>*/}
+                                                        {/*    <Tooltip title="Preview">*/}
+                                                        {/*        <IconButton*/}
+                                                        {/*            sx={{ color: 'white', fontSize: '1rem' }}*/}
+                                                        {/*            onClick={() => handlePreview(pub)}*/}
+                                                        {/*        >*/}
+                                                        {/*            {previewingId === pub._id ? (*/}
+                                                        {/*                <CircularProgress size={36} color="inherit" />*/}
+                                                        {/*            ) : (*/}
+                                                        {/*                <VisibilityIcon/>*/}
+                                                        {/*            )}*/}
+                                                        {/*        </IconButton>*/}
+                                                        {/*    </Tooltip>*/}
+                                                        {/*    <Tooltip title="Download">*/}
+                                                        {/*        <IconButton*/}
+                                                        {/*            sx={{ color: 'white', fontSize: '1rem' }}*/}
+                                                        {/*            href={pub.documentUrl}*/}
+                                                        {/*            download*/}
+                                                        {/*        >*/}
+                                                        {/*            <DownloadIcon/>*/}
+                                                        {/*        </IconButton>*/}
+                                                        {/*    </Tooltip>*/}
+                                                        {/*</Box>*/}
                                                     </Box>
                                                 </Box>
                                             </Card>
