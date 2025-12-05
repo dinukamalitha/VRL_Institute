@@ -4,7 +4,7 @@ const nextConfig = {
     optimizePackageImports: ['@/components', '@/lib'],
   },
   images: {
-    domains: [],
+    domains: ["images.unsplash.com"],
     formats: ['image/webp', 'image/avif'],
   },
   compiler: {

@@ -1,141 +1,423 @@
 'use client';
 
-import { Box, Container, Typography, Divider } from '@mui/material'
+import { Box, Container, Typography, Divider, Button, Card, CardContent, Grid, Paper, Chip } from '@mui/material'
 import Navbar from '@/components/Navbar'
-import { NavLink } from '@/types/navbar'
-import EventsSidebar from '@/sections/Events/events-sidebar'
+import JournalSidebar from '@/sections/Journal/journal-sidebar'
 import Image from 'next/image'
 import journalImage from '@/app/assets/images/journal-Image.jpg'
 import Footer from '@/components/Footer'
-
-const navLinks: NavLink[] = [
-  { label: 'Home', href: '/' },
-  { label: 'Services', href: '/#services' },
-  { label: "Writers' Hub", href: '/news-blogs' },
-  { label: 'Events & Programs', href: '#events' },
-  { label: 'Publications', href: '/#publications' },
-  { label: 'VRL Journal', href: '/#journals' },
-  { label: 'Contact', href: '/#contact' },
-]
+import { useNavLinks } from '@/hooks/useNavLinks'
+import BookIcon from '@mui/icons-material/Book'
+import DescriptionIcon from '@mui/icons-material/Description'
+import PolicyIcon from '@mui/icons-material/Policy'
+import LockOpenIcon from '@mui/icons-material/LockOpen'
+import PeopleIcon from '@mui/icons-material/People'
+import EmailIcon from '@mui/icons-material/Email'
+import ArticleIcon from '@mui/icons-material/Article'
+import DownloadIcon from '@mui/icons-material/Download'
 
 export default function JournalPage() {
+  const navLinks = useNavLinks()
   return (
     <>
       <Navbar navLinks={navLinks} logoSize="medium" />
+      
       <main>
-        <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+        <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
 
           {/* Main Journal Content */}
-          <Box sx={{ flex: 1, py: 8, px: 3, bgColor: '#fff' }}>
+          <Box sx={{ flex: 1, py: 6, px: { xs: 2, md: 4 } }}>
             <Container maxWidth="md">
-              <Typography
-                variant="h3"
-                align="center"
-                gutterBottom
-                sx={{ fontWeight: 'bold', color: '#333' }}
-              >
-                VRL Journal
-              </Typography>
-
-              <Typography align="center" color="text.secondary" paragraph>
-                {"Welcome to the official Veritas Research & Learning Journal (VRLJ)."}
-                {"Explore our multidisciplinary research publications that bridge theory and practice for real-world impact."}
-              </Typography>
-
-              {/* Journal Image */}
-              <Box sx={{ position: 'relative', width: '100%', height: 600, mb: 3 }}>
-                <Image
-                    src={journalImage}
-                    alt="VRL Journal Cover"
-                    fill
-                    style={{ objectFit: 'cover', borderRadius: '12px' }}
-                />
+              {/* Header Section */}
+              <Box sx={{ textAlign: 'center', mb: 6 }}>
+                <Typography
+                  variant="h2"
+                  gutterBottom
+                  sx={{ 
+                    fontWeight: 700, 
+                    color: '#1a1a1a',
+                    mb: 2,
+                    fontSize: { xs: '2rem', md: '2.75rem' }
+                  }}
+                >
+                  VRL Journal
+                </Typography>
+                <Typography 
+                  variant="h6" 
+                  color="text.secondary" 
+                  sx={{ 
+                    maxWidth: 700, 
+                    mx: 'auto',
+                    mb: 4,
+                    fontSize: { xs: '1rem', md: '1.25rem' },
+                    lineHeight: 1.6
+                  }}
+                >
+                  Welcome to the official Veritas Research & Learning Journal (VRLJ).
+                  Explore our multidisciplinary research publications that bridge theory and practice for real-world impact.
+                </Typography>
               </Box>
 
-              <Divider sx={{ my: 4 }} />
+              {/* Journal Cover Image */}
+              <Paper
+                elevation={3}
+                sx={{
+                  position: 'relative',
+                  width: '100%',
+                  height: { xs: 400, md: 500 },
+                  mb: 5,
+                  borderRadius: 3,
+                  overflow: 'hidden',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                }}
+              >
+                <Image
+                  src={journalImage}
+                  alt="VRL Journal Cover"
+                  fill
+                  style={{ objectFit: 'cover' }}
+                  priority
+                />
+              </Paper>
 
-              {/* Aim of the Journal */}
-              <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
-                Aim of the Journal
-              </Typography>
-              <Typography paragraph>
-                {"The Veritas Research & Learning Journal (VRLJ) dedicates itself to fostering high-quality, multidisciplinary research that connects theory and practice."}
-                {"The journal aims to disseminate impactful knowledge that fosters innovation, informs policy, and contributes to real-world problem-solving across diverse academic and professional domains."}
-              </Typography>
+              {/* Current Issue Card */}
+              <Card
+                elevation={2}
+                sx={{
+                  mb: 5,
+                  borderRadius: 3,
+                  background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
+                  color: 'white',
+                  boxShadow: '0 8px 24px rgba(25, 118, 210, 0.3)',
+                }}
+              >
+                <CardContent sx={{ p: 4 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <BookIcon sx={{ fontSize: 32, mr: 2 }} />
+                    <Typography variant="h5" sx={{ fontWeight: 700 }}>
+                      Current Issue
+                    </Typography>
+                  </Box>
+                  <Typography variant="body1" sx={{ mb: 3, opacity: 0.95 }}>
+                    Volume 1, Issue 1 - January 2025
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    startIcon={<DownloadIcon />}
+                    href="/VRL_Journal_V1_01.pdf"
+                    target="_blank"
+                    sx={{
+                      backgroundColor: 'white',
+                      color: '#1976d2',
+                      py: 1.5,
+                      fontSize: '1rem',
+                      fontWeight: 600,
+                      textTransform: 'none',
+                      borderRadius: 2,
+                      '&:hover': {
+                        backgroundColor: '#f5f5f5',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                      },
+                      transition: 'all 0.2s ease-in-out',
+                    }}
+                  >
+                    Download Current Issue (PDF)
+                  </Button>
+                </CardContent>
+              </Card>
 
-              {/* Screening & Peer Review */}
-              <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mt: 3 }}>
-                Initial Screening and Peer Review Process
-              </Typography>
-              <Typography paragraph>
-                {"Upon submission, one of the editors will conduct a preliminary review to assess the manuscript's relevance, quality, and compliance with journal guidelines."}
-                {"If deemed suitable, the manuscript will then undergo a double-blind peer review process by two independent reviewers, ensuring objectivity and academic rigor."}
-              </Typography>
+              {/* Content Sections Grid */}
+              <Grid container spacing={3}>
+                {/* Aim of the Journal */}
+                <Grid item xs={12} md={6}>
+                  <Card
+                    elevation={1}
+                    sx={{
+                      height: '100%',
+                      borderRadius: 3,
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        boxShadow: 4,
+                        transform: 'translateY(-4px)',
+                      },
+                    }}
+                  >
+                    <CardContent sx={{ p: 3 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                        <DescriptionIcon sx={{ fontSize: 28, color: 'primary.main', mr: 1.5 }} />
+                        <Typography variant="h6" sx={{ fontWeight: 700, color: '#1a1a1a' }}>
+                          Aim of the Journal
+                        </Typography>
+                      </Box>
+                      <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
+                        The Veritas Research & Learning Journal (VRLJ) dedicates itself to fostering high-quality, 
+                        multidisciplinary research that connects theory and practice. The journal aims to disseminate 
+                        impactful knowledge that fosters innovation, informs policy, and contributes to real-world 
+                        problem-solving across diverse academic and professional domains.
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
 
-              {/* Publication Policy */}
-              <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mt: 3 }}>
-                Publication Policy
-              </Typography>
-              <Typography paragraph>
-                {"VRLJ is a digital-only journal. Accepted articles will be published online within two weeks of the final manuscript submission."}
-                {"A compiled electronic book version of the journal will be released semiannually (two volumes per year) and will be available for download. Printed versions can be obtained by interested parties."}
-                {"A nominal publication fee is charged to cover administrative costs. Authors are solely responsible for the contents, plagiarism, and language quality of their submitted manuscripts."}
-              </Typography>
+                {/* Peer Review Process */}
+                <Grid item xs={12} md={6}>
+                  <Card
+                    elevation={1}
+                    sx={{
+                      height: '100%',
+                      borderRadius: 3,
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        boxShadow: 4,
+                        transform: 'translateY(-4px)',
+                      },
+                    }}
+                  >
+                    <CardContent sx={{ p: 3 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                        <ArticleIcon sx={{ fontSize: 28, color: 'primary.main', mr: 1.5 }} />
+                        <Typography variant="h6" sx={{ fontWeight: 700, color: '#1a1a1a' }}>
+                          Peer Review Process
+                        </Typography>
+                      </Box>
+                      <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
+                        Upon submission, one of the editors will conduct a preliminary review to assess the manuscript's 
+                        relevance, quality, and compliance with journal guidelines. If deemed suitable, the manuscript 
+                        will then undergo a double-blind peer review process by two independent reviewers, ensuring 
+                        objectivity and academic rigor.
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
 
-              {/* Open Access */}
-              <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mt: 3 }}>
-                Open Access Policy
-              </Typography>
-              <Typography paragraph>
-                {"This journal provides immediate and free open access to all its content, based on the principle that freely available research promotes a greater global exchange of knowledge and supports academic development."}
-              </Typography>
+                {/* Publication Policy */}
+                <Grid item xs={12}>
+                  <Card
+                    elevation={1}
+                    sx={{
+                      borderRadius: 3,
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        boxShadow: 4,
+                        transform: 'translateY(-4px)',
+                      },
+                    }}
+                  >
+                    <CardContent sx={{ p: 3 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                        <PolicyIcon sx={{ fontSize: 28, color: 'primary.main', mr: 1.5 }} />
+                        <Typography variant="h6" sx={{ fontWeight: 700, color: '#1a1a1a' }}>
+                          Publication Policy
+                        </Typography>
+                      </Box>
+                      <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8, mb: 2 }}>
+                        VRLJ is a digital-only journal. Accepted articles will be published online within two weeks 
+                        of the final manuscript submission. A compiled electronic book version of the journal will be 
+                        released semiannually (two volumes per year) and will be available for download. Printed versions 
+                        can be obtained by interested parties.
+                      </Typography>
+                      <Chip
+                        label="Nominal publication fee applies"
+                        color="primary"
+                        variant="outlined"
+                        size="small"
+                      />
+                    </CardContent>
+                  </Card>
+                </Grid>
 
-              {/* Publisher & Editors */}
-              <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mt: 3 }}>
-                Publisher & Chief Editors
-              </Typography>
-              <Typography paragraph>
-                <strong>Publisher:</strong> Veritas Research & Learning Institute <br />
-                <strong>Chief Editors:</strong> Dr. Susil Kumara Silva, Dr. Jayantha Balasooriya, Dr. Mihira Wanninayake
-              </Typography>
+                {/* Open Access Policy */}
+                <Grid item xs={12} md={6}>
+                  <Card
+                    elevation={1}
+                    sx={{
+                      height: '100%',
+                      borderRadius: 3,
+                      background: 'linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%)',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        boxShadow: 4,
+                        transform: 'translateY(-4px)',
+                      },
+                    }}
+                  >
+                    <CardContent sx={{ p: 3 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                        <LockOpenIcon sx={{ fontSize: 28, color: 'primary.main', mr: 1.5 }} />
+                        <Typography variant="h6" sx={{ fontWeight: 700, color: '#1a1a1a' }}>
+                          Open Access Policy
+                        </Typography>
+                      </Box>
+                      <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
+                        This journal provides immediate and free open access to all its content, based on the principle 
+                        that freely available research promotes a greater global exchange of knowledge and supports 
+                        academic development.
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
 
-              {/* Submission */}
-              <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mt: 3 }}>
-                Submit Your Paper
-              </Typography>
-              <Typography paragraph>
-                Email your manuscript to: <strong>infor@vrlj.com</strong>
-              </Typography>
+                {/* Publisher & Editors */}
+                <Grid item xs={12} md={6}>
+                  <Card
+                    elevation={1}
+                    sx={{
+                      height: '100%',
+                      borderRadius: 3,
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        boxShadow: 4,
+                        transform: 'translateY(-4px)',
+                      },
+                    }}
+                  >
+                    <CardContent sx={{ p: 3 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                        <PeopleIcon sx={{ fontSize: 28, color: 'primary.main', mr: 1.5 }} />
+                        <Typography variant="h6" sx={{ fontWeight: 700, color: '#1a1a1a' }}>
+                          Publisher & Editors
+                        </Typography>
+                      </Box>
 
-              {/* Instructions for Authors */}
-              <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mt: 3 }}>
-                Instructions for Authors
-              </Typography>
-              <Typography paragraph>
-                <strong>Typographic guidance:</strong><br />
-                Body text: Times New Roman, 11pt minimum, normal style.<br />
-                Headings: Times New Roman, 11pt minimum, bold style.<br />
-                Page setup: 2.54 cm margins on all sides, single line spacing.<br /><br />
-                <strong>Maximum Word Count:</strong> 8,000 words (excluding references, appendices, tables, title, and abstract). Abstract ≤ 400 words.<br /><br />
-                <strong>Referencing & Professionalism:</strong> Identify and acknowledge all sources, use consistent referencing style (Harvard or APA), maintain high-quality English. Diagrams, tables, and figures should be included in the main text; large tables may go in appendices.
-              </Typography>
+                      {/* Publisher */}
+                      <Box sx={{ mb: 2 }}>
+                        <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                          Publisher:
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Veritas Research & Learning Institute
+                        </Typography>
+                      </Box>
 
-              {/* Button for latest PDF */}
-              {/*<Box sx={{ textAlign: 'center', mt: 5 }}>*/}
-              {/*  <Button*/}
-              {/*    variant="outlined"*/}
-              {/*    color="primary"*/}
-              {/*    href="/VRL Journal_V1_01.pdf"*/}
-              {/*    target="_blank"*/}
-              {/*  >*/}
-              {/*    Open Latest Journal (PDF)*/}
-              {/*  </Button>*/}
-              {/*</Box>*/}
+                      {/* Chief Editors */}
+                      <Box>
+                        <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                          Chief Editors:
+                        </Typography>
+
+                        <Box sx={{ pl: 1 }}>
+                          <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                            • Dr. Susil Kumara Silva
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                            • Dr. Jayantha Balasooriya
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            • Dr. Mihira Wanninayake
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+
+                {/* Submission Section */}
+                <Grid item xs={12}>
+                  <Card
+                    elevation={2}
+                    sx={{
+                      borderRadius: 3,
+                      background: 'linear-gradient(135deg, #e91e63 0%, #c2185b 100%)',
+                      color: 'white',
+                      boxShadow: '0 8px 24px rgba(233, 30, 99, 0.3)',
+                    }}
+                  >
+                    <CardContent sx={{ p: 4 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                        <EmailIcon sx={{ fontSize: 32, mr: 2 }} />
+                        <Typography variant="h5" sx={{ fontWeight: 700 }}>
+                          Submit Your Paper
+                        </Typography>
+                      </Box>
+                      <Typography variant="body1" sx={{ mb: 3, opacity: 0.95 }}>
+                        We welcome submissions from researchers and scholars across diverse disciplines.
+                      </Typography>
+                      <Box
+                        sx={{
+                          backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                          borderRadius: 2,
+                          p: 2,
+                          display: 'inline-block',
+                        }}
+                      >
+                        <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                          Email your manuscript to:{' '}
+                          <Box component="span" sx={{ textDecoration: 'underline' }}>
+                            info@vrlinstitute.lk
+                          </Box>
+                        </Typography>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                {/* Instructions for Authors */}
+                <Grid item xs={12}>
+                  <Card
+                    elevation={1}
+                    sx={{
+                      borderRadius: 3,
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        boxShadow: 4,
+                        transform: 'translateY(-4px)',
+                      },
+                    }}
+                  >
+                    <CardContent sx={{ p: 4 }}>
+                      <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#1a1a1a' }}>
+                        Instructions for Authors
+                      </Typography>
+                      
+                      <Box sx={{ mb: 3 }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1.5, color: '#333' }}>
+                          Typographic Guidance
+                        </Typography>
+                        <Box component="ul" sx={{ pl: 3, m: 0 }}>
+                          <Typography component="li" variant="body2" color="text.secondary" sx={{ mb: 1, lineHeight: 1.8 }}>
+                            Body text: Times New Roman, 11pt minimum, normal style
+                          </Typography>
+                          <Typography component="li" variant="body2" color="text.secondary" sx={{ mb: 1, lineHeight: 1.8 }}>
+                            Headings: Times New Roman, 11pt minimum, bold style
+                          </Typography>
+                          <Typography component="li" variant="body2" color="text.secondary" sx={{ mb: 1, lineHeight: 1.8 }}>
+                            Page setup: 2.54 cm margins on all sides, single line spacing
+                          </Typography>
+                        </Box>
+                      </Box>
+
+                      <Box sx={{ mb: 3 }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1.5, color: '#333' }}>
+                          Maximum Word Count
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.8 }}>
+                          8,000 words (excluding references, appendices, tables, title, and abstract). 
+                          Abstract ≤ 400 words.
+                        </Typography>
+                      </Box>
+
+                      <Box>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1.5, color: '#333' }}>
+                          Referencing & Professionalism
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.8 }}>
+                          Identify and acknowledge all sources, use consistent referencing style (Harvard or APA), 
+                          maintain high-quality English. Diagrams, tables, and figures should be included in the 
+                          main text; large tables may go in appendices.
+                        </Typography>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
             </Container>
           </Box>
 
-          {/* Right Sidebar (Events) */}
-          <EventsSidebar/>
+          {/* Right Sidebar (Journal) */}
+          <JournalSidebar/>
 
         </Box>
       </main>

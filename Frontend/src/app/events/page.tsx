@@ -24,12 +24,11 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import InfoCard from '@/components/InfoCard'
 import CategoryDropdown from '@/components/CategoryDropdown'
-import { useHydration } from '@/hooks/useHydration'
 import { getAllEvents } from '@/api/events'
 import EventsSidebar from '@/sections/Events/events-sidebar'
 import NewsSidebar from '@/sections/NewsBlog/news-sidebar'
-import {NavLink} from "@/types/navbar";
 import EventView from "@/sections/Events/eventView";
+import { useNavLinks } from '@/hooks/useNavLinks'
 
 const categories = [
   'All',
@@ -54,7 +53,6 @@ export default function EventsPage() {
   const [allEvents, setAllEvents] = useState<any[]>([])
   const [, setLoading] = useState(false)
   const [showEvent, setShowEvent] = useState(false)
-  const mounted = useHydration()
   const itemsPerPage = 9
 
   // Fetch events from backend
@@ -101,7 +99,6 @@ export default function EventsPage() {
 
   // Handle URL param for event detail
   useEffect(() => {
-    if (!mounted) return
     const eventId = searchParams.get('event')
     if (eventId) {
       const event = allEvents.find(
@@ -113,17 +110,9 @@ export default function EventsPage() {
         setShowEvent(true)
       }
     }
-  }, [searchParams, mounted, allEvents])
+  }, [searchParams, allEvents])
 
-  const navLinks: NavLink[] = [
-    { label: 'Home', href: '/' },
-    { label: 'Services', href: '/#services' },
-    { label: "Writers' Hub", href: '/news-blogs' },
-    { label: 'Events & Programs', href: '/events' },
-    { label: 'Publications', href: '/#publications' },
-    { label: 'VRL Journal', href: '/#journals' },
-    { label: 'Contact', href: '/#contact' },
-  ]
+  const navLinks = useNavLinks()
 
   // Filter events
   const filteredEvents = allEvents.filter((event) => {
@@ -167,43 +156,6 @@ export default function EventsPage() {
     setShowEvent(false)
     setSelectedEvent(null)
     router.push('/events')
-  }
-
-  if (!mounted) {
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-          background:
-            'linear-gradient(-45deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%)',
-          backgroundSize: '400% 400%',
-          animation: 'gradientShift 15s ease infinite',
-        }}
-      >
-        <Typography
-          variant="h5"
-          sx={{ color: 'white', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}
-        >
-          Loading Events...
-        </Typography>
-        <style jsx>{`
-          @keyframes gradientShift {
-            0% {
-              background-position: 0 50%;
-            }
-            50% {
-              background-position: 100% 50%;
-            }
-            100% {
-              background-position: 0 50%;
-            }
-          }
-        `}</style>
-      </Box>
-    )
   }
 
   console.log(selectedEvent)

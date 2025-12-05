@@ -15,11 +15,10 @@ import {
 import { useRouter, useSearchParams } from 'next/navigation'
 import SearchIcon from '@mui/icons-material/Search'
 import Navbar from '@/components/Navbar'
-import { NavLink } from '@/types/navbar'
 import Footer from '@/components/Footer'
+import { useNavLinks } from '@/hooks/useNavLinks'
 import InfoCard from '@/components/InfoCard'
 import CategoryDropdown from '@/components/CategoryDropdown'
-import { useHydration } from '@/hooks/useHydration'
 import { getAllNewsBlogs, getNewsBlogsCategories } from '@/api/news-blogs'
 import NewsSidebar from '@/sections/NewsBlog/news-sidebar'
 import NewsBlogView from "@/sections/NewsBlog/newsBlogView";
@@ -37,7 +36,6 @@ export default function NewsBlogsPage() {
   const [allNewsItems, setAllNewsItems] = useState<any[]>([])
   const [, setLoading] = useState(false)
   const [showArticle, setShowArticle] = useState(false)
-  const mounted = useHydration()
   const itemsPerPage = 9
 
   // Fetch from backend
@@ -74,10 +72,8 @@ export default function NewsBlogsPage() {
     fetchNews()
   }, [])
 
-  // Check for article ID in URL parameters on component mount (only after hydration)
+  // Check for article ID in URL parameters on component mount
   useEffect(() => {
-    if (!mounted) return
-
     const articleId = searchParams.get('article')
     if (articleId) {
       const article = allNewsItems.find(item =>
@@ -88,7 +84,7 @@ export default function NewsBlogsPage() {
         setShowArticle(true)
       }
     }
-  }, [searchParams, mounted, allNewsItems])
+  }, [searchParams, allNewsItems])
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -106,15 +102,7 @@ export default function NewsBlogsPage() {
   }, [])
 
 
-  const navLinks: NavLink[] = [
-    { label: 'Home', href: '/' },
-    { label: 'Services', href: '/#services' },
-    { label: "Writers' Hub", href: '/news-blogs' },
-    { label: 'Events & Programs', href: '/#events' },
-    { label: 'Publications', href: '/#publications' },
-    { label: 'VRL Journal', href: '/#journals' },
-    { label: 'Contact', href: '/#contact' },
-  ]
+  const navLinks = useNavLinks()
 
   // Filter news based on search term and category
   const filteredNews = allNewsItems.filter((news: any) => {
@@ -156,32 +144,6 @@ export default function NewsBlogsPage() {
     setSelectedArticle(null)
     // Clear the URL parameter
     router.push('/news-blogs')
-  }
-
-  // Show loading during hydration
-  if (!mounted) {
-    return (
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        background: 'linear-gradient(-45deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%)',
-        backgroundSize: '400% 400%',
-        animation: 'gradientShift 15s ease infinite'
-      }}>
-        <Typography variant="h5" sx={{ color: 'white', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>
-          Loading News & Blogs...
-        </Typography>
-        <style jsx>{`
-          @keyframes gradientShift {
-            0% { background-position: 0 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0 50%; }
-          }
-        `}</style>
-      </Box>
-    )
   }
 
   return (

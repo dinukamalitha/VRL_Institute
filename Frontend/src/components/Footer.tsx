@@ -162,7 +162,7 @@ export default function Footer() {
                             </a>
                         </Box>
 
-                        {/* Quick Links */}
+                        {/* Quick Links
                         <Typography variant="h6" sx={{fontWeight: 'bold', mb: 2, color: 'primary.main'}}>
                             Quick Links
                         </Typography>
@@ -183,7 +183,7 @@ export default function Footer() {
                                         sx={{color: '#ccc', cursor: 'pointer', '&:hover': {color: 'primary.main'}}}>
                                 Contact Us
                             </Typography>
-                        </Box>
+                        </Box> */}
                     </Grid>
                 </Grid>
 

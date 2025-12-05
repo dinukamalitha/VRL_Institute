@@ -20,8 +20,8 @@ import {
 import {getPublicationsByCategory} from '@/api/publications';
 import { Publication } from '@/types/publications';
 import Link from 'next/link';
-import { NavLink } from "@/types/navbar";
 import Navbar from "@/components/Navbar";
+import { useNavLinks } from '@/hooks/useNavLinks';
 import SearchIcon from "@mui/icons-material/Search";
 // import VisibilityIcon from '@mui/icons-material/Visibility';
 // import DownloadIcon from '@mui/icons-material/Download';
@@ -78,15 +78,7 @@ export default function PublicationCategoryPage() {
         pub.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const navLinks: NavLink[] = [
-        { label: 'Home', href: '/' },
-        { label: 'Services', href: '/#services' },
-        { label: "Writers' Hub", href: '/news-blogs' },
-        { label: 'Events & Programs', href: '/#events' },
-        { label: 'Publications', href: '/#publications' },
-        { label: 'VRL Journal', href: '/#journals' },
-        { label: 'Contact', href: '/#contact' },
-    ];
+    const navLinks = useNavLinks();
 
     return (
         <>
