@@ -10,6 +10,9 @@ import resourcePersonsRoutes from "./routes/resourcePersonsRoutes";
 import homeContentRoutes from "./routes/homeContentRoutes";
 import staffRoutes from "./routes/staffRoutes";
 import publicationRoutes from "./routes/publicationRoutes";
+import journalArticleRoutes from "./routes/journalArticleRoutes";
+import journalVolumeRoutes from "./routes/journalVolumeRoutes";
+import journalContentRoutes from "./routes/journalContentRoutes";
 
 const app = express();
 
@@ -29,6 +32,9 @@ app.use("/api/resource-persons", resourcePersonsRoutes);
 app.use("/api/home-content", homeContentRoutes);
 app.use("/api/staff", staffRoutes);
 app.use("/api/publications", publicationRoutes);
+app.use("/api/journal-articles", journalArticleRoutes);
+app.use("/api/journal-volumes", journalVolumeRoutes);
+app.use("/api/journal-content", journalContentRoutes);
 
 // Error Handler
 app.use(errorHandler);

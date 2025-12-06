@@ -1,12 +1,14 @@
 'use client';
 
 import { Box, Container, Typography, Divider, Button, Card, CardContent, Grid, Paper, Chip } from '@mui/material'
+import { useState, useEffect } from 'react'
 import Navbar from '@/components/Navbar'
 import JournalSidebar from '@/sections/Journal/journal-sidebar'
 import Image from 'next/image'
 import journalImage from '@/app/assets/images/journal-Image.jpg'
 import Footer from '@/components/Footer'
 import { useNavLinks } from '@/hooks/useNavLinks'
+import { getJournalContent } from '@/api/journal-content'
 import BookIcon from '@mui/icons-material/Book'
 import DescriptionIcon from '@mui/icons-material/Description'
 import PolicyIcon from '@mui/icons-material/Policy'
@@ -18,6 +20,41 @@ import DownloadIcon from '@mui/icons-material/Download'
 
 export default function JournalPage() {
   const navLinks = useNavLinks()
+  const [journalContent, setJournalContent] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const content = await getJournalContent()
+        if (content) {
+          setJournalContent(content)
+        }
+      } catch (error) {
+        console.error('Failed to fetch journal content:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchContent()
+  }, [])
+
+  // Use API content if available, otherwise use defaults
+  const welcomeText = journalContent?.welcomeText || "Welcome to the official Veritas Research & Learning Journal (VRLJ). Explore our multidisciplinary research publications that bridge theory and practice for real-world impact."
+  const aimOfJournal = journalContent?.aimOfJournal || "The Veritas Research & Learning Journal (VRLJ) dedicates itself to fostering high-quality, multidisciplinary research that connects theory and practice. The journal aims to disseminate impactful knowledge that fosters innovation, informs policy, and contributes to real-world problem-solving across diverse academic and professional domains."
+  const peerReviewProcess = journalContent?.peerReviewProcess || "Upon submission, one of the editors will conduct a preliminary review to assess the manuscript's relevance, quality, and compliance with journal guidelines. If deemed suitable, the manuscript will then undergo a double-blind peer review process by two independent reviewers, ensuring objectivity and academic rigor."
+  const publicationPolicy = journalContent?.publicationPolicy || "VRLJ is a digital-only journal. Accepted articles will be published online within two weeks of the final manuscript submission. A compiled electronic book version of the journal will be released semiannually (two volumes per year) and will be available for download. Printed versions can be obtained by interested parties."
+  const openAccessPolicy = journalContent?.openAccessPolicy || "This journal provides immediate and free open access to all its content, based on the principle that freely available research promotes a greater global exchange of knowledge and supports academic development."
+  const publisher = journalContent?.publisher || "Veritas Research & Learning Institute"
+  const chiefEditors = journalContent?.chiefEditors || ["Dr. Susil Kumara Silva", "Dr. Jayantha Balasooriya", "Dr. Mihira Wanninayake"]
+  const submissionEmail = journalContent?.submissionEmail || "info@vrlinstitute.lk"
+  const submissionText = journalContent?.submissionText || "We welcome submissions from researchers and scholars across diverse disciplines."
+  const typographicGuidance = journalContent?.typographicGuidance || "Body text: Times New Roman, 11pt minimum, normal style. Headings: Times New Roman, 11pt minimum, bold style. Page setup: 2.54 cm margins on all sides, single line spacing."
+  const maxWordCount = journalContent?.maxWordCount || "8,000 words (excluding references, appendices, tables, title, and abstract). Abstract ≤ 400 words."
+  const referencingProfessionalism = journalContent?.referencingProfessionalism || "Identify and acknowledge all sources, use consistent referencing style (Harvard or APA), maintain high-quality English. Diagrams, tables, and figures should be included in the main text; large tables may go in appendices."
+  // Handle image - use API imageUrl if available, otherwise use default imported image
+  const journalImageUrl = journalContent?.imageUrl
+
   return (
     <>
       <Navbar navLinks={navLinks} logoSize="medium" />
@@ -52,10 +89,8 @@ export default function JournalPage() {
                     fontSize: { xs: '1rem', md: '1.25rem' },
                     lineHeight: 1.6
                   }}
-                >
-                  Welcome to the official Veritas Research & Learning Journal (VRLJ).
-                  Explore our multidisciplinary research publications that bridge theory and practice for real-world impact.
-                </Typography>
+                  dangerouslySetInnerHTML={{ __html: welcomeText }}
+                />
               </Box>
 
               {/* Journal Cover Image */}
@@ -71,13 +106,23 @@ export default function JournalPage() {
                   boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
                 }}
               >
-                <Image
-                  src={journalImage}
-                  alt="VRL Journal Cover"
-                  fill
-                  style={{ objectFit: 'cover' }}
-                  priority
-                />
+                {journalImageUrl ? (
+                  <Image
+                    src={journalImageUrl}
+                    alt="VRL Journal Cover"
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    priority
+                  />
+                ) : (
+                  <Image
+                    src={journalImage}
+                    alt="VRL Journal Cover"
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    priority
+                  />
+                )}
               </Paper>
 
               {/* Current Issue Card */}
@@ -151,12 +196,12 @@ export default function JournalPage() {
                           Aim of the Journal
                         </Typography>
                       </Box>
-                      <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
-                        The Veritas Research & Learning Journal (VRLJ) dedicates itself to fostering high-quality, 
-                        multidisciplinary research that connects theory and practice. The journal aims to disseminate 
-                        impactful knowledge that fosters innovation, informs policy, and contributes to real-world 
-                        problem-solving across diverse academic and professional domains.
-                      </Typography>
+                      <Typography 
+                        variant="body1" 
+                        color="text.secondary" 
+                        sx={{ lineHeight: 1.8 }}
+                        dangerouslySetInnerHTML={{ __html: aimOfJournal }}
+                      />
                     </CardContent>
                   </Card>
                 </Grid>
@@ -182,12 +227,12 @@ export default function JournalPage() {
                           Peer Review Process
                         </Typography>
                       </Box>
-                      <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
-                        Upon submission, one of the editors will conduct a preliminary review to assess the manuscript's 
-                        relevance, quality, and compliance with journal guidelines. If deemed suitable, the manuscript 
-                        will then undergo a double-blind peer review process by two independent reviewers, ensuring 
-                        objectivity and academic rigor.
-                      </Typography>
+                      <Typography 
+                        variant="body1" 
+                        color="text.secondary" 
+                        sx={{ lineHeight: 1.8 }}
+                        dangerouslySetInnerHTML={{ __html: peerReviewProcess }}
+                      />
                     </CardContent>
                   </Card>
                 </Grid>
@@ -212,12 +257,12 @@ export default function JournalPage() {
                           Publication Policy
                         </Typography>
                       </Box>
-                      <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8, mb: 2 }}>
-                        VRLJ is a digital-only journal. Accepted articles will be published online within two weeks 
-                        of the final manuscript submission. A compiled electronic book version of the journal will be 
-                        released semiannually (two volumes per year) and will be available for download. Printed versions 
-                        can be obtained by interested parties.
-                      </Typography>
+                      <Typography 
+                        variant="body1" 
+                        color="text.secondary" 
+                        sx={{ lineHeight: 1.8, mb: 2 }}
+                        dangerouslySetInnerHTML={{ __html: publicationPolicy }}
+                      />
                       <Chip
                         label="Nominal publication fee applies"
                         color="primary"
@@ -250,11 +295,12 @@ export default function JournalPage() {
                           Open Access Policy
                         </Typography>
                       </Box>
-                      <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
-                        This journal provides immediate and free open access to all its content, based on the principle 
-                        that freely available research promotes a greater global exchange of knowledge and supports 
-                        academic development.
-                      </Typography>
+                      <Typography 
+                        variant="body1" 
+                        color="text.secondary" 
+                        sx={{ lineHeight: 1.8 }}
+                        dangerouslySetInnerHTML={{ __html: openAccessPolicy }}
+                      />
                     </CardContent>
                   </Card>
                 </Grid>
@@ -287,7 +333,7 @@ export default function JournalPage() {
                           Publisher:
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                          Veritas Research & Learning Institute
+                          {publisher}
                         </Typography>
                       </Box>
 
@@ -298,15 +344,11 @@ export default function JournalPage() {
                         </Typography>
 
                         <Box sx={{ pl: 1 }}>
-                          <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                            • Dr. Susil Kumara Silva
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                            • Dr. Jayantha Balasooriya
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            • Dr. Mihira Wanninayake
-                          </Typography>
+                          {chiefEditors.map((editor: string, index: number) => (
+                            <Typography key={index} variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                              • {editor}
+                            </Typography>
+                          ))}
                         </Box>
                       </Box>
                     </CardContent>
@@ -332,9 +374,11 @@ export default function JournalPage() {
                           Submit Your Paper
                         </Typography>
                       </Box>
-                      <Typography variant="body1" sx={{ mb: 3, opacity: 0.95 }}>
-                        We welcome submissions from researchers and scholars across diverse disciplines.
-                      </Typography>
+                      <Typography 
+                        variant="body1" 
+                        sx={{ mb: 3, opacity: 0.95 }}
+                        dangerouslySetInnerHTML={{ __html: submissionText }}
+                      />
                       <Box
                         sx={{
                           backgroundColor: 'rgba(255, 255, 255, 0.2)',
@@ -346,7 +390,7 @@ export default function JournalPage() {
                         <Typography variant="body1" sx={{ fontWeight: 600 }}>
                           Email your manuscript to:{' '}
                           <Box component="span" sx={{ textDecoration: 'underline' }}>
-                            info@vrlinstitute.lk
+                            {submissionEmail}
                           </Box>
                         </Typography>
                       </Box>
@@ -376,38 +420,36 @@ export default function JournalPage() {
                         <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1.5, color: '#333' }}>
                           Typographic Guidance
                         </Typography>
-                        <Box component="ul" sx={{ pl: 3, m: 0 }}>
-                          <Typography component="li" variant="body2" color="text.secondary" sx={{ mb: 1, lineHeight: 1.8 }}>
-                            Body text: Times New Roman, 11pt minimum, normal style
-                          </Typography>
-                          <Typography component="li" variant="body2" color="text.secondary" sx={{ mb: 1, lineHeight: 1.8 }}>
-                            Headings: Times New Roman, 11pt minimum, bold style
-                          </Typography>
-                          <Typography component="li" variant="body2" color="text.secondary" sx={{ mb: 1, lineHeight: 1.8 }}>
-                            Page setup: 2.54 cm margins on all sides, single line spacing
-                          </Typography>
-                        </Box>
+                        <Typography 
+                          variant="body2" 
+                          color="text.secondary" 
+                          sx={{ lineHeight: 1.8 }}
+                          dangerouslySetInnerHTML={{ __html: typographicGuidance }}
+                        />
                       </Box>
 
                       <Box sx={{ mb: 3 }}>
                         <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1.5, color: '#333' }}>
                           Maximum Word Count
                         </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.8 }}>
-                          8,000 words (excluding references, appendices, tables, title, and abstract). 
-                          Abstract ≤ 400 words.
-                        </Typography>
+                        <Typography 
+                          variant="body2" 
+                          color="text.secondary" 
+                          sx={{ lineHeight: 1.8 }}
+                          dangerouslySetInnerHTML={{ __html: maxWordCount }}
+                        />
                       </Box>
 
                       <Box>
                         <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1.5, color: '#333' }}>
                           Referencing & Professionalism
                         </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.8 }}>
-                          Identify and acknowledge all sources, use consistent referencing style (Harvard or APA), 
-                          maintain high-quality English. Diagrams, tables, and figures should be included in the 
-                          main text; large tables may go in appendices.
-                        </Typography>
+                        <Typography 
+                          variant="body2" 
+                          color="text.secondary" 
+                          sx={{ lineHeight: 1.8 }}
+                          dangerouslySetInnerHTML={{ __html: referencingProfessionalism }}
+                        />
                       </Box>
                     </CardContent>
                   </Card>

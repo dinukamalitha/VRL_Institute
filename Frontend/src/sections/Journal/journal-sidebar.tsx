@@ -7,59 +7,26 @@ import ArticleIcon from '@mui/icons-material/Article';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import BookIcon from '@mui/icons-material/Book';
-
-interface JournalArticle {
-  id: string;
-  title: string;
-  authors?: string[];
-  publishDate?: string;
-  category?: string;
-  thumbnail?: string;
-}
+import { getLatestJournalArticles } from '@/api/journal-articles';
+import { JournalArticle } from '@/types/journal';
 
 const JournalSidebar = () => {
   const router = useRouter();
   const [latestArticles, setLatestArticles] = useState<JournalArticle[]>([]);
 
-  // Fetch latest articles (using publications as a placeholder)
+  // Fetch latest articles 
   useEffect(() => {
-    const sampleLatest: JournalArticle[] = [
-      { 
-        id: '1', 
-        title: 'Factors Affecting to Acceptance and Adaption of HR Analytics of Apparel Companies in Western province Sri Lanka', 
-        authors: ['Dissanayake & Kumari'], 
-        publishDate: 'Jun 1, 2025',
-        category: 'HR Analytics',
-        thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=150&h=150&fit=crop'
-      },
-      { 
-        id: '2', 
-        title: 'Employee Work Engagement: An Analysis of Antecedents in Teaching Context', 
-        authors: ['Silva et al.'], 
-        publishDate: 'Jun 1, 2025',
-        category: 'Human Resources',
-        thumbnail: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=150&h=150&fit=crop'
-      },
-      { 
-        id: '3', 
-        title: 'Impact of Social Media Usage on Psychological Wellbeing of Undergraduates at a Selected State University of Sri Lanka: The Mediating Role of Smartphone Addiction', 
-        authors: ['Wasala & Rathnakara'], 
-        publishDate: 'Jun 1, 2025',
-        category: 'Psychology',
-        thumbnail: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=150&h=150&fit=crop'
-      },
-    ];
-    setLatestArticles(sampleLatest);
+    const fetchLatestArticles = async () => {
+      const latestArticles = await getLatestJournalArticles();
+      setLatestArticles(latestArticles);
+    };
+    fetchLatestArticles();
   }, []);
 
   const handleArticleClick = (article: JournalArticle) => {
-    // Create URL-friendly slug from title
-    const slug = article.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-    router.push(`/journal/articles/${slug}`);
+    router.push(`/journal/articles/${article._id}`);
   };
+  
 
   // Article Card Component
   const ArticleCard = ({ article }: { article: JournalArticle }) => (
@@ -92,22 +59,20 @@ const JournalSidebar = () => {
               backgroundColor: '#f0f0f0',
             }}
           >
-            
+            {article.thumbnail && (
               <Box
                 component="img"
                 src={article.thumbnail}
                 alt={article.title}
                 sx={{
-                    width: 80,
-                    height: 80,
-                    borderRadius: 1,
-                    objectFit: 'cover',
-                    flexShrink: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
                 }}
-                />
+              />
+            )}
           </Box>
 
-          {/* Content */}
           <Box sx={{ flex: 1, minWidth: 0 }}>
             {/* Category */}
             {article.category && (
@@ -168,12 +133,12 @@ const JournalSidebar = () => {
                   whiteSpace: 'nowrap',
                 }}
               >
-                {article.authors.join(', ')}
+                {article.authors.map(a => a.name).join(', ')}
               </Typography>
             )}
 
             {/* Published Date */}
-            {article.publishDate && (
+            {article.publishedDate && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                 <CalendarTodayIcon sx={{ fontSize: 12, color: '#999' }} />
                 <Typography
@@ -181,7 +146,11 @@ const JournalSidebar = () => {
                   color="text.secondary"
                   sx={{ fontSize: '0.7rem' }}
                 >
-                  {article.publishDate}
+                  {new Date(article.publishedDate).toLocaleDateString('en-US', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                  }).replace(',', '')}
                 </Typography>
               </Box>
             )}
@@ -217,7 +186,7 @@ const JournalSidebar = () => {
           </Box>
           <Divider sx={{ mb: 2 }} />
           {latestArticles.map((article) => (
-            <ArticleCard key={article.id} article={article} />
+            <ArticleCard key={article._id} article={article} />
           ))}
         </Box>
       </Box>
@@ -226,4 +195,3 @@ const JournalSidebar = () => {
 };
 
 export default JournalSidebar;
-

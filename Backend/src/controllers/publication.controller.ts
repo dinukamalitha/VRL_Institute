@@ -48,7 +48,10 @@ export const getAllPublications = async (_req: Request, res: Response) => {
             data: publications,
         });
     } catch (err: any) {
-        res.status(500).json({ success: false, message: err.message });
+        res.status(500).json({ 
+            success: false, 
+            message: err.message,
+        });
     }
 };
 
@@ -70,7 +73,10 @@ export const getPublicationById = async (req: Request, res: Response) => {
             data: publication,
         });
     } catch (err: any) {
-        res.status(500).json({ success: false, message: err.message });
+        res.status(500).json({ 
+            success: false, 
+            message: err.message,
+        });
     }
 };
 
@@ -105,7 +111,10 @@ export const updatePublication = async (req: Request, res: Response) => {
                 message: err.message,
             });
         }
-        res.status(500).json({ success: false, message: err.message });
+        res.status(500).json({ 
+            success: false, 
+            message: err.message,
+        });
     }
 };
 
