@@ -9,13 +9,11 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DownloadIcon from '@mui/icons-material/Download';
 import ArticleIcon from '@mui/icons-material/Article';
 import PersonIcon from '@mui/icons-material/Person';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import LabelIcon from '@mui/icons-material/Label';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import { useEffect, useState } from 'react';
 import { JournalArticle } from '@/types/journal';
 import { getJournalArticleById } from '@/api/journal-articles';
-import { getCurrentJournalVolume } from '@/api/journal-volumes';
 import { useToast } from '@/hooks/useToast';
 
 export default function JournalArticlePage() {
@@ -24,19 +22,14 @@ export default function JournalArticlePage() {
   const navLinks = useNavLinks();
   const { showToast, ToastComponent } = useToast();
   const [article, setArticle] = useState<JournalArticle | null>(null);
-  const [currentVolume, setCurrentVolume] = useState<any>(null);
-  const [loading, setLoading] = useState(true);  
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [articleData, volumeData] = await Promise.all([
-          getJournalArticleById(params.articleId as string),
-          getCurrentJournalVolume()
-        ]);
+        const articleData = await getJournalArticleById(params.articleId as string);
         setArticle(articleData);
-        setCurrentVolume(volumeData);
       } catch (error) {
         console.error('Error fetching data:', error);
         setArticle(null);
