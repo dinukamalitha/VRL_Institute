@@ -12,7 +12,8 @@ import {
   Chip,
   Pagination,
   Breadcrumbs,
-  Link
+  Link,
+  CircularProgress
 } from '@mui/material'
 import { useRouter, useSearchParams } from 'next/navigation'
 import SearchIcon from '@mui/icons-material/Search'
@@ -24,12 +25,12 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import InfoCard from '@/components/InfoCard'
 import CategoryDropdown from '@/components/CategoryDropdown'
-import { useHydration } from '@/hooks/useHydration'
 import { getAllEvents } from '@/api/events'
 import EventsSidebar from '@/sections/Events/events-sidebar'
 import NewsSidebar from '@/sections/NewsBlog/news-sidebar'
-import {NavLink} from "@/types/navbar";
 import EventView from "@/sections/Events/eventView";
+import { useNavLinks } from '@/hooks/useNavLinks'
+import { useToast } from '@/hooks/useToast';
 
 const categories = [
   'All',
@@ -47,14 +48,14 @@ const categories = [
 export default function EventsPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { showToast, ToastComponent } = useToast();
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedEvent, setSelectedEvent] = useState<any>(null)
   const [allEvents, setAllEvents] = useState<any[]>([])
-  const [, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [showEvent, setShowEvent] = useState(false)
-  const mounted = useHydration()
   const itemsPerPage = 9
 
   // Fetch events from backend
@@ -92,16 +93,16 @@ export default function EventsPage() {
         setAllEvents(mapped)
       } catch (e) {
         console.error('Failed to fetch events', e)
+        showToast('Failed to load events. Please try again later.', 'error')
       } finally {
         setLoading(false)
       }
     }
     fetchEvents()
-  }, [])
+  }, [showToast])
 
   // Handle URL param for event detail
   useEffect(() => {
-    if (!mounted) return
     const eventId = searchParams.get('event')
     if (eventId) {
       const event = allEvents.find(
@@ -113,17 +114,9 @@ export default function EventsPage() {
         setShowEvent(true)
       }
     }
-  }, [searchParams, mounted, allEvents])
+  }, [searchParams, allEvents])
 
-  const navLinks: NavLink[] = [
-    { label: 'Home', href: '/' },
-    { label: 'Services', href: '/#services' },
-    { label: "Writers' Hub", href: '/news-blogs' },
-    { label: 'Events & Programs', href: '/events' },
-    { label: 'Publications', href: '/#publications' },
-    { label: 'VRL Journal', href: '/#journals' },
-    { label: 'Contact', href: '/#contact' },
-  ]
+  const navLinks = useNavLinks()
 
   // Filter events
   const filteredEvents = allEvents.filter((event) => {
@@ -167,43 +160,6 @@ export default function EventsPage() {
     setShowEvent(false)
     setSelectedEvent(null)
     router.push('/events')
-  }
-
-  if (!mounted) {
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-          background:
-            'linear-gradient(-45deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%)',
-          backgroundSize: '400% 400%',
-          animation: 'gradientShift 15s ease infinite',
-        }}
-      >
-        <Typography
-          variant="h5"
-          sx={{ color: 'white', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}
-        >
-          Loading Events...
-        </Typography>
-        <style jsx>{`
-          @keyframes gradientShift {
-            0% {
-              background-position: 0 50%;
-            }
-            50% {
-              background-position: 100% 50%;
-            }
-            100% {
-              background-position: 0 50%;
-            }
-          }
-        `}</style>
-      </Box>
-    )
   }
 
   console.log(selectedEvent)
@@ -369,25 +325,31 @@ export default function EventsPage() {
                 {/* Events Grid */}
                 <Box sx={{ py: 4, px: 4 }}>
                   <Container maxWidth="lg">
-                    <Grid container spacing={3} sx={{ mb: 4 }}>
-                      {currentEvents.map((event, index) => (
-                        <Grid
-                          item
-                          xs={12}
-                          sm={6}
-                          md={4}
-                          key={index}
-                          sx={{ display: 'flex' }}
-                        >
-                          <Box
-                            sx={{ width: '100%', cursor: 'pointer' }}
-                            onClick={() => handleEventClick(event)}
+                    {loading ? (
+                      <Box sx={{ display: 'flex', justifyContent: 'center', my: 8 }}>
+                        <CircularProgress size={60} />
+                      </Box>
+                    ) : (
+                      <Grid container spacing={3} sx={{ mb: 4 }}>
+                        {currentEvents.map((event, index) => (
+                          <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={4}
+                            key={index}
+                            sx={{ display: 'flex' }}
                           >
-                            <InfoCard {...event} isEvent={true} />
-                          </Box>
-                        </Grid>
-                      ))}
-                    </Grid>
+                            <Box
+                              sx={{ width: '100%', cursor: 'pointer' }}
+                              onClick={() => handleEventClick(event)}
+                            >
+                              <InfoCard {...event} isEvent={true} />
+                            </Box>
+                          </Grid>
+                        ))}
+                      </Grid>
+                    )}
 
                     {filteredEvents.length === 0 && (
                       <Box sx={{ textAlign: 'center', py: 8 }}>
@@ -435,6 +397,7 @@ export default function EventsPage() {
         </Box>
       </main>
       <Footer />
+      <ToastComponent />
     </>
   )
 }

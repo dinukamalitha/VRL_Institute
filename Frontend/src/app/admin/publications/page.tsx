@@ -5,10 +5,6 @@ import {
     Button,
     Chip,
     Container,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
     Grid,
     Typography,
 } from '@mui/material'
@@ -24,8 +20,11 @@ import {
 } from '@/api/publications'
 import {Publication} from "@/types/publications";
 import DataTable from "@/components/DataTable";
+import ConfirmDialog from '@/components/ConfirmDialog';
+import { useToast } from '@/hooks/useToast';
 
 export default function PublicationsPage() {
+    const { showToast, ToastComponent } = useToast();
     const [openDialog, setOpenDialog] = useState(false)
     const [publications, setPublications] = useState<Publication[]>([])
     const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({})
@@ -34,6 +33,7 @@ export default function PublicationsPage() {
     // Delete confirmation dialog state
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
     const [deleteId, setDeleteId] = useState<string | null>(null)
+    const [deleting, setDeleting] = useState(false)
 
     // Fetch publications data
     const fetchPageData = useCallback(async () => {
@@ -49,10 +49,11 @@ export default function PublicationsPage() {
             console.log(publicationsResponse);
         } catch (error) {
             console.error('Failed to fetch page data:', error)
+            showToast('Failed to load publications. Please try again later.', 'error')
         } finally {
             setLoading(false)
         }
-    }, []);
+    }, [showToast]);
 
     useEffect(() => {
         fetchPageData();
@@ -77,12 +78,13 @@ export default function PublicationsPage() {
                 // Refresh all page data
                 await fetchPageData();
                 handleClose();
+                showToast('Publication created successfully!', 'success');
             } else {
-                alert('Failed to save the publication. Please check the console for errors.');
+                showToast('Failed to save the publication. Please check the console for errors.', 'error');
             }
         } catch (error) {
             console.error("An error occurred while saving the publication:", error);
-            alert('An error occurred while saving the publication.');
+            showToast('An error occurred while saving the publication.', 'error');
         }
     }
 
@@ -96,15 +98,21 @@ export default function PublicationsPage() {
     const confirmDelete = async () => {
         if (!deleteId) return
         try {
+            setDeleting(true)
             const result = await removePublication(deleteId)
             if (result) {
                 fetchPageData()
+                showToast('Publication deleted successfully!', 'success')
+            } else {
+                showToast('Failed to delete publication.', 'error')
             }
         } catch (err) {
-            console.error('Failed to delete news:', err)
+            console.error('Failed to delete publication:', err)
+            showToast('An error occurred while deleting the publication.', 'error')
         } finally {
             setDeleteConfirmOpen(false)
             setDeleteId(null)
+            setDeleting(false)
         }
     }
 
@@ -248,16 +256,22 @@ export default function PublicationsPage() {
             />
 
             {/* Delete Confirmation Dialog */}
-            <Dialog open={deleteConfirmOpen} onClose={() => setDeleteConfirmOpen(false)}>
-                <DialogTitle>Confirm Deletion</DialogTitle>
-                <DialogContent>
-                    <Typography>Are you sure you want to delete this news post?</Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setDeleteConfirmOpen(false)}>Cancel</Button>
-                    <Button color="error" variant="contained" onClick={confirmDelete}>Delete</Button>
-                </DialogActions>
-            </Dialog>
+            <ConfirmDialog
+                open={deleteConfirmOpen}
+                title="Confirm Deletion"
+                message="Are you sure you want to delete this publication? This action cannot be undone."
+                confirmText="Delete"
+                cancelText="Cancel"
+                onConfirm={confirmDelete}
+                onCancel={() => {
+                    setDeleteConfirmOpen(false)
+                    setDeleteId(null)
+                }}
+                severity="error"
+                loading={deleting}
+            />
+
+            <ToastComponent />
         </Container>
     )
 }

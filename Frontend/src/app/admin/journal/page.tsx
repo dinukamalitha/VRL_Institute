@@ -1,130 +1,399 @@
 'use client'
 
-import { Box, Container, Typography, Grid, Card, CardContent, Button, Chip, IconButton, TextField, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
-import { useState } from 'react'
+import {
+  Box,
+  Container,
+  Typography,
+  Button,
+  Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Tabs,
+  Tab,
+  TextField,
+  Paper,
+  Stack,
+  IconButton,
+  Divider,
+  CircularProgress,
+} from '@mui/material'
+import { useState, useEffect, useMemo } from 'react'
 import AddIcon from '@mui/icons-material/Add'
-import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
+import DataTable from '@/components/DataTable'
+import SearchBar from '@/components/SearchBar'
+import RichTextEditor from '@/components/RichTextEditor'
+import FileUpload from '@/components/FileUpload'
+import AlertSnackbar from '@/components/alert'
+import { uploadToCloudinary } from '@/utils/fileUpload'
+import AddJournalArticleModal from '@/sections/Journal/AddJournalArticleModal'
+import EditJournalArticleModal from '@/sections/Journal/EditJournalArticleModal'
+import AddJournalVolumeModal from '@/sections/Journal/AddJournalVolumeModal'
+import EditJournalVolumeModal from '@/sections/Journal/EditJournalVolumeModal'
+import { getAllJournalArticles, deleteJournalArticle } from '@/api/journal-articles'
+import { getAllJournalVolumes, deleteJournalVolume } from '@/api/journal-volumes'
+import { getJournalContent, updateJournalContent } from '@/api/journal-content'
+
+interface TabPanelProps {
+  children?: React.ReactNode
+  index: number
+  value: number
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`journal-tabpanel-${index}`}
+      aria-labelledby={`journal-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ pt: 3 }}>{children}</Box>}
+    </div>
+  )
+}
 
 export default function JournalPage() {
-  const [openDialog, setOpenDialog] = useState(false)
-  const [editingJournal, setEditingJournal] = useState<any>(null)
+  const [tabValue, setTabValue] = useState(0)
+  const [searchTerm, setSearchTerm] = useState('')
+  
+  // Articles state
+  const [addArticleOpen, setAddArticleOpen] = useState(false)
+  const [editArticleOpen, setEditArticleOpen] = useState(false)
+  const [selectedArticle, setSelectedArticle] = useState<any>(null)
+  const [articles, setArticles] = useState<any[]>([])
+  const [articlesLoading, setArticlesLoading] = useState(false)
 
-  const journalIssues = [
-    {
-      id: 1,
-      title: "VRL Journal - Volume 1, Issue 1",
-      subtitle: "Innovation in Technology and Research",
-      description: "The inaugural issue of VRL Journal featuring cutting-edge research in artificial intelligence, sustainable technology, and educational innovation.",
-      publishDate: "December 2024",
-      status: "Published",
-      category: "Technology",
-      articles: 8,
-      downloads: 1250,
-      image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=300&fit=crop&crop=center"
-    },
-    {
-      id: 2,
-      title: "VRL Journal - Volume 1, Issue 2",
-      subtitle: "Advancements in Machine Learning",
-      description: "Special issue focusing on recent developments in machine learning algorithms and their applications in various industries.",
-      publishDate: "January 2025",
-      status: "In Progress",
-      category: "Machine Learning",
-      articles: 6,
-      downloads: 0,
-      image: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=400&h=300&fit=crop&crop=center"
-    },
-    {
-      id: 3,
-      title: "VRL Journal - Volume 1, Issue 3",
-      subtitle: "Sustainable Technology Solutions",
-      description: "Exploring innovative approaches to sustainable technology and their impact on environmental conservation.",
-      publishDate: "February 2025",
-      status: "Planning",
-      category: "Sustainability",
-      articles: 0,
-      downloads: 0,
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=300&fit=crop&crop=center"
-    },
-    {
-      id: 4,
-      title: "VRL Journal - Volume 2, Issue 1",
-      subtitle: "Digital Transformation in Education",
-      description: "Examining the role of digital technologies in transforming educational practices and improving learning outcomes.",
-      publishDate: "March 2025",
-      status: "Planning",
-      category: "Education",
-      articles: 0,
-      downloads: 0,
-      image: "https://images.unsplash.com/photo-1523240794102-9c5c79b3236a?w=400&h=300&fit=crop&crop=center"
-    },
-    {
-      id: 5,
-      title: "VRL Journal - Volume 2, Issue 2",
-      subtitle: "Cybersecurity and Privacy",
-      description: "Comprehensive coverage of cybersecurity challenges and privacy protection in the digital age.",
-      publishDate: "April 2025",
-      status: "Planning",
-      category: "Cybersecurity",
-      articles: 0,
-      downloads: 0,
-      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop&crop=center"
+  // Volumes state
+  const [addVolumeOpen, setAddVolumeOpen] = useState(false)
+  const [editVolumeOpen, setEditVolumeOpen] = useState(false)
+  const [selectedVolume, setSelectedVolume] = useState<any>(null)
+  const [volumes, setVolumes] = useState<any[]>([])
+  const [volumesLoading, setVolumesLoading] = useState(false)
+
+  // Delete confirmation dialog state
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [deleteType, setDeleteType] = useState<'article' | 'volume'>('article')
+
+  // Journal Content state
+  const [isEditingContent, setIsEditingContent] = useState(false)
+  const [journalContentLoading, setJournalContentLoading] = useState(false)
+  const [journalContent, setJournalContent] = useState({
+    welcomeText: '',
+    aimOfJournal: '',
+    peerReviewProcess: '',
+    publicationPolicy: '',
+    openAccessPolicy: '',
+    publisher: '',
+    chiefEditors: [''],
+    submissionEmail: '',
+    submissionText: '',
+    typographicGuidance: '',
+    maxWordCount: '',
+    referencingProfessionalism: '',
+    imageUrl: '',
+  })
+  const [imageFile, setImageFile] = useState<File | null>(null)
+
+  // Toast notification state
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success' as 'success' | 'error' | 'info' | 'warning',
+  })
+
+  // Show toast notification
+  const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 'warning' = 'success') => {
+    setSnackbar({ open: true, message, severity })
+  }
+
+  const handleCloseSnackbar = () => {
+    setSnackbar((prev) => ({ ...prev, open: false }))
+  }
+
+  // Fetch articles from backend
+  const fetchArticles = async () => {
+    setArticlesLoading(true)
+    try {
+      const res = await getAllJournalArticles()
+      setArticles(res || [])
+    } catch (error) {
+      console.error('Failed to fetch articles:', error)
+      showSnackbar('Failed to fetch articles. Please try again.', 'error')
+    } finally {
+      setArticlesLoading(false)
     }
-  ]
-
-  const handleAddNew = () => {
-    setEditingJournal(null)
-    setOpenDialog(true)
   }
 
-  const handleEdit = (journal: any) => {
-    setEditingJournal(journal)
-    setOpenDialog(true)
+  // Fetch volumes from backend
+  const fetchVolumes = async () => {
+    setVolumesLoading(true)
+    try {
+      const res = await getAllJournalVolumes()
+      setVolumes(res || [])
+    } catch (error) {
+      console.error('Failed to fetch volumes:', error)
+      showSnackbar('Failed to fetch volumes. Please try again.', 'error')
+    } finally {
+      setVolumesLoading(false)
+    }
   }
 
-  const handleDelete = (id: number) => {
-    // Handle delete logic here
-    console.log('Delete journal with id:', id)
+  // Fetch journal content
+  const fetchJournalContent = async () => {
+    setJournalContentLoading(true)
+    try {
+      const res = await getJournalContent()
+      if (res) {
+        setJournalContent({
+          welcomeText: res.welcomeText || '',
+          aimOfJournal: res.aimOfJournal || '',
+          peerReviewProcess: res.peerReviewProcess || '',
+          publicationPolicy: res.publicationPolicy || '',
+          openAccessPolicy: res.openAccessPolicy || '',
+          publisher: res.publisher || '',
+          chiefEditors: res.chiefEditors && res.chiefEditors.length > 0 ? res.chiefEditors : [''],
+          submissionEmail: res.submissionEmail || '',
+          submissionText: res.submissionText || '',
+          typographicGuidance: res.typographicGuidance || '',
+          maxWordCount: res.maxWordCount || '',
+          referencingProfessionalism: res.referencingProfessionalism || '',
+          imageUrl: res.imageUrl || '',
+        })
+        setImageFile(null)
+      }
+    } catch (error) {
+      console.error('Failed to fetch journal content:', error)
+      showSnackbar('Failed to fetch journal content. Please try again.', 'error')
+    } finally {
+      setJournalContentLoading(false)
+    }
   }
 
-  const handleSave = () => {
-    // Handle save logic here
-    console.log('Save journal:', editingJournal)
-    setOpenDialog(false)
-    setEditingJournal(null)
+  useEffect(() => {
+    if (tabValue === 0) {
+      fetchArticles()
+    } else if (tabValue === 1) {
+      fetchVolumes()
+    } else if (tabValue === 2) {
+      fetchJournalContent()
+    }
+  }, [tabValue])
+
+  // Filter data based on search term
+  const filteredArticles = useMemo(() => {
+    if (!searchTerm) return articles
+    return articles.filter((article) =>
+      Object.values(article).some((value) =>
+        String(value).toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    )
+  }, [articles, searchTerm])
+
+  const filteredVolumes = useMemo(() => {
+    if (!searchTerm) return volumes
+    return volumes.filter((volume) =>
+      Object.values(volume).some((value) =>
+        String(value).toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    )
+  }, [volumes, searchTerm])
+
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue)
+    setSearchTerm('')
   }
 
-  const handleClose = () => {
-    setOpenDialog(false)
-    setEditingJournal(null)
+  // Article handlers
+  const handleAddArticle = () => setAddArticleOpen(true)
+  const handleEditArticle = (article: any) => {
+    setSelectedArticle(article)
+    setEditArticleOpen(true)
+  }
+  const handleDeleteArticle = (article: any) => {
+    setDeleteId(article._id)
+    setDeleteType('article')
+    setDeleteConfirmOpen(true)
+  }
+
+  // Volume handlers
+  const handleAddVolume = () => setAddVolumeOpen(true)
+  const handleEditVolume = (volume: any) => {
+    setSelectedVolume(volume)
+    setEditVolumeOpen(true)
+  }
+  const handleDeleteVolume = (volume: any) => {
+    setDeleteId(volume._id)
+    setDeleteType('volume')
+    setDeleteConfirmOpen(true)
+  }
+
+  // Confirm delete API call
+  const confirmDelete = async () => {
+    if (!deleteId) return
+    try {
+      if (deleteType === 'article') {
+        const result = await deleteJournalArticle(deleteId)
+        if (result) {
+          showSnackbar('Article deleted successfully', 'success')
+          fetchArticles()
+        } else {
+          showSnackbar('Failed to delete article', 'error')
+        }
+      } else {
+        const result = await deleteJournalVolume(deleteId)
+        if (result) {
+          showSnackbar('Volume deleted successfully', 'success')
+          fetchVolumes()
+        } else {
+          showSnackbar('Failed to delete volume', 'error')
+        }
+      }
+    } catch (err) {
+      console.error('Failed to delete:', err)
+      showSnackbar(`Failed to delete ${deleteType}. Please try again.`, 'error')
+    } finally {
+      setDeleteConfirmOpen(false)
+      setDeleteId(null)
+    }
+  }
+
+  const handleCloseAddArticleModal = () => {
+    setAddArticleOpen(false)
+    fetchArticles()
+    showSnackbar('Article added successfully', 'success')
+  }
+
+  const handleCloseEditArticleModal = () => {
+    setEditArticleOpen(false)
+    setSelectedArticle(null)
+    fetchArticles()
+    showSnackbar('Article updated successfully', 'success')
+  }
+
+  const handleCloseAddVolumeModal = () => {
+    setAddVolumeOpen(false)
+    fetchVolumes()
+    showSnackbar('Volume added successfully', 'success')
+  }
+
+  const handleCloseEditVolumeModal = () => {
+    setEditVolumeOpen(false)
+    setSelectedVolume(null)
+    fetchVolumes()
+    showSnackbar('Volume updated successfully', 'success')
+  }
+
+  // Journal Content handlers
+  const handleContentChange = (field: string, value: any) => {
+    setJournalContent((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleAddEditor = () => {
+    setJournalContent((prev) => ({
+      ...prev,
+      chiefEditors: [...prev.chiefEditors, ''],
+    }))
+  }
+
+  const handleRemoveEditor = (index: number) => {
+    if (journalContent.chiefEditors.length > 1) {
+      setJournalContent((prev) => ({
+        ...prev,
+        chiefEditors: prev.chiefEditors.filter((_, i) => i !== index),
+      }))
+    }
+  }
+
+  const handleEditorChange = (index: number, value: string) => {
+    const updatedEditors = [...journalContent.chiefEditors]
+    updatedEditors[index] = value
+    setJournalContent((prev) => ({ ...prev, chiefEditors: updatedEditors }))
+  }
+
+  const handleSaveContent = async () => {
+    try {
+      setJournalContentLoading(true)
+      // Upload image if a new one was selected
+      let imageUrl = journalContent.imageUrl
+      if (imageFile) {
+        try {
+          imageUrl = await uploadToCloudinary(imageFile, "VRL/journal")
+          showSnackbar('Image uploaded successfully', 'success')
+        } catch (uploadError) {
+          console.error('Failed to upload image:', uploadError)
+          showSnackbar('Failed to upload image. Please try again.', 'error')
+          setJournalContentLoading(false)
+          return
+        }
+      }
+
+      const payload = {
+        ...journalContent,
+        chiefEditors: journalContent.chiefEditors.filter((editor) => editor.trim() !== ''),
+        imageUrl,
+      }
+      const updated = await updateJournalContent(payload)
+      if (updated) {
+        setIsEditingContent(false)
+        setImageFile(null)
+        fetchJournalContent()
+        showSnackbar('Journal content updated successfully', 'success')
+      } else {
+        showSnackbar('Failed to update journal content', 'error')
+      }
+    } catch (error) {
+      console.error('Failed to save journal content:', error)
+      showSnackbar('Failed to save journal content. Please try again.', 'error')
+    } finally {
+      setJournalContentLoading(false)
+    }
   }
 
   return (
     <Container maxWidth="xl">
-        {/* Page Header */}
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h3" gutterBottom sx={{ fontWeight: 'bold', color: '#333' }}>
-            VRL Journal Management
-          </Typography>
-          <Typography variant="h6" color="textSecondary">
-            {"Manage VRL Institute's academic journal issues and publications"}
-          </Typography>
-        </Box>
+      {/* Page Header */}
+      <Box sx={{ mb: 4 }}>
+        <Typography
+          variant="h5"
+          gutterBottom
+          sx={{ fontWeight: 'bold', color: '#333', mt: 4 }}
+        >
+          Journal Management
+        </Typography>
+      </Box>
 
-        {/* Action Bar */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <Chip label="All Issues" color="primary" />
-            <Chip label="Published" variant="outlined" />
-            <Chip label="In Progress" variant="outlined" />
-            <Chip label="Planning" variant="outlined" />
-          </Box>
-          <Button 
-            variant="contained" 
-            startIcon={<AddIcon />} 
-            onClick={handleAddNew}
-            sx={{ 
+      {/* Tabs */}
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+        <Tabs value={tabValue} onChange={handleTabChange} aria-label="journal tabs">
+          <Tab label="Articles" />
+          <Tab label="Volumes" />
+          <Tab label="Journal Info" />
+        </Tabs>
+      </Box>
+
+      {/* Articles Tab */}
+      <TabPanel value={tabValue} index={0}>
+        {/* Action Bar with Search */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <SearchBar
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Search articles by title, category, volume, issue..."
+            width={400}
+          />
+
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleAddArticle}
+            sx={{
               background: 'linear-gradient(45deg, #E91E63 30%, #9C27B0 90%)',
               '&:hover': {
                 background: 'linear-gradient(45deg, #C2185B 30%, #7B1FA2 90%)',
@@ -133,223 +402,601 @@ export default function JournalPage() {
               transition: 'all 0.3s ease',
             }}
           >
-            Create Issue
+            Add Article
           </Button>
         </Box>
 
-        {/* Journal Issues Grid */}
-        <Grid container spacing={3}>
-          {journalIssues.map((journal) => (
-            <Grid item xs={12} md={6} lg={4} key={journal.id}>
-              <Card sx={{ 
-                height: '100%',
-                borderRadius: 2,
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                border: '1px solid #e0e0e0',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  transform: 'translateY(-4px)',
-                  boxShadow: '0 8px 25px rgba(0, 0, 0, 0.15)',
-                  borderColor: '#4CAF50'
-                }
-              }}>
-                <CardContent>
-                  {/* Image */}
-                  <Box sx={{ 
-                    width: '100%', 
-                    height: 200, 
-                    borderRadius: 1, 
-                    overflow: 'hidden', 
-                    mb: 2,
-                    backgroundColor: '#f5f5f5'
-                  }}>
-                    <img 
-                      src={journal.image} 
-                      alt={journal.title}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover'
-                      }}
-                    />
-                  </Box>
+        {/* Articles Table */}
+        <DataTable
+          columns={[
+            {
+              id: 'title',
+              label: 'Title',
+              minWidth: 200,
+              format: (value) => (
+                <Typography variant="body2" sx={{ fontWeight: 500, color: '#333' }}>
+                  {value || "-"}
+                </Typography>
+              )
+            },
+            {
+              id: 'authors',
+              label: 'Authors',
+              minWidth: 150,
+              align: 'left',
+              format: (value) => Array.isArray(value) ? value.map((a: any) => a.name).join(', ') : '-'
+            },
+            {
+              id: 'category',
+              label: 'Category',
+              minWidth: 120,
+              align: 'center',
+              format: (value) => (
+                <Chip
+                  label={value || "Empty"}
+                  size="small"
+                  sx={{ backgroundColor: '#E91E63', color: 'white', fontWeight: 'bold', fontSize: '0.75rem' }}
+                />
+              )
+            },
+            {
+              id: 'volume',
+              label: 'Volume',
+              minWidth: 80,
+              align: 'center'
+            },
+            {
+              id: 'issue',
+              label: 'Issue',
+              minWidth: 80,
+              align: 'center'
+            },
+            {
+              id: 'publishedDate',
+              label: 'Published Date',
+              minWidth: 120,
+              align: 'center',
+              format: (value) => {
+                if (!value) return "-"
+                const date = new Date(value)
+                return date.toLocaleDateString()
+              }
+            },
+            {
+              id: 'peerReviewed',
+              label: 'Peer Reviewed',
+              minWidth: 100,
+              align: 'center',
+              format: (value) => (
+                <Chip
+                  label={value ? 'Yes' : 'No'}
+                  size="small"
+                  color={value ? 'success' : 'default'}
+                  sx={{ fontSize: '0.75rem' }}
+                />
+              )
+            }
+          ]}
+          data={articles}
+          filteredData={filteredArticles}
+          onEdit={handleEditArticle}
+          onDelete={handleDeleteArticle}
+          loading={articlesLoading}
+        />
+      </TabPanel>
 
-                  {/* Status and Category */}
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                    <Chip 
-                      label={journal.category} 
-                      size="small" 
-                      sx={{ backgroundColor: '#4CAF50', color: 'white', fontWeight: 'bold' }}
-                    />
-                    <Chip 
-                      label={journal.status} 
-                      size="small" 
-                      color={journal.status === 'Published' ? 'success' : journal.status === 'In Progress' ? 'warning' : 'default'}
-                    />
-                  </Box>
-
-                  {/* Title */}
-                  <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#333', mb: 1 }}>
-                    {journal.title}
-                  </Typography>
-
-                  {/* Subtitle */}
-                  <Typography variant="subtitle2" color="primary" sx={{ mb: 1, fontWeight: 600 }}>
-                    {journal.subtitle}
-                  </Typography>
-
-                  {/* Description */}
-                  <Typography variant="body2" color="textSecondary" sx={{ mb: 2, lineHeight: 1.6 }}>
-                    {journal.description}
-                  </Typography>
-
-                  {/* Journal Details */}
-                  <Box sx={{ mb: 2 }}>
-                    <Typography variant="body2" color="textSecondary" sx={{ mb: 0.5 }}>
-                      📅 {journal.publishDate}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary" sx={{ mb: 0.5 }}>
-                      📄 {journal.articles} articles
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary" sx={{ mb: 0.5 }}>
-                      📥 {journal.downloads} downloads
-                    </Typography>
-                  </Box>
-
-                  {/* Progress Bar for In Progress Issues */}
-                  {journal.status === 'In Progress' && (
-                    <Box sx={{ mb: 2 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                        <Typography variant="caption" color="textSecondary">
-                          Completion
-                        </Typography>
-                        <Typography variant="caption" color="textSecondary">
-                          {Math.round((journal.articles / 8) * 100)}%
-                        </Typography>
-                      </Box>
-                      <Box sx={{ 
-                        width: '100%', 
-                        height: 4, 
-                        backgroundColor: '#e0e0e0', 
-                        borderRadius: 2,
-                        overflow: 'hidden'
-                      }}>
-                        <Box sx={{ 
-                          width: `${(journal.articles / 8) * 100}%`, 
-                          height: '100%', 
-                          backgroundColor: '#4CAF50',
-                          transition: 'width 0.3s ease'
-                        }} />
-                      </Box>
-                    </Box>
-                  )}
-
-                  {/* Actions */}
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Button 
-                      size="small" 
-                      variant="outlined" 
-                      sx={{ 
-                        color: '#4CAF50', 
-                        borderColor: '#4CAF50',
-                        '&:hover': {
-                          borderColor: '#4CAF50',
-                          backgroundColor: 'rgba(76, 175, 80, 0.1)',
-                        }
-                      }}
-                    >
-                      View Details
-                    </Button>
-                    <Box>
-                      <IconButton 
-                        size="small" 
-                        sx={{ color: '#E91E63' }}
-                        onClick={() => handleEdit(journal)}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton 
-                        size="small" 
-                        sx={{ color: '#f44336' }}
-                        onClick={() => handleDelete(journal.id)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-
-        {/* Add/Edit Dialog */}
-        <Dialog open={openDialog} onClose={handleClose} maxWidth="md" fullWidth>
-          <DialogTitle>
-            {editingJournal ? 'Edit Journal Issue' : 'Create New Journal Issue'}
-          </DialogTitle>
-          <DialogContent>
-            <Box sx={{ pt: 2 }}>
-              <TextField
-                fullWidth
-                label="Issue Title"
-                defaultValue={editingJournal?.title || ''}
-                margin="normal"
-                required
-              />
-              <TextField
-                fullWidth
-                label="Subtitle"
-                defaultValue={editingJournal?.subtitle || ''}
-                margin="normal"
-                required
-              />
-              <TextField
-                fullWidth
-                label="Description"
-                defaultValue={editingJournal?.description || ''}
-                margin="normal"
-                multiline
-                rows={3}
-                required
-              />
-              <TextField
-                fullWidth
-                label="Publish Date"
-                defaultValue={editingJournal?.publishDate || ''}
-                margin="normal"
-                required
-              />
-              <TextField
-                fullWidth
-                label="Category"
-                defaultValue={editingJournal?.category || ''}
-                margin="normal"
-                required
-              />
-              <TextField
-                fullWidth
-                label="Number of Articles"
-                type="number"
-                defaultValue={editingJournal?.articles || ''}
-                margin="normal"
-                required
-              />
-              <TextField
-                fullWidth
-                label="Image URL"
-                defaultValue={editingJournal?.image || ''}
-                margin="normal"
-              />
+      {/* Journal Info Tab */}
+      <TabPanel value={tabValue} index={2}>
+        <Paper elevation={3} sx={{ p: 4, borderRadius: 3, position: 'relative' }}>
+          {journalContentLoading && (
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                zIndex: 1,
+                borderRadius: 3,
+              }}
+            >
+              <CircularProgress size={60} />
             </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
-            <Button onClick={handleSave} variant="contained">
-              {editingJournal ? 'Update' : 'Create'}
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </Container>
+          )}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                {isEditingContent ? 'Edit Journal Information' : 'Journal Information'}
+              </Typography>
+            <Stack direction="row" spacing={2}>
+              {isEditingContent && (
+                <Button variant="outlined" color="secondary" onClick={() => {
+                  setIsEditingContent(false)
+                  setImageFile(null)
+                  fetchJournalContent()
+                }}>
+                  Cancel
+                </Button>
+              )}
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => (isEditingContent ? handleSaveContent() : setIsEditingContent(true))}
+                disabled={journalContentLoading}
+                startIcon={journalContentLoading ? <CircularProgress size={20} color="inherit" /> : null}
+              >
+                {isEditingContent ? (journalContentLoading ? 'Saving...' : 'Save Changes') : 'Edit'}
+              </Button>
+            </Stack>
+          </Box>
+
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
+              Journal Cover Image
+            </Typography>
+            {isEditingContent ? (
+              <FileUpload
+                id="journal-image-upload"
+                accept="image/*"
+                label="Journal Cover Image"
+                buttonText="Choose Image"
+                onFileSelect={setImageFile}
+                currentFile={journalContent.imageUrl}
+                showPreview
+              />
+            ) : (
+              journalContent.imageUrl ? (
+                <Box
+                  sx={{
+                    position: 'relative',
+                    width: '100%',
+                    maxWidth: 800,
+                    height: 400,
+                    borderRadius: 2,
+                    overflow: 'hidden',
+                    border: '2px solid #e0e0e0',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                  }}
+                >
+                  <img
+                    src={journalContent.imageUrl}
+                    alt="Journal Cover"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'contain',
+                      backgroundColor: '#f5f5f5',
+                    }}
+                  />
+                </Box>
+              ) : (
+                <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                  No image uploaded yet
+                </Typography>
+              )
+            )}
+          </Box>
+
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+              Welcome Text
+            </Typography>
+            {isEditingContent ? (
+              <RichTextEditor
+                value={journalContent.welcomeText}
+                onChange={(value) => handleContentChange('welcomeText', value)}
+                placeholder="Enter welcome text..."
+                height="200px"
+                uploadFolder="VRL/journal"
+              />
+            ) : (
+              <Box
+                sx={{
+                  p: 2,
+                  border: '1px solid #e0e0e0',
+                  borderRadius: 1,
+                  minHeight: 100,
+                  backgroundColor: '#f5f5f5',
+                }}
+                dangerouslySetInnerHTML={{ __html: journalContent.welcomeText }}
+              />
+            )}
+          </Box>
+
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+              Aim of the Journal
+            </Typography>
+            {isEditingContent ? (
+              <RichTextEditor
+                value={journalContent.aimOfJournal}
+                onChange={(value) => handleContentChange('aimOfJournal', value)}
+                placeholder="Enter aim of the journal..."
+                height="250px"
+                uploadFolder="VRL/journal/content"
+              />
+            ) : (
+              <Box
+                sx={{
+                  p: 2,
+                  border: '1px solid #e0e0e0',
+                  borderRadius: 1,
+                  minHeight: 120,
+                  backgroundColor: '#f5f5f5',
+                }}
+                dangerouslySetInnerHTML={{ __html: journalContent.aimOfJournal }}
+              />
+            )}
+          </Box>
+
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+              Peer Review Process
+            </Typography>
+            {isEditingContent ? (
+              <RichTextEditor
+                value={journalContent.peerReviewProcess}
+                onChange={(value) => handleContentChange('peerReviewProcess', value)}
+                placeholder="Enter peer review process..."
+                height="250px"
+                uploadFolder="VRL/journal/content"
+              />
+            ) : (
+              <Box
+                sx={{
+                  p: 2,
+                  border: '1px solid #e0e0e0',
+                  borderRadius: 1,
+                  minHeight: 120,
+                  backgroundColor: '#f5f5f5',
+                }}
+                dangerouslySetInnerHTML={{ __html: journalContent.peerReviewProcess }}
+              />
+            )}
+          </Box>
+
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+              Publication Policy
+            </Typography>
+            {isEditingContent ? (
+              <RichTextEditor
+                value={journalContent.publicationPolicy}
+                onChange={(value) => handleContentChange('publicationPolicy', value)}
+                placeholder="Enter publication policy..."
+                height="250px"
+                uploadFolder="VRL/journal/content"
+              />
+            ) : (
+              <Box
+                sx={{
+                  p: 2,
+                  border: '1px solid #e0e0e0',
+                  borderRadius: 1,
+                  minHeight: 120,
+                  backgroundColor: '#f5f5f5',
+                }}
+                dangerouslySetInnerHTML={{ __html: journalContent.publicationPolicy }}
+              />
+            )}
+          </Box>
+
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+              Open Access Policy
+            </Typography>
+            {isEditingContent ? (
+              <RichTextEditor
+                value={journalContent.openAccessPolicy}
+                onChange={(value) => handleContentChange('openAccessPolicy', value)}
+                placeholder="Enter open access policy..."
+                height="200px"
+                uploadFolder="VRL/journal/content"
+              />
+            ) : (
+              <Box
+                sx={{
+                  p: 2,
+                  border: '1px solid #e0e0e0',
+                  borderRadius: 1,
+                  minHeight: 100,
+                  backgroundColor: '#f5f5f5',
+                }}
+                dangerouslySetInnerHTML={{ __html: journalContent.openAccessPolicy }}
+              />
+            )}
+          </Box>
+
+          <TextField
+            label="Publisher"
+            value={journalContent.publisher}
+            onChange={(e) => handleContentChange('publisher', e.target.value)}
+            fullWidth
+            sx={{ mb: 3 }}
+            InputProps={{ readOnly: !isEditingContent }}
+          />
+
+          <Divider sx={{ my: 3 }} />
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
+              Chief Editors
+            </Typography>
+            {journalContent.chiefEditors.map((editor, index) => (
+              <Paper
+                key={index}
+                variant="outlined"
+                sx={{
+                  p: 2,
+                  mb: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 2,
+                  backgroundColor: isEditingContent ? '#fff' : '#f5f5f5',
+                }}
+              >
+                <TextField
+                  value={editor}
+                  onChange={(e) => handleEditorChange(index, e.target.value)}
+                  fullWidth
+                  placeholder={`Editor ${index + 1} name`}
+                  InputProps={{ readOnly: !isEditingContent }}
+                  variant={isEditingContent ? 'outlined' : 'standard'}
+                />
+                {isEditingContent && (
+                  <IconButton
+                    color="error"
+                    onClick={() => handleRemoveEditor(index)}
+                    disabled={journalContent.chiefEditors.length === 1}
+                    sx={{
+                      flexShrink: 0,
+                      '&:hover': {
+                        backgroundColor: 'error.light',
+                        color: 'white',
+                      },
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                )}
+              </Paper>
+            ))}
+            {isEditingContent && (
+              <Button
+                variant="outlined"
+                startIcon={<AddIcon />}
+                onClick={handleAddEditor}
+                sx={{ mt: 1 }}
+              >
+                Add Editor
+              </Button>
+            )}
+          </Box>
+          <Divider sx={{ my: 3 }} />
+
+          <TextField
+            label="Submission Email"
+            type="email"
+            value={journalContent.submissionEmail}
+            onChange={(e) => handleContentChange('submissionEmail', e.target.value)}
+            fullWidth
+            sx={{ mb: 3 }}
+            InputProps={{ readOnly: !isEditingContent }}
+          />
+
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+              Submission Text
+            </Typography>
+            {isEditingContent ? (
+              <RichTextEditor
+                value={journalContent.submissionText}
+                onChange={(value) => handleContentChange('submissionText', value)}
+                placeholder="Enter submission text..."
+                height="150px"
+                uploadFolder="VRL/journal/content"
+              />
+            ) : (
+              <Box
+                sx={{
+                  p: 2,
+                  border: '1px solid #e0e0e0',
+                  borderRadius: 1,
+                  minHeight: 80,
+                  backgroundColor: '#f5f5f5',
+                }}
+                dangerouslySetInnerHTML={{ __html: journalContent.submissionText }}
+              />
+            )}
+          </Box>
+
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+              Typographic Guidance
+            </Typography>
+            {isEditingContent ? (
+              <RichTextEditor
+                value={journalContent.typographicGuidance}
+                onChange={(value) => handleContentChange('typographicGuidance', value)}
+                placeholder="Enter typographic guidance..."
+                height="200px"
+                uploadFolder="VRL/journal/content"
+              />
+            ) : (
+              <Box
+                sx={{
+                  p: 2,
+                  border: '1px solid #e0e0e0',
+                  borderRadius: 1,
+                  minHeight: 100,
+                  backgroundColor: '#f5f5f5',
+                }}
+                dangerouslySetInnerHTML={{ __html: journalContent.typographicGuidance }}
+              />
+            )}
+          </Box>
+
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+              Maximum Word Count
+            </Typography>
+            {isEditingContent ? (
+              <RichTextEditor
+                value={journalContent.maxWordCount}
+                onChange={(value) => handleContentChange('maxWordCount', value)}
+                placeholder="Enter maximum word count information..."
+                height="150px"
+                uploadFolder="VRL/journal/content"
+              />
+            ) : (
+              <Box
+                sx={{
+                  p: 2,
+                  border: '1px solid #e0e0e0',
+                  borderRadius: 1,
+                  minHeight: 80,
+                  backgroundColor: '#f5f5f5',
+                }}
+                dangerouslySetInnerHTML={{ __html: journalContent.maxWordCount }}
+              />
+            )}
+          </Box>
+
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+              Referencing & Professionalism
+            </Typography>
+            {isEditingContent ? (
+              <RichTextEditor
+                value={journalContent.referencingProfessionalism}
+                onChange={(value) => handleContentChange('referencingProfessionalism', value)}
+                placeholder="Enter referencing and professionalism guidelines..."
+                height="200px"
+                uploadFolder="VRL/journal/content"
+              />
+            ) : (
+              <Box
+                sx={{
+                  p: 2,
+                  border: '1px solid #e0e0e0',
+                  borderRadius: 1,
+                  minHeight: 100,
+                  backgroundColor: '#f5f5f5',
+                }}
+                dangerouslySetInnerHTML={{ __html: journalContent.referencingProfessionalism }}
+              />
+            )}
+          </Box>
+        </Paper>
+      </TabPanel>
+
+      {/* Volumes Tab */}
+      <TabPanel value={tabValue} index={1}>
+        {/* Action Bar with Search */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <SearchBar
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Search volumes by title, publisher..."
+            width={400}
+          />
+
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleAddVolume}
+            sx={{
+              background: 'linear-gradient(45deg, #E91E63 30%, #9C27B0 90%)',
+              '&:hover': {
+                background: 'linear-gradient(45deg, #C2185B 30%, #7B1FA2 90%)',
+                transform: 'translateY(-2px)',
+              },
+              transition: 'all 0.3s ease',
+            }}
+          >
+            Add Volume
+          </Button>
+        </Box>
+
+        {/* Volumes Table */}
+        <DataTable
+          columns={[
+            {
+              id: 'title',
+              label: 'Title',
+              minWidth: 200,
+              format: (value) => (
+                <Typography variant="body2" sx={{ fontWeight: 500, color: '#333' }}>
+                  {value || "-"}
+                </Typography>
+              )
+            },
+            {
+              id: 'publisher',
+              label: 'Publisher',
+              minWidth: 200,
+              align: 'left'
+            },
+            {
+              id: 'publishedDate',
+              label: 'Published Date',
+              minWidth: 120,
+              align: 'center',
+              format: (value) => {
+                if (!value) return "-"
+                const date = new Date(value)
+                return date.toLocaleDateString()
+              }
+            },
+            {
+              id: 'createdAt',
+              label: 'Created At',
+              minWidth: 120,
+              align: 'center',
+              format: (value) => {
+                if (!value) return "-"
+                const date = new Date(value)
+                return date.toLocaleDateString()
+              }
+            }
+          ]}
+          data={volumes}
+          filteredData={filteredVolumes}
+          onEdit={handleEditVolume}
+          onDelete={handleDeleteVolume}
+          loading={volumesLoading}
+        />
+      </TabPanel>
+
+      {/* Modals */}
+      <AddJournalArticleModal open={addArticleOpen} onClose={handleCloseAddArticleModal} />
+      <EditJournalArticleModal open={editArticleOpen} onClose={handleCloseEditArticleModal} article={selectedArticle} />
+      <AddJournalVolumeModal open={addVolumeOpen} onClose={handleCloseAddVolumeModal} />
+      <EditJournalVolumeModal open={editVolumeOpen} onClose={handleCloseEditVolumeModal} volume={selectedVolume} />
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteConfirmOpen} onClose={() => setDeleteConfirmOpen(false)}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete this {deleteType === 'article' ? 'article' : 'volume'}?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteConfirmOpen(false)}>Cancel</Button>
+          <Button color="error" variant="contained" onClick={confirmDelete}>Delete</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Toast Notification */}
+      <AlertSnackbar
+        open={snackbar.open}
+        message={snackbar.message}
+        severity={snackbar.severity}
+        onClose={handleCloseSnackbar}
+      />
+    </Container>
   )
-} 
+}

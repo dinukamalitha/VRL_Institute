@@ -46,3 +46,9 @@ export interface RichTextEditorProps {
   height?: number | string;
   uploadFolder?: string;
 }
+
+export interface ToastState {
+  open: boolean
+  message: string
+  severity: 'success' | 'error' | 'info' | 'warning'
+}

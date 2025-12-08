@@ -6,10 +6,6 @@ import {
   Typography,
   Button,
   Chip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions
 } from '@mui/material'
 import { useState, useEffect, useMemo } from 'react'
 import AddIcon from '@mui/icons-material/Add'
@@ -18,8 +14,11 @@ import SearchBar from '@/components/SearchBar'
 import AddNewsBlogModal from '@/sections/NewsBlog/AddNewsBlogModal'
 import EditNewsBlogModal from '@/sections/NewsBlog/EditNewsBlogModal'
 import { getAllNewsBlogs, removeNewsBlog } from '@/api/news-blogs'
+import ConfirmDialog from '@/components/ConfirmDialog'
+import { useToast } from '@/hooks/useToast'
 
 export default function NewsBlogsPage() {
+  const { showToast, ToastComponent } = useToast()
   const [searchTerm, setSearchTerm] = useState('')
   const [addOpen, setAddOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
@@ -30,6 +29,7 @@ export default function NewsBlogsPage() {
   // Delete confirmation dialog state
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   // Fetch news from backend
   const fetchNews = async () => {
@@ -39,6 +39,7 @@ export default function NewsBlogsPage() {
       setNewsItems(res || [])
     } catch (error) {
       console.error('Failed to fetch news:', error)
+      showToast('Failed to load news articles. Please try again later.', 'error')
     } finally {
       setLoading(false)
     }
@@ -74,15 +75,21 @@ export default function NewsBlogsPage() {
   const confirmDelete = async () => {
     if (!deleteId) return
     try {
+      setDeleting(true)
       const result = await removeNewsBlog(deleteId)
       if (result) {
         fetchNews()
+        showToast('News article deleted successfully!', 'success')
+      } else {
+        showToast('Failed to delete news article.', 'error')
       }
     } catch (err) {
       console.error('Failed to delete news:', err)
+      showToast('An error occurred while deleting the news article.', 'error')
     } finally {
       setDeleteConfirmOpen(false)
       setDeleteId(null)
+      setDeleting(false)
     }
   }
 
@@ -201,16 +208,22 @@ export default function NewsBlogsPage() {
       <EditNewsBlogModal open={editOpen} onClose={handleCloseEditModal} newsItem={selectedNews} />
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteConfirmOpen} onClose={() => setDeleteConfirmOpen(false)}>
-        <DialogTitle>Confirm Deletion</DialogTitle>
-        <DialogContent>
-          <Typography>Are you sure you want to delete this news post?</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteConfirmOpen(false)}>Cancel</Button>
-          <Button color="error" variant="contained" onClick={confirmDelete}>Delete</Button>
-        </DialogActions>
-      </Dialog>
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        title="Confirm Deletion"
+        message="Are you sure you want to delete this news article? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={confirmDelete}
+        onCancel={() => {
+          setDeleteConfirmOpen(false)
+          setDeleteId(null)
+        }}
+        severity="error"
+        loading={deleting}
+      />
+
+      <ToastComponent />
     </Container>
   )
 }
