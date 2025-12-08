@@ -4,12 +4,13 @@ export interface JournalArticle {
     abstract: string;
     category: string;
     authors: Array<{
+      _id?: string;
       name: string;
       photo?: string;
       description?: string;
     }>;
     thumbnail?: string;
-    publishedDate: string;
+    publishedDate?: string;
     volume: string;
     issue: string;
     keywords?: string[];
@@ -19,24 +20,6 @@ export interface JournalArticle {
     updatedAt?: string;
   }
 
-  export interface JournalArticle {
-    _id: string;
-    title: string;
-    authors: string[];
-    abstract: string;
-    keywords: string[];
-    publishedDate: string;
-    volume: string;
-    issue: string;
-    year: string;
-    pages?: string;
-    doi?: string;
-    category?: string;
-    thumbnail?: string;
-    documentUrl?: string;
-    peerReviewed?: boolean;
-  }
-  
   export interface JournalArticleFilters {
     volume?: string;
     issue?: string;

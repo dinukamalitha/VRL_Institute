@@ -9,6 +9,7 @@ import {
     getJournalArticlesByVolumeIssue,
     getLatestJournalArticles,
     updateJournalArticle,
+    downloadJournalArticlePdf,
 } from "../controllers/journalArticle.controller";
 
 const router = Router();
@@ -23,6 +24,9 @@ router.get("/category/:category", getJournalArticlesByCategory);
 router.patch("/:id", updateJournalArticle);
 router.delete("/:id", deleteJournalArticle);
 router.get("/:articleId", getJournalArticleById);
+
+// route for PDF preview/stream
+router.get("/stream/pdf", downloadJournalArticlePdf);
 
 export default router;
 

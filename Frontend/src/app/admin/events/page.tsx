@@ -6,10 +6,6 @@ import {
   Typography,
   Button,
   Chip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions
 } from '@mui/material'
 import { useState, useMemo, useEffect } from 'react'
 import AddIcon from '@mui/icons-material/Add'
@@ -19,8 +15,11 @@ import AddEventModal from '@/sections/Events/AddEventModal'
 import EditEventModal from '@/sections/Events/EditEventModal'
 import { getAllEvents, removeEvent } from '@/api/events'
 import { ApiEventItem, EventItem } from '@/types/event'
+import ConfirmDialog from '@/components/ConfirmDialog'
+import { useToast } from '@/hooks/useToast'
 
 export default function EventsPage() {
+  const { showToast, ToastComponent } = useToast()
   const [searchTerm, setSearchTerm] = useState('')
   const [addOpen, setAddOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
@@ -31,6 +30,7 @@ export default function EventsPage() {
   // Delete confirmation state
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   // Fetch events from backend
   const fetchEvents = async () => {
@@ -57,6 +57,7 @@ export default function EventsPage() {
       setEventItems(mappedEvents)
     } catch (error) {
       console.error('Failed to fetch events:', error)
+      showToast('Failed to load events. Please try again later.', 'error')
     } finally {
       setLoading(false)
     }
@@ -94,13 +95,21 @@ export default function EventsPage() {
   const confirmDelete = async () => {
     if (!deleteId) return
     try {
+      setDeleting(true)
       const result = await removeEvent(deleteId)
-      if (result) fetchEvents()
+      if (result) {
+        fetchEvents()
+        showToast('Event deleted successfully!', 'success')
+      } else {
+        showToast('Failed to delete event.', 'error')
+      }
     } catch (err) {
       console.error('Failed to delete event:', err)
+      showToast('An error occurred while deleting the event.', 'error')
     } finally {
       setDeleteConfirmOpen(false)
       setDeleteId(null)
+      setDeleting(false)
     }
   }
 
@@ -209,16 +218,22 @@ export default function EventsPage() {
       <EditEventModal open={editOpen} onClose={handleCloseEditModal} eventItem={selectedEvent} />
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteConfirmOpen} onClose={() => setDeleteConfirmOpen(false)}>
-        <DialogTitle>Confirm Deletion</DialogTitle>
-        <DialogContent>
-          <Typography>Are you sure you want to delete this event?</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteConfirmOpen(false)}>Cancel</Button>
-          <Button color="error" variant="contained" onClick={confirmDelete}>Delete</Button>
-        </DialogActions>
-      </Dialog>
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        title="Confirm Deletion"
+        message="Are you sure you want to delete this event? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={confirmDelete}
+        onCancel={() => {
+          setDeleteConfirmOpen(false)
+          setDeleteId(null)
+        }}
+        severity="error"
+        loading={deleting}
+      />
+
+      <ToastComponent />
     </Container>
   )
 }

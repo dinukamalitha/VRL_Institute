@@ -26,9 +26,11 @@ import SearchIcon from "@mui/icons-material/Search";
 // import VisibilityIcon from '@mui/icons-material/Visibility';
 // import DownloadIcon from '@mui/icons-material/Download';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useToast } from '@/hooks/useToast';
 
 export default function PublicationCategoryPage() {
     const { category } = useParams<{ category: string }>();
+    const { showToast, ToastComponent } = useToast();
     const [publications, setPublications] = useState<Publication[]>([]);
     //const [previewingId, setPreviewingId] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -37,32 +39,42 @@ export default function PublicationCategoryPage() {
     useEffect(() => {
         const fetchPublications = async () => {
             try {
+                setLoading(true);
                 const response = await getPublicationsByCategory(category);
                 setPublications(Array.isArray(response.data) ? response.data : []);
+                if (Array.isArray(response.data) && response.data.length === 0) {
+                    showToast('No publications found in this category', 'info');
+                }
             } catch (err) {
                 console.error('Error fetching category publications:', err);
+                showToast('Failed to load publications. Please try again later.', 'error');
             } finally {
                 setLoading(false);
             }
         };
 
         if (category) {
-            setLoading(true);
             fetchPublications();
         }
-    }, [category]);
+    }, [category, showToast]);
 
     const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
     };
 
     const handlePreview = (pub: Publication) => {
-        if (!pub.documentUrl) return;
+        if (!pub.documentUrl) {
+            showToast('Document URL not available for this publication', 'warning');
+            return;
+        }
 
         const match = pub.documentUrl.match(/\/v\d+\/(.*)/);
         const fullPath = match ? match[1] : pub.documentUrl;
 
-        if (!fullPath) return alert("Invalid document URL");
+        if (!fullPath) {
+            showToast("Invalid document URL", 'error');
+            return;
+        }
 
         // setPreviewingId(pub._id || null);
 
@@ -289,6 +301,7 @@ export default function PublicationCategoryPage() {
                     </Container>
                 </Box>
             </main>
+            <ToastComponent />
         </>
     );
 }

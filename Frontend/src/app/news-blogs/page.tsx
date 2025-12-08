@@ -10,7 +10,8 @@ import {
   TextField,
   InputAdornment,
   Chip,
-  Pagination
+  Pagination,
+  CircularProgress
 } from '@mui/material'
 import { useRouter, useSearchParams } from 'next/navigation'
 import SearchIcon from '@mui/icons-material/Search'
@@ -23,18 +24,20 @@ import { getAllNewsBlogs, getNewsBlogsCategories } from '@/api/news-blogs'
 import NewsSidebar from '@/sections/NewsBlog/news-sidebar'
 import NewsBlogView from "@/sections/NewsBlog/newsBlogView";
 import EventsSidebar from "@/sections/Events/events-sidebar";
+import { useToast } from '@/hooks/useToast';
 
 
 export default function NewsBlogsPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { showToast, ToastComponent } = useToast();
   const [categories, setCategories] = useState<string[]>(["All"])
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedArticle, setSelectedArticle] = useState<any>(null)
   const [allNewsItems, setAllNewsItems] = useState<any[]>([])
-  const [, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [showArticle, setShowArticle] = useState(false)
   const itemsPerPage = 9
 
@@ -65,12 +68,13 @@ export default function NewsBlogsPage() {
         setAllNewsItems(mapped)
       } catch (e) {
         console.error('Failed to fetch news', e)
+        showToast('Failed to load news articles. Please try again later.', 'error')
       } finally {
         setLoading(false)
       }
     }
     fetchNews()
-  }, [])
+  }, [showToast])
 
   // Check for article ID in URL parameters on component mount
   useEffect(() => {
@@ -95,11 +99,12 @@ export default function NewsBlogsPage() {
         }
       } catch (error) {
         console.error("Failed to fetch categories", error)
+        showToast('Failed to load categories.', 'warning')
       }
     }
 
     fetchCategories()
-  }, [])
+  }, [showToast])
 
 
   const navLinks = useNavLinks()
@@ -307,15 +312,21 @@ export default function NewsBlogsPage() {
                 {/* News Grid */}
                 <Box sx={{ py: 4, px: 4 }}>
                   <Container maxWidth="lg">
-                    <Grid container spacing={3} sx={{ mb: 4 }}>
-                      {currentNews.map((news: any, index: number) => (
-                        <Grid item xs={12} sm={6} md={4} key={index} sx={{ display: 'flex' }}>
-                          <Box sx={{ width: '100%', cursor: 'pointer' }} onClick={() => handleArticleClick(news)}>
-                            <InfoCard {...news} isEvent={false} />
-                          </Box>
-                        </Grid>
-                      ))}
-                    </Grid>
+                    {loading ? (
+                      <Box sx={{ display: 'flex', justifyContent: 'center', my: 8 }}>
+                        <CircularProgress size={60} />
+                      </Box>
+                    ) : (
+                      <Grid container spacing={3} sx={{ mb: 4 }}>
+                        {currentNews.map((news: any, index: number) => (
+                          <Grid item xs={12} sm={6} md={4} key={index} sx={{ display: 'flex' }}>
+                            <Box sx={{ width: '100%', cursor: 'pointer' }} onClick={() => handleArticleClick(news)}>
+                              <InfoCard {...news} isEvent={false} />
+                            </Box>
+                          </Grid>
+                        ))}
+                      </Grid>
+                    )}
 
                     {/* No Results Message */}
                     {filteredNews.length === 0 && (
@@ -354,6 +365,7 @@ export default function NewsBlogsPage() {
         </Box>
       </main>
       <Footer />
+      <ToastComponent />
     </>
   )
 }

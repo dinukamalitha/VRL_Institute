@@ -324,7 +324,7 @@ export default function JournalPage() {
       let imageUrl = journalContent.imageUrl
       if (imageFile) {
         try {
-          imageUrl = await uploadToCloudinary(imageFile, "VRL/journal/images")
+          imageUrl = await uploadToCloudinary(imageFile, "VRL/journal")
           showSnackbar('Image uploaded successfully', 'success')
         } catch (uploadError) {
           console.error('Failed to upload image:', uploadError)
@@ -590,7 +590,7 @@ export default function JournalPage() {
                 onChange={(value) => handleContentChange('welcomeText', value)}
                 placeholder="Enter welcome text..."
                 height="200px"
-                uploadFolder="VRL/journal/content"
+                uploadFolder="VRL/journal"
               />
             ) : (
               <Box

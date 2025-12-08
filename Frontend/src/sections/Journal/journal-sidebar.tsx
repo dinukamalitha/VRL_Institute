@@ -1,12 +1,10 @@
 'use client';
 
-import { Box, Typography, Divider, Link, Chip, Paper, Card, CardContent } from '@mui/material';
+import { Box, Typography, Divider, Link, Chip, Card, CardContent } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ArticleIcon from '@mui/icons-material/Article';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import BookIcon from '@mui/icons-material/Book';
 import { getLatestJournalArticles } from '@/api/journal-articles';
 import { JournalArticle } from '@/types/journal';
 

@@ -6,7 +6,6 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  Box,
 } from '@mui/material'
 import { useState, useEffect } from 'react'
 import FormTextField from '@/components/FormTextField'
@@ -108,7 +107,6 @@ export default function EditJournalVolumeModal({
           value={publishedDate}
           onChange={setPublishedDate}
           size="small"
-          InputLabelProps={{ shrink: true }}
         />
 
         <FileUpload

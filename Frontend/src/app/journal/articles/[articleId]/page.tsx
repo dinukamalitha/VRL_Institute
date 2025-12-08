@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Container, Typography, Divider, Button, Chip, Paper, Breadcrumbs, Link as MuiLink } from '@mui/material';
+import { Box, Container, Typography, Divider, Button, Chip, Paper} from '@mui/material';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useNavLinks } from '@/hooks/useNavLinks';
@@ -15,30 +15,68 @@ import VerifiedIcon from '@mui/icons-material/Verified';
 import { useEffect, useState } from 'react';
 import { JournalArticle } from '@/types/journal';
 import { getJournalArticleById } from '@/api/journal-articles';
+import { getCurrentJournalVolume } from '@/api/journal-volumes';
+import { useToast } from '@/hooks/useToast';
 
 export default function JournalArticlePage() {
   const params = useParams();
   const router = useRouter();
   const navLinks = useNavLinks();
+  const { showToast, ToastComponent } = useToast();
   const [article, setArticle] = useState<JournalArticle | null>(null);
+  const [currentVolume, setCurrentVolume] = useState<any>(null);
   const [loading, setLoading] = useState(true);  
 
   useEffect(() => {
-    const fetchArticle = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const article = await getJournalArticleById(params.articleId as string);
-        setArticle(article);
+        const [articleData, volumeData] = await Promise.all([
+          getJournalArticleById(params.articleId as string),
+          getCurrentJournalVolume()
+        ]);
+        console.log('Fetched article:', articleData);
+        console.log('documentUrl:', articleData?.documentUrl);
+        console.log('Current volume:', volumeData);
+        setArticle(articleData);
+        setCurrentVolume(volumeData);
       } catch (error) {
-        console.error('Error fetching article:', error);
+        console.error('Error fetching data:', error);
         setArticle(null);
+        showToast('Failed to load article. Please try again later.', 'error');
       } finally {
         setLoading(false);
       }
     };
-    fetchArticle();
-  }, [params.articleId]);
+    fetchData();
+  }, [params.articleId, showToast]);
 
+  const handlePreview = (article: JournalArticle) => {
+    if (!article.documentUrl) {
+      showToast("Document URL not available", 'error')
+      return
+    }
+
+    // Extract fullPath from Cloudinary URL
+    const match = article.documentUrl.match(/\/v\d+\/(.*)/)
+    const fullPath = match ? match[1] : article.documentUrl
+
+    if (!fullPath) {
+      showToast("Invalid document URL", 'error')
+      return
+    }
+
+    // Create download link and trigger download
+    const downloadUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/journal-articles/stream/pdf?fullPath=${encodeURIComponent(fullPath)}`
+    const link = document.createElement('a')
+    link.href = downloadUrl
+    link.download = fullPath.split('/').pop() || 'article.pdf'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  };
+
+  console.log(currentVolume)
   if (loading) {
     return (
       <>
@@ -119,7 +157,7 @@ export default function JournalArticlePage() {
                   </Box>
                   <Box sx={{ pl: 3 }}>
                     {article.authors && article.authors.map((author, index) => (
-                        <Typography key={author._id || index} variant="body1" sx={{ mb: 0.5 }}>
+                        <Typography key={index} variant="body1" sx={{ mb: 0.5 }}>
                           • {author.name}
                         </Typography>
                     ))}
@@ -132,7 +170,10 @@ export default function JournalArticlePage() {
                     icon={<CalendarTodayIcon sx={{ fontSize: 18 }} />}
                     label={
                       <span>
-                        <strong>Published:</strong> {new Date(article.publishedDate).getFullYear()}
+                        <strong>Published:</strong>
+                        {article.publishedDate
+                          ? new Date(article.publishedDate).getFullYear()
+                          : "N/A"}
                       </span>
                     }
                     variant="outlined"
@@ -162,27 +203,6 @@ export default function JournalArticlePage() {
                     />
                   )}
                 </Box>
-
-                {/* Download Button */}
-                {article.documentUrl && (
-                  <Button
-                    variant="contained"
-                    startIcon={<DownloadIcon />}
-                    href={article.documentUrl}
-                    target="_blank"
-                    sx={{
-                      mb: 2,
-                      py: 1.5,
-                      px: 3,
-                      fontSize: '1rem',
-                      fontWeight: 600,
-                      textTransform: 'none',
-                      borderRadius: 2,
-                    }}
-                  >
-                    Download PDF (English)
-                  </Button>
-                )}
               </Box>
             </Paper>
 
@@ -236,7 +256,10 @@ export default function JournalArticlePage() {
             <Paper elevation={1} sx={{ p: 3, borderRadius: 3 }}>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center' }}>
                 <Typography variant="body2" color="text.secondary">
-                  <strong>Year:</strong> {article.publishedDate}
+                  <strong>Year: </strong>
+                  {article.publishedDate
+                      ? new Date(article.publishedDate).getFullYear()
+                      : "N/A"}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   <strong>Volume:</strong> {article.volume}
@@ -257,10 +280,34 @@ export default function JournalArticlePage() {
                 </Typography>
               </Box>
             </Paper>
+
+            {/* Download Buttons */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, mt: 4 }}>
+              {/* Article PDF Download */}
+              {article?.documentUrl && article.documentUrl.trim() !== '' ? (
+                <Button
+                  variant="contained"
+                  size="large"
+                  startIcon={<DownloadIcon />}
+                  onClick={() => handlePreview(article)}
+                  sx={{
+                    py: 1.5,
+                    px: 4,
+                    fontSize: '1rem',
+                    fontWeight: 600,
+                    textTransform: 'none',
+                    borderRadius: 2,
+                  }}
+                >
+                  Download Article PDF
+                </Button>
+              ) : null}
+            </Box>
           </Container>
         </Box>
       </main>
       <Footer />
+      <ToastComponent />
     </>
   );
 }

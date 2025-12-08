@@ -1,10 +1,12 @@
 import { Request, Response } from "express";
 import JournalArticle from "../models/journalArticle";
+import axios from "axios";
+import { v2 as cloudinary } from "cloudinary";
 
 // Create a new Journal Article
 export const createJournalArticle = async (req: Request, res: Response) => {
     try {
-        const { title, abstract, category, authors, thumbnail, publishedDate, volume, issue, keywords, documentUrl, peerReviewed } = req.body;
+        const { title, abstract, category, authors, thumbnail, volume, issue, keywords, documentUrl, peerReviewed } = req.body;
 
         const journalArticle = new JournalArticle({
             title,
@@ -165,7 +167,7 @@ export const getLatestJournalArticles = async (req: Request, res: Response) => {
 export const updateJournalArticle = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const { title, abstract, category, authors, thumbnail, publishedDate, volume, issue, keywords, documentUrl, peerReviewed } = req.body;
+        const { title, abstract, category, authors, thumbnail, volume, issue, keywords, documentUrl, peerReviewed } = req.body;
 
         const updatedArticle = await JournalArticle.findByIdAndUpdate(
             id,
@@ -222,6 +224,54 @@ export const deleteJournalArticle = async (req: Request, res: Response) => {
             success: false,
             message: err.message,
         });
+    }
+};
+
+// Download journal article PDF
+export const downloadJournalArticlePdf = async (req: Request, res: Response) => {
+    const fullPath = (req.query.fullPath || req.query.fullpath) as string;
+    if (!fullPath) return res.status(400).send("Missing 'fullPath' query param");
+
+    cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
+
+    try {
+        const signedUrl = cloudinary.utils.private_download_url(fullPath, '', {
+            resource_type: 'raw',
+            type: 'upload',
+            expires_at: Math.floor(Date.now() / 1000) + 300 // 5 min
+        });
+
+        const filename = fullPath.split('/').pop() || 'file';
+        const ext = filename.split('.').pop()?.toLowerCase() || '';
+
+        // Map extensions to MIME types
+        const mimeTypes: Record<string, string> = {
+            pdf: 'application/pdf',
+            doc: 'application/msword',
+            docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            xls: 'application/vnd.ms-excel',
+            xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            txt: 'text/plain',
+            csv: 'text/csv',
+        };
+
+        const contentType = mimeTypes[ext] || 'application/octet-stream';
+
+        const cloudinaryResponse = await axios.get(signedUrl, { responseType: 'stream' });
+
+        res.setHeader('Content-Type', contentType);
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.setHeader('Content-Length', cloudinaryResponse.headers['content-length'] || '');
+
+        cloudinaryResponse.data.pipe(res);
+
+    } catch (err) {
+        console.error("Error downloading journal article file:", err);
+        res.status(500).send("Failed to download file");
     }
 };
 

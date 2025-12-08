@@ -12,7 +12,8 @@ import {
   Chip,
   Pagination,
   Breadcrumbs,
-  Link
+  Link,
+  CircularProgress
 } from '@mui/material'
 import { useRouter, useSearchParams } from 'next/navigation'
 import SearchIcon from '@mui/icons-material/Search'
@@ -29,6 +30,7 @@ import EventsSidebar from '@/sections/Events/events-sidebar'
 import NewsSidebar from '@/sections/NewsBlog/news-sidebar'
 import EventView from "@/sections/Events/eventView";
 import { useNavLinks } from '@/hooks/useNavLinks'
+import { useToast } from '@/hooks/useToast';
 
 const categories = [
   'All',
@@ -46,12 +48,13 @@ const categories = [
 export default function EventsPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { showToast, ToastComponent } = useToast();
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedEvent, setSelectedEvent] = useState<any>(null)
   const [allEvents, setAllEvents] = useState<any[]>([])
-  const [, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [showEvent, setShowEvent] = useState(false)
   const itemsPerPage = 9
 
@@ -90,12 +93,13 @@ export default function EventsPage() {
         setAllEvents(mapped)
       } catch (e) {
         console.error('Failed to fetch events', e)
+        showToast('Failed to load events. Please try again later.', 'error')
       } finally {
         setLoading(false)
       }
     }
     fetchEvents()
-  }, [])
+  }, [showToast])
 
   // Handle URL param for event detail
   useEffect(() => {
@@ -321,25 +325,31 @@ export default function EventsPage() {
                 {/* Events Grid */}
                 <Box sx={{ py: 4, px: 4 }}>
                   <Container maxWidth="lg">
-                    <Grid container spacing={3} sx={{ mb: 4 }}>
-                      {currentEvents.map((event, index) => (
-                        <Grid
-                          item
-                          xs={12}
-                          sm={6}
-                          md={4}
-                          key={index}
-                          sx={{ display: 'flex' }}
-                        >
-                          <Box
-                            sx={{ width: '100%', cursor: 'pointer' }}
-                            onClick={() => handleEventClick(event)}
+                    {loading ? (
+                      <Box sx={{ display: 'flex', justifyContent: 'center', my: 8 }}>
+                        <CircularProgress size={60} />
+                      </Box>
+                    ) : (
+                      <Grid container spacing={3} sx={{ mb: 4 }}>
+                        {currentEvents.map((event, index) => (
+                          <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={4}
+                            key={index}
+                            sx={{ display: 'flex' }}
                           >
-                            <InfoCard {...event} isEvent={true} />
-                          </Box>
-                        </Grid>
-                      ))}
-                    </Grid>
+                            <Box
+                              sx={{ width: '100%', cursor: 'pointer' }}
+                              onClick={() => handleEventClick(event)}
+                            >
+                              <InfoCard {...event} isEvent={true} />
+                            </Box>
+                          </Grid>
+                        ))}
+                      </Grid>
+                    )}
 
                     {filteredEvents.length === 0 && (
                       <Box sx={{ textAlign: 'center', py: 8 }}>
@@ -387,6 +397,7 @@ export default function EventsPage() {
         </Box>
       </main>
       <Footer />
+      <ToastComponent />
     </>
   )
 }

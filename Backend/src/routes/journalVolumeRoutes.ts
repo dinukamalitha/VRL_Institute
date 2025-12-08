@@ -6,6 +6,7 @@ import {
     getCurrentJournalVolume,
     getJournalVolumeById,
     updateJournalVolume,
+    streamJournalVolumePdf,
 } from "../controllers/journalVolume.controller";
 
 const router = Router();
@@ -13,6 +14,7 @@ const router = Router();
 // Specific routes must come before parameterized routes
 router.post("/", createJournalVolume);
 router.get("/current", getCurrentJournalVolume);
+router.get("/stream/pdf", streamJournalVolumePdf);
 router.get("/", getAllJournalVolumes);
 router.patch("/:id", updateJournalVolume);
 router.delete("/:id", deleteJournalVolume);

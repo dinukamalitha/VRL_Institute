@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Container, Typography, Divider, Button, Card, CardContent, Grid, Paper, Chip } from '@mui/material'
+import { Box, Container, Typography, Button, Card, CardContent, Grid, Paper, Chip } from '@mui/material'
 import { useState, useEffect } from 'react'
 import Navbar from '@/components/Navbar'
 import JournalSidebar from '@/sections/Journal/journal-sidebar'
@@ -9,7 +9,10 @@ import journalImage from '@/app/assets/images/journal-Image.jpg'
 import Footer from '@/components/Footer'
 import { useNavLinks } from '@/hooks/useNavLinks'
 import { getJournalContent } from '@/api/journal-content'
+import { getCurrentJournalVolume } from '@/api/journal-volumes'
 import BookIcon from '@mui/icons-material/Book'
+// import LoadingOverlay from '@/components/LoadingOverlay'
+import { useToast } from '@/hooks/useToast'
 import DescriptionIcon from '@mui/icons-material/Description'
 import PolicyIcon from '@mui/icons-material/Policy'
 import LockOpenIcon from '@mui/icons-material/LockOpen'
@@ -20,24 +23,35 @@ import DownloadIcon from '@mui/icons-material/Download'
 
 export default function JournalPage() {
   const navLinks = useNavLinks()
+  const { showToast, ToastComponent } = useToast()
   const [journalContent, setJournalContent] = useState<any>(null)
+  const [currentVolume, setCurrentVolume] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        const content = await getJournalContent()
+        setLoading(true)
+        const [content, volume] = await Promise.all([
+          getJournalContent(),
+          getCurrentJournalVolume()
+        ])
         if (content) {
           setJournalContent(content)
         }
+        if (volume) {
+          setCurrentVolume(volume)
+        }
       } catch (error) {
         console.error('Failed to fetch journal content:', error)
+        showToast('Failed to load journal content. Please try again later.', 'error')
       } finally {
         setLoading(false)
       }
     }
     fetchContent()
-  }, [])
+  }, [showToast])
+    console.log(loading)
 
   // Use API content if available, otherwise use defaults
   const welcomeText = journalContent?.welcomeText || "Welcome to the official Veritas Research & Learning Journal (VRLJ). Explore our multidisciplinary research publications that bridge theory and practice for real-world impact."
@@ -48,12 +62,35 @@ export default function JournalPage() {
   const publisher = journalContent?.publisher || "Veritas Research & Learning Institute"
   const chiefEditors = journalContent?.chiefEditors || ["Dr. Susil Kumara Silva", "Dr. Jayantha Balasooriya", "Dr. Mihira Wanninayake"]
   const submissionEmail = journalContent?.submissionEmail || "info@vrlinstitute.lk"
-  const submissionText = journalContent?.submissionText || "We welcome submissions from researchers and scholars across diverse disciplines."
-  const typographicGuidance = journalContent?.typographicGuidance || "Body text: Times New Roman, 11pt minimum, normal style. Headings: Times New Roman, 11pt minimum, bold style. Page setup: 2.54 cm margins on all sides, single line spacing."
-  const maxWordCount = journalContent?.maxWordCount || "8,000 words (excluding references, appendices, tables, title, and abstract). Abstract ≤ 400 words."
-  const referencingProfessionalism = journalContent?.referencingProfessionalism || "Identify and acknowledge all sources, use consistent referencing style (Harvard or APA), maintain high-quality English. Diagrams, tables, and figures should be included in the main text; large tables may go in appendices."
+  const submissionText = journalContent?.submissionText
+  const typographicGuidance = journalContent?.typographicGuidance
+  const maxWordCount = journalContent?.maxWordCount
+  const referencingProfessionalism = journalContent?.referencingProfessionalism
   // Handle image - use API imageUrl if available, otherwise use default imported image
   const journalImageUrl = journalContent?.imageUrl
+
+  // Handle preview of current volume PDF
+  const handlePreviewVolume = () => {
+    if (currentVolume?.documentUrl) {
+      // Extract fullPath from Cloudinary URL (similar to publications)
+      const match = currentVolume.documentUrl.match(/\/v\d+\/(.*)/)
+      const fullPath = match ? match[1] : currentVolume.documentUrl
+
+      if (!fullPath) {
+        alert("Invalid document URL")
+        return
+      }
+
+      // Open backend proxy URL in new window using journal volumes endpoint
+      window.open(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/journal-volumes/stream/pdf?fullPath=${encodeURIComponent(fullPath)}`,
+        "_blank"
+      )
+    } else {
+      // Fallback to static path if no documentUrl is available
+      window.open("/VRL_Journal_V1_01.pdf", "_blank")
+    }
+  }
 
   return (
     <>
@@ -144,14 +181,13 @@ export default function JournalPage() {
                     </Typography>
                   </Box>
                   <Typography variant="body1" sx={{ mb: 3, opacity: 0.95 }}>
-                    Volume 1, Issue 1 - January 2025
+                    {currentVolume?.title || "Volume 1, Issue 1 - January 2025"}
                   </Typography>
                   <Button
                     variant="contained"
                     fullWidth
                     startIcon={<DownloadIcon />}
-                    href="/VRL_Journal_V1_01.pdf"
-                    target="_blank"
+                    onClick={handlePreviewVolume}
                     sx={{
                       backgroundColor: 'white',
                       color: '#1976d2',
@@ -344,7 +380,7 @@ export default function JournalPage() {
                         </Typography>
 
                         <Box sx={{ pl: 1 }}>
-                          {chiefEditors.map((editor: string, index: number) => (
+                          {(chiefEditors || []).map((editor: string, index: number) => (
                             <Typography key={index} variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
                               • {editor}
                             </Typography>
@@ -464,6 +500,7 @@ export default function JournalPage() {
         </Box>
       </main>
       <Footer />
+      <ToastComponent />
     </>
   )
 }
