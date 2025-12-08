@@ -6,7 +6,6 @@ export interface IJournalArticle extends Document {
     abstract: string;
     category: string;
     authors: IAuthor[];
-    thumbnail?: string;
     publishedDate: Date;
     volume: string;
     issue: string;
@@ -28,14 +27,6 @@ const JournalArticleSchema: Schema = new Schema(
             validate: {
                 validator: (arr: IAuthor[]) => arr.length > 0,
                 message: "At least one author is required.",
-            },
-        },
-        thumbnail: {
-            type: String,
-            required: false,
-            validate: {
-                validator: (url: string) => !url || urlValidator(url),
-                message: (props: any) => `Invalid thumbnail URL: ${props.value}`,
             },
         },
         publishedDate: { type: Date, required: true },

@@ -6,14 +6,13 @@ import { v2 as cloudinary } from "cloudinary";
 // Create a new Journal Article
 export const createJournalArticle = async (req: Request, res: Response) => {
     try {
-        const { title, abstract, category, authors, thumbnail, volume, issue, keywords, documentUrl, peerReviewed } = req.body;
+        const { title, abstract, category, authors, volume, issue, keywords, documentUrl, peerReviewed } = req.body;
 
         const journalArticle = new JournalArticle({
             title,
             abstract,
             category,
             authors,
-            thumbnail,
             publishedDate: new Date(),
             volume,
             issue,
@@ -167,11 +166,11 @@ export const getLatestJournalArticles = async (req: Request, res: Response) => {
 export const updateJournalArticle = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const { title, abstract, category, authors, thumbnail, volume, issue, keywords, documentUrl, peerReviewed } = req.body;
+        const { title, abstract, category, authors, volume, issue, keywords, documentUrl, peerReviewed } = req.body;
 
         const updatedArticle = await JournalArticle.findByIdAndUpdate(
             id,
-            { title, abstract, category, authors, thumbnail, volume, issue, keywords, documentUrl, peerReviewed },
+            { title, abstract, category, authors, volume, issue, keywords, documentUrl, peerReviewed },
             { new: true, runValidators: true }
         );
 

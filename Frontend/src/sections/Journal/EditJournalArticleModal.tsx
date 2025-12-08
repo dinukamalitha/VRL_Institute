@@ -37,7 +37,6 @@ export default function EditJournalArticleModal({
   const [keywordInput, setKeywordInput] = useState('')
   const [peerReviewed, setPeerReviewed] = useState(true)
   const [loading, setLoading] = useState(false)
-  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
   const [documentFile, setDocumentFile] = useState<File | null>(null)
   const [authors, setAuthors] = useState<Author[]>([{ name: '', description: '', photoFile: null }])
 
@@ -102,12 +101,6 @@ export default function EditJournalArticleModal({
 
     setLoading(true)
     try {
-      // Upload thumbnail if changed
-      let thumbnailUrl = article?.thumbnail
-      if (thumbnailFile) {
-        thumbnailUrl = await uploadToCloudinary(thumbnailFile, "VRL/journal/articles/thumbnails")
-      }
-
       // Upload document if changed
       let documentUrl = article?.documentUrl || ''
       if (documentFile) {
@@ -139,7 +132,6 @@ export default function EditJournalArticleModal({
         keywords,
         peerReviewed,
         documentUrl,
-        thumbnail: thumbnailUrl,
         authors: uploadedAuthors,
       }
 
@@ -236,16 +228,6 @@ export default function EditJournalArticleModal({
             <Button size="small" onClick={handleAddKeyword}>Add</Button>
           </Box>
         </Box>
-
-        <FileUpload
-          id="thumbnail-upload"
-          accept="image/*"
-          label="Thumbnail Image"
-          buttonText="Choose Image"
-          onFileSelect={setThumbnailFile}
-          currentFile={article?.thumbnail}
-          showPreview
-        />
 
         <FileUpload
           id="document-upload"

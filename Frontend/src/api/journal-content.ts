@@ -1,6 +1,7 @@
 import api from '../utils/api';
 
 export interface JournalContent {
+  pageTitle: string;
   welcomeText: string;
   aimOfJournal: string;
   peerReviewProcess: string;

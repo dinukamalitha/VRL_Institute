@@ -7,7 +7,7 @@ import {
   Button,
   Chip,
 } from '@mui/material'
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import AddIcon from '@mui/icons-material/Add'
 import DataTable from '@/components/DataTable'
 import SearchBar from '@/components/SearchBar'
@@ -33,7 +33,7 @@ export default function EventsPage() {
   const [deleting, setDeleting] = useState(false)
 
   // Fetch events from backend
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     setLoading(true)
     try {
       const res: ApiEventItem[] = await getAllEvents()
@@ -61,11 +61,11 @@ export default function EventsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [showToast])
 
   useEffect(() => {
     fetchEvents()
-  }, [])
+  }, [fetchEvents])
 
   // Filter events based on search term
   const filteredEvents = useMemo(() => {

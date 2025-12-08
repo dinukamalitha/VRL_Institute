@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo, useCallback, useRef, useEffect } from 'react';
+import { Box } from '@mui/material';
 import dynamic from 'next/dynamic';
 import type ReactQuillType from 'react-quill-new';
 import { uploadToCloudinary } from '@/utils/fileUpload';
@@ -75,6 +76,10 @@ export default function RichTextEditor({
                                          uploadFolder = 'publications'
                                        }: RichTextEditorProps) {
   const quillRef = useRef<ReactQuillType | null>(null);
+  const resolvedHeight = useMemo(() => {
+    if (typeof height === 'number') return `${height}px`;
+    return height || '240px';
+  }, [height]);
 
   // ---- Image handler ----
   const imageHandler = useCallback(async () => {
@@ -154,16 +159,37 @@ export default function RichTextEditor({
   return (
       <>
         <style>{columnStyles}</style>
-        <ReactQuill
-            ref={quillRef as any}
-            theme="snow"
-            value={value}
-            onChange={onChange}
-            modules={modules}
-            formats={formats}
-            placeholder={placeholder}
-            style={height ? { height } : undefined}
-        />
+        <Box
+          sx={{
+            '& .ql-toolbar': {
+              borderTopLeftRadius: 8,
+              borderTopRightRadius: 8,
+              borderColor: '#e0e0e0',
+              backgroundColor: '#fafafa',
+            },
+            '& .ql-container': {
+              borderBottomLeftRadius: 8,
+              borderBottomRightRadius: 8,
+              borderColor: '#e0e0e0',
+              minHeight: resolvedHeight,
+              maxHeight: resolvedHeight,
+              overflowY: 'auto',
+            },
+            '& .ql-editor': {
+              minHeight: `calc(${resolvedHeight} - 42px)`,
+            },
+          }}
+        >
+          <ReactQuill
+              ref={quillRef as any}
+              theme="snow"
+              value={value}
+              onChange={onChange}
+              modules={modules}
+              formats={formats}
+              placeholder={placeholder}
+          />
+        </Box>
       </>
   );
 }

@@ -86,19 +86,15 @@ export const getCurrentJournalVolume = async (_req: Request, res: Response) => {
         const volume = await JournalVolume.findOne()
             .sort({ publishedDate: -1 });
 
-        if (!volume) {
-            return res.status(404).json({
-                success: false,
-                message: "No journal volume found",
-            });
-        }
-
-        res.status(200).json({
+        // If no volume exists, return data: null instead of 404
+        return res.status(200).json({
             success: true,
-            data: volume,
+            data: volume || null,
+            message: volume ? "Current journal volume found" : "No journal volume found",
         });
+
     } catch (err: any) {
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: err.message,
         });

@@ -52,3 +52,9 @@ export interface ToastState {
   message: string
   severity: 'success' | 'error' | 'info' | 'warning'
 }
+
+export interface TabPanelProps {
+  children?: React.ReactNode
+  index: number
+  value: number
+}

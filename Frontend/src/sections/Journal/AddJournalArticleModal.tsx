@@ -36,7 +36,6 @@ export default function AddJournalArticleModal({
   const [keywordInput, setKeywordInput] = useState('')
   const [peerReviewed, setPeerReviewed] = useState(true)
   const [loading, setLoading] = useState(false)
-  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
   const [documentFile, setDocumentFile] = useState<File | null>(null)
   const [authors, setAuthors] = useState<Author[]>([
     { name: '', description: '', photoFile: null }
@@ -126,12 +125,6 @@ export default function AddJournalArticleModal({
     setLoading(true)
 
     try {
-      // Upload thumbnail
-      let thumbnailUrl: string | undefined
-      if (thumbnailFile) {
-        thumbnailUrl = await uploadToCloudinary(thumbnailFile, "VRL/journal/articles/thumbnails")
-      }
-
       // Upload document
       let documentUrl: string = ''
       if (documentFile) {
@@ -161,7 +154,6 @@ export default function AddJournalArticleModal({
         keywords,
         peerReviewed,
         documentUrl,
-        thumbnail: thumbnailUrl,
         authors: uploadedAuthors,
       }
 
@@ -177,7 +169,6 @@ export default function AddJournalArticleModal({
       setKeywords([])
       setKeywordInput('')
       setPeerReviewed(true)
-      setThumbnailFile(null)
       setDocumentFile(null)
       setAuthors([{ name: '', description: '', photoFile: null }])
       setErrors({
@@ -296,16 +287,6 @@ export default function AddJournalArticleModal({
             <Button size="small" onClick={handleAddKeyword}>Add</Button>
           </Box>
         </Box>
-
-        <FileUpload
-          id="thumbnail-upload"
-          accept="image/*"
-          label="Thumbnail Image"
-          buttonText="Choose Image"
-          onFileSelect={setThumbnailFile}
-          currentFile={undefined}
-          showPreview
-        />
 
         <FileUpload
           id="document-upload"
