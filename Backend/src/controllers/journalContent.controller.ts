@@ -8,6 +8,7 @@ export const getJournalContent = async (_req: Request, res: Response) => {
         if (!content) {
             // Return default content if none exists
             content = new JournalContent({
+                pageTitle: "VRL Journal",
                 welcomeText: "Welcome to the official Veritas Research & Learning Journal (VRLJ). Explore our multidisciplinary research publications that bridge theory and practice for real-world impact.",
                 aimOfJournal: "The Veritas Research & Learning Journal (VRLJ) dedicates itself to fostering high-quality, multidisciplinary research that connects theory and practice. The journal aims to disseminate impactful knowledge that fosters innovation, informs policy, and contributes to real-world problem-solving across diverse academic and professional domains.",
                 peerReviewProcess: "Upon submission, one of the editors will conduct a preliminary review to assess the manuscript's relevance, quality, and compliance with journal guidelines. If deemed suitable, the manuscript will then undergo a double-blind peer review process by two independent reviewers, ensuring objectivity and academic rigor.",
@@ -38,6 +39,7 @@ export const getJournalContent = async (_req: Request, res: Response) => {
 export const updateJournalContent = async (req: Request, res: Response) => {
     try {
         const {
+            pageTitle,
             welcomeText,
             aimOfJournal,
             peerReviewProcess,
@@ -57,6 +59,7 @@ export const updateJournalContent = async (req: Request, res: Response) => {
 
         if (!content) {
             content = new JournalContent({
+                pageTitle,
                 welcomeText,
                 aimOfJournal,
                 peerReviewProcess,
@@ -86,6 +89,9 @@ export const updateJournalContent = async (req: Request, res: Response) => {
             content.referencingProfessionalism = referencingProfessionalism;
             if (imageUrl !== undefined) {
                 content.imageUrl = imageUrl;
+            }
+            if (pageTitle !== undefined) {
+                content.pageTitle = pageTitle;
             }
         }
 

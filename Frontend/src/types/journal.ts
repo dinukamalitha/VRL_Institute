@@ -9,7 +9,6 @@ export interface JournalArticle {
       photo?: string;
       description?: string;
     }>;
-    thumbnail?: string;
     publishedDate?: string;
     volume: string;
     issue: string;
@@ -31,7 +30,6 @@ export interface JournalArticle {
   export interface JournalVolume {
     _id?: string;
     title: string;
-    thumbnail?: string;
     publisher: string;
     documentUrl?: string;
     createdAt?: string;

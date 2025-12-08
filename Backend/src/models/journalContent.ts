@@ -1,6 +1,11 @@
 import mongoose from "mongoose";
 
 const JournalContentSchema = new mongoose.Schema({
+    pageTitle: {
+        type: String,
+        required: true,
+        default: "VRL Journal"
+    },
     welcomeText: {
         type: String,
         required: true,

@@ -1,32 +1,13 @@
 'use client'
 
-import {
-  Box,
-  Container,
-  Typography,
-  Button,
-  Chip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Tabs,
-  Tab,
-  TextField,
-  Paper,
-  Stack,
-  IconButton,
-  Divider,
-  CircularProgress,
-} from '@mui/material'
-import { useState, useEffect, useMemo } from 'react'
+import { Box, Container, Typography, Button, Chip, Dialog, DialogTitle, DialogContent, DialogActions, Tabs, Tab, TextField, Paper, Stack, IconButton, Divider, CircularProgress,} from '@mui/material'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import DataTable from '@/components/DataTable'
 import SearchBar from '@/components/SearchBar'
 import RichTextEditor from '@/components/RichTextEditor'
 import FileUpload from '@/components/FileUpload'
-import AlertSnackbar from '@/components/alert'
 import { uploadToCloudinary } from '@/utils/fileUpload'
 import AddJournalArticleModal from '@/sections/Journal/AddJournalArticleModal'
 import EditJournalArticleModal from '@/sections/Journal/EditJournalArticleModal'
@@ -35,12 +16,8 @@ import EditJournalVolumeModal from '@/sections/Journal/EditJournalVolumeModal'
 import { getAllJournalArticles, deleteJournalArticle } from '@/api/journal-articles'
 import { getAllJournalVolumes, deleteJournalVolume } from '@/api/journal-volumes'
 import { getJournalContent, updateJournalContent } from '@/api/journal-content'
-
-interface TabPanelProps {
-  children?: React.ReactNode
-  index: number
-  value: number
-}
+import {TabPanelProps} from "@/types/components";
+import { useToast } from '@/hooks/useToast'
 
 function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props
@@ -61,6 +38,7 @@ function TabPanel(props: TabPanelProps) {
 export default function JournalPage() {
   const [tabValue, setTabValue] = useState(0)
   const [searchTerm, setSearchTerm] = useState('')
+  const { showToast: triggerToast, ToastComponent } = useToast()
   
   // Articles state
   const [addArticleOpen, setAddArticleOpen] = useState(false)
@@ -85,6 +63,7 @@ export default function JournalPage() {
   const [isEditingContent, setIsEditingContent] = useState(false)
   const [journalContentLoading, setJournalContentLoading] = useState(false)
   const [journalContent, setJournalContent] = useState({
+    pageTitle: '',
     welcomeText: '',
     aimOfJournal: '',
     peerReviewProcess: '',
@@ -100,58 +79,47 @@ export default function JournalPage() {
     imageUrl: '',
   })
   const [imageFile, setImageFile] = useState<File | null>(null)
-
-  // Toast notification state
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: '',
-    severity: 'success' as 'success' | 'error' | 'info' | 'warning',
-  })
-
-  // Show toast notification
-  const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 'warning' = 'success') => {
-    setSnackbar({ open: true, message, severity })
-  }
-
-  const handleCloseSnackbar = () => {
-    setSnackbar((prev) => ({ ...prev, open: false }))
-  }
+  const showToast = useCallback(
+    (message: string, severity: 'success' | 'error' | 'info' | 'warning' = 'success') => {
+      triggerToast(message, severity)
+    },
+    [triggerToast]
+  )
 
   // Fetch articles from backend
-  const fetchArticles = async () => {
+  const fetchArticles = useCallback(async () => {
     setArticlesLoading(true)
     try {
       const res = await getAllJournalArticles()
       setArticles(res || [])
-    } catch (error) {
-      console.error('Failed to fetch articles:', error)
-      showSnackbar('Failed to fetch articles. Please try again.', 'error')
+    } catch {
+      showToast('Failed to fetch articles. Please try again.', 'error')
     } finally {
       setArticlesLoading(false)
     }
-  }
+  }, [showToast])
 
   // Fetch volumes from backend
-  const fetchVolumes = async () => {
+  const fetchVolumes = useCallback(async () => {
     setVolumesLoading(true)
     try {
       const res = await getAllJournalVolumes()
       setVolumes(res || [])
-    } catch (error) {
-      console.error('Failed to fetch volumes:', error)
-      showSnackbar('Failed to fetch volumes. Please try again.', 'error')
+    } catch {
+      showToast('Failed to fetch volumes. Please try again.', 'error')
     } finally {
       setVolumesLoading(false)
     }
-  }
+  }, [showToast])
 
   // Fetch journal content
-  const fetchJournalContent = async () => {
+  const fetchJournalContent = useCallback(async () => {
     setJournalContentLoading(true)
     try {
       const res = await getJournalContent()
       if (res) {
         setJournalContent({
+          pageTitle: res.pageTitle || 'VRL Journal',
           welcomeText: res.welcomeText || '',
           aimOfJournal: res.aimOfJournal || '',
           peerReviewProcess: res.peerReviewProcess || '',
@@ -170,11 +138,11 @@ export default function JournalPage() {
       }
     } catch (error) {
       console.error('Failed to fetch journal content:', error)
-      showSnackbar('Failed to fetch journal content. Please try again.', 'error')
+      showToast('Failed to fetch journal content. Please try again.', 'error')
     } finally {
       setJournalContentLoading(false)
     }
-  }
+  }, [showToast])
 
   useEffect(() => {
     if (tabValue === 0) {
@@ -184,7 +152,7 @@ export default function JournalPage() {
     } else if (tabValue === 2) {
       fetchJournalContent()
     }
-  }, [tabValue])
+  }, [tabValue, fetchArticles, fetchVolumes, fetchJournalContent])
 
   // Filter data based on search term
   const filteredArticles = useMemo(() => {
@@ -241,23 +209,23 @@ export default function JournalPage() {
       if (deleteType === 'article') {
         const result = await deleteJournalArticle(deleteId)
         if (result) {
-          showSnackbar('Article deleted successfully', 'success')
+          showToast('Article deleted successfully', 'success')
           fetchArticles()
         } else {
-          showSnackbar('Failed to delete article', 'error')
+          showToast('Failed to delete article', 'error')
         }
       } else {
         const result = await deleteJournalVolume(deleteId)
         if (result) {
-          showSnackbar('Volume deleted successfully', 'success')
+          showToast('Volume deleted successfully', 'success')
           fetchVolumes()
         } else {
-          showSnackbar('Failed to delete volume', 'error')
+          showToast('Failed to delete volume', 'error')
         }
       }
     } catch (err) {
       console.error('Failed to delete:', err)
-      showSnackbar(`Failed to delete ${deleteType}. Please try again.`, 'error')
+      showToast(`Failed to delete ${deleteType}. Please try again.`, 'error')
     } finally {
       setDeleteConfirmOpen(false)
       setDeleteId(null)
@@ -267,27 +235,27 @@ export default function JournalPage() {
   const handleCloseAddArticleModal = () => {
     setAddArticleOpen(false)
     fetchArticles()
-    showSnackbar('Article added successfully', 'success')
+    showToast('Article added successfully', 'success')
   }
 
   const handleCloseEditArticleModal = () => {
     setEditArticleOpen(false)
     setSelectedArticle(null)
     fetchArticles()
-    showSnackbar('Article updated successfully', 'success')
+    showToast('Article updated successfully', 'success')
   }
 
   const handleCloseAddVolumeModal = () => {
     setAddVolumeOpen(false)
     fetchVolumes()
-    showSnackbar('Volume added successfully', 'success')
+    showToast('Volume added successfully', 'success')
   }
 
   const handleCloseEditVolumeModal = () => {
     setEditVolumeOpen(false)
     setSelectedVolume(null)
     fetchVolumes()
-    showSnackbar('Volume updated successfully', 'success')
+    showToast('Volume updated successfully', 'success')
   }
 
   // Journal Content handlers
@@ -320,15 +288,13 @@ export default function JournalPage() {
   const handleSaveContent = async () => {
     try {
       setJournalContentLoading(true)
-      // Upload image if a new one was selected
       let imageUrl = journalContent.imageUrl
       if (imageFile) {
         try {
           imageUrl = await uploadToCloudinary(imageFile, "VRL/journal")
-          showSnackbar('Image uploaded successfully', 'success')
-        } catch (uploadError) {
-          console.error('Failed to upload image:', uploadError)
-          showSnackbar('Failed to upload image. Please try again.', 'error')
+          showToast('Image uploaded successfully', 'success')
+        } catch {
+          showToast('Failed to upload image. Please try again.', 'error')
           setJournalContentLoading(false)
           return
         }
@@ -344,13 +310,13 @@ export default function JournalPage() {
         setIsEditingContent(false)
         setImageFile(null)
         fetchJournalContent()
-        showSnackbar('Journal content updated successfully', 'success')
+        showToast('Journal content updated successfully', 'success')
       } else {
-        showSnackbar('Failed to update journal content', 'error')
+        showToast('Failed to update journal content', 'error')
       }
     } catch (error) {
       console.error('Failed to save journal content:', error)
-      showSnackbar('Failed to save journal content. Please try again.', 'error')
+      showToast('Failed to save journal content. Please try again.', 'error')
     } finally {
       setJournalContentLoading(false)
     }
@@ -507,6 +473,7 @@ export default function JournalPage() {
               <CircularProgress size={60} />
             </Box>
           )}
+
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
                 {isEditingContent ? 'Edit Journal Information' : 'Journal Information'}
@@ -531,6 +498,24 @@ export default function JournalPage() {
                 {isEditingContent ? (journalContentLoading ? 'Saving...' : 'Save Changes') : 'Edit'}
               </Button>
             </Stack>
+          </Box>
+
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+              Page Title
+            </Typography>
+            {isEditingContent ? (
+              <TextField
+                fullWidth
+                value={journalContent.pageTitle}
+                onChange={(e) => handleContentChange('pageTitle', e.target.value)}
+                placeholder="Enter page title (e.g., VRL Journal)"
+              />
+            ) : (
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                {journalContent.pageTitle || 'VRL Journal'}
+              </Typography>
+            )}
           </Box>
 
           <Box sx={{ mb: 3 }}>
@@ -580,7 +565,7 @@ export default function JournalPage() {
             )}
           </Box>
 
-          <Box sx={{ mb: 3 }}>
+          <Box sx={{ my: 3 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
               Welcome Text
             </Typography>
@@ -606,8 +591,8 @@ export default function JournalPage() {
             )}
           </Box>
 
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+          <Box sx={{ my: 3 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, my: 1 }}>
               Aim of the Journal
             </Typography>
             {isEditingContent ? (
@@ -991,12 +976,7 @@ export default function JournalPage() {
       </Dialog>
 
       {/* Toast Notification */}
-      <AlertSnackbar
-        open={snackbar.open}
-        message={snackbar.message}
-        severity={snackbar.severity}
-        onClose={handleCloseSnackbar}
-      />
+      <ToastComponent />
     </Container>
   )
 }

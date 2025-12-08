@@ -5,13 +5,11 @@ import { useState, useEffect } from 'react'
 import Navbar from '@/components/Navbar'
 import JournalSidebar from '@/sections/Journal/journal-sidebar'
 import Image from 'next/image'
-import journalImage from '@/app/assets/images/journal-Image.jpg'
 import Footer from '@/components/Footer'
 import { useNavLinks } from '@/hooks/useNavLinks'
 import { getJournalContent } from '@/api/journal-content'
 import { getCurrentJournalVolume } from '@/api/journal-volumes'
 import BookIcon from '@mui/icons-material/Book'
-// import LoadingOverlay from '@/components/LoadingOverlay'
 import { useToast } from '@/hooks/useToast'
 import DescriptionIcon from '@mui/icons-material/Description'
 import PolicyIcon from '@mui/icons-material/Policy'
@@ -42,8 +40,7 @@ export default function JournalPage() {
         if (volume) {
           setCurrentVolume(volume)
         }
-      } catch (error) {
-        console.error('Failed to fetch journal content:', error)
+      } catch {
         showToast('Failed to load journal content. Please try again later.', 'error')
       } finally {
         setLoading(false)
@@ -51,48 +48,46 @@ export default function JournalPage() {
     }
     fetchContent()
   }, [showToast])
-    console.log(loading)
 
+    console.log(currentVolume)
   // Use API content if available, otherwise use defaults
-  const welcomeText = journalContent?.welcomeText || "Welcome to the official Veritas Research & Learning Journal (VRLJ). Explore our multidisciplinary research publications that bridge theory and practice for real-world impact."
-  const aimOfJournal = journalContent?.aimOfJournal || "The Veritas Research & Learning Journal (VRLJ) dedicates itself to fostering high-quality, multidisciplinary research that connects theory and practice. The journal aims to disseminate impactful knowledge that fosters innovation, informs policy, and contributes to real-world problem-solving across diverse academic and professional domains."
-  const peerReviewProcess = journalContent?.peerReviewProcess || "Upon submission, one of the editors will conduct a preliminary review to assess the manuscript's relevance, quality, and compliance with journal guidelines. If deemed suitable, the manuscript will then undergo a double-blind peer review process by two independent reviewers, ensuring objectivity and academic rigor."
-  const publicationPolicy = journalContent?.publicationPolicy || "VRLJ is a digital-only journal. Accepted articles will be published online within two weeks of the final manuscript submission. A compiled electronic book version of the journal will be released semiannually (two volumes per year) and will be available for download. Printed versions can be obtained by interested parties."
-  const openAccessPolicy = journalContent?.openAccessPolicy || "This journal provides immediate and free open access to all its content, based on the principle that freely available research promotes a greater global exchange of knowledge and supports academic development."
-  const publisher = journalContent?.publisher || "Veritas Research & Learning Institute"
-  const chiefEditors = journalContent?.chiefEditors || ["Dr. Susil Kumara Silva", "Dr. Jayantha Balasooriya", "Dr. Mihira Wanninayake"]
-  const submissionEmail = journalContent?.submissionEmail || "info@vrlinstitute.lk"
+  const welcomeText = journalContent?.welcomeText
+  const aimOfJournal = journalContent?.aimOfJournal
+  const peerReviewProcess = journalContent?.peerReviewProcess
+  const publicationPolicy = journalContent?.publicationPolicy
+  const openAccessPolicy = journalContent?.openAccessPolicy
+  const publisher = journalContent?.publisher
+  const chiefEditors = journalContent?.chiefEditors
+  const submissionEmail = journalContent?.submissionEmail
   const submissionText = journalContent?.submissionText
   const typographicGuidance = journalContent?.typographicGuidance
   const maxWordCount = journalContent?.maxWordCount
   const referencingProfessionalism = journalContent?.referencingProfessionalism
-  // Handle image - use API imageUrl if available, otherwise use default imported image
-  const journalImageUrl = journalContent?.imageUrl
 
   // Handle preview of current volume PDF
-  const handlePreviewVolume = () => {
-    if (currentVolume?.documentUrl) {
-      // Extract fullPath from Cloudinary URL (similar to publications)
-      const match = currentVolume.documentUrl.match(/\/v\d+\/(.*)/)
-      const fullPath = match ? match[1] : currentVolume.documentUrl
+    const handlePreviewVolume = () => {
+        if (currentVolume?.documentUrl) {
+            // Extract fullPath from Cloudinary URL
+            const match = currentVolume.documentUrl.match(/\/v\d+\/(.*)/)
+            const fullPath = match ? match[1] : currentVolume.documentUrl
 
-      if (!fullPath) {
-        alert("Invalid document URL")
-        return
-      }
+            if (!fullPath) {
+                showToast("Invalid document URL", "error")
+                return
+            }
 
-      // Open backend proxy URL in new window using journal volumes endpoint
-      window.open(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/journal-volumes/stream/pdf?fullPath=${encodeURIComponent(fullPath)}`,
-        "_blank"
-      )
-    } else {
-      // Fallback to static path if no documentUrl is available
-      window.open("/VRL_Journal_V1_01.pdf", "_blank")
+            // Open backend proxy URL in new window using journal volumes endpoint
+            window.open(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/journal-volumes/stream/pdf?fullPath=${encodeURIComponent(fullPath)}`,
+                "_blank"
+            )
+        } else {
+            showToast("No document available for this volume", "info")
+        }
     }
-  }
 
-  return (
+
+    return (
     <>
       <Navbar navLinks={navLinks} logoSize="medium" />
       
@@ -143,17 +138,9 @@ export default function JournalPage() {
                   boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
                 }}
               >
-                {journalImageUrl ? (
+                {!loading && (
                   <Image
-                    src={journalImageUrl}
-                    alt="VRL Journal Cover"
-                    fill
-                    style={{ objectFit: 'cover' }}
-                    priority
-                  />
-                ) : (
-                  <Image
-                    src={journalImage}
+                    src={journalContent?.imageUrl}
                     alt="VRL Journal Cover"
                     fill
                     style={{ objectFit: 'cover' }}
@@ -175,15 +162,18 @@ export default function JournalPage() {
               >
                 <CardContent sx={{ p: 4 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <BookIcon sx={{ fontSize: 32, mr: 2 }} />
+                    <BookIcon sx={{ fontSize: 28, mr: 2 }} />
                     <Typography variant="h5" sx={{ fontWeight: 700 }}>
                       Current Issue
                     </Typography>
                   </Box>
                   <Typography variant="body1" sx={{ mb: 3, opacity: 0.95 }}>
-                    {currentVolume?.title || "Volume 1, Issue 1 - January 2025"}
+                      {currentVolume
+                          ? currentVolume.title
+                          : "No current issue available"}
                   </Typography>
                   <Button
+                    disabled={!currentVolume?.documentUrl}
                     variant="contained"
                     fullWidth
                     startIcon={<DownloadIcon />}
@@ -496,10 +486,11 @@ export default function JournalPage() {
 
           {/* Right Sidebar (Journal) */}
           <JournalSidebar/>
-
         </Box>
       </main>
+
       <Footer />
+
       <ToastComponent />
     </>
   )

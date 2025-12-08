@@ -3,9 +3,32 @@
 import { Box, Container, Typography, Button } from '@mui/material';
 import Link from 'next/link';
 import Image from 'next/image';
-import journalImage from '@/app/assets/images/journal-Image.jpg';
+import {useEffect, useState} from "react";
+import {useToast} from "@/hooks/useToast";
+import {getJournalContent} from "@/api/journal-content";
 
 const JournalSection = () => {
+  const [journalContent, setJournalContent] = useState<any>(null)
+  const { showToast, ToastComponent } = useToast()
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        setLoading(true)
+        const content = await getJournalContent()
+        if (content) {
+          setJournalContent(content)
+        }
+      } catch {
+        showToast('Failed to load journal content. Please try again later.', 'error')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchContent()
+  }, [showToast])
+
   return (
     <Box id="journals" sx={{ py: 8, bgColor: '#f5f5f5' }}>
       <Container maxWidth="md" sx={{ textAlign: 'center' }}>
@@ -20,12 +43,17 @@ const JournalSection = () => {
 
         {/* Journal Image */}
         <Box sx={{ position: 'relative', width: '100%', height: 600, mb: 3 }}>
-          <Image
-              src={journalImage}
-              alt="VRL Journal Cover"
-              fill
-              style={{ objectFit: 'cover', borderRadius: '12px' }}
-          />
+          {!loading && (
+              <Box sx={{ position: 'relative', width: '100%', height: 600, mb: 3 }}>
+                <Image
+                    src={journalContent?.imageUrl}
+                    alt="VRL Journal Cover"
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    priority
+                />
+              </Box>
+          )}
         </Box>
 
 
@@ -34,11 +62,12 @@ const JournalSection = () => {
           Multidisciplinary Research for Real-World Impact.
         </Typography>
         <Link href="/journal" passHref>
-          <Button variant="contained" color="primary" sx={{ mt: 3 }}>
-            See More
+          <Button variant="outlined" color="primary" sx={{ mt: 3 }}>
+            See More...
           </Button>
         </Link>
       </Container>
+      <ToastComponent />
     </Box>
   );
 };
