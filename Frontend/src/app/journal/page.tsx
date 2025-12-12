@@ -18,6 +18,7 @@ import PeopleIcon from '@mui/icons-material/People'
 import EmailIcon from '@mui/icons-material/Email'
 import ArticleIcon from '@mui/icons-material/Article'
 import DownloadIcon from '@mui/icons-material/Download'
+import { sanitizeHTML } from '@/utils/sanitize';
 
 export default function JournalPage() {
   const navLinks = useNavLinks()
@@ -121,7 +122,7 @@ export default function JournalPage() {
                     fontSize: { xs: '1rem', md: '1.25rem' },
                     lineHeight: 1.6
                   }}
-                  dangerouslySetInnerHTML={{ __html: welcomeText }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHTML(welcomeText || '')}}
                 />
               </Box>
 
@@ -226,7 +227,7 @@ export default function JournalPage() {
                         variant="body1" 
                         color="text.secondary" 
                         sx={{ lineHeight: 1.8 }}
-                        dangerouslySetInnerHTML={{ __html: aimOfJournal }}
+                        dangerouslySetInnerHTML={{ __html: sanitizeHTML(aimOfJournal || '')}}
                       />
                     </CardContent>
                   </Card>
@@ -257,7 +258,7 @@ export default function JournalPage() {
                         variant="body1" 
                         color="text.secondary" 
                         sx={{ lineHeight: 1.8 }}
-                        dangerouslySetInnerHTML={{ __html: peerReviewProcess }}
+                        dangerouslySetInnerHTML={{ __html: sanitizeHTML(peerReviewProcess || '')}}
                       />
                     </CardContent>
                   </Card>
@@ -287,7 +288,7 @@ export default function JournalPage() {
                         variant="body1" 
                         color="text.secondary" 
                         sx={{ lineHeight: 1.8, mb: 2 }}
-                        dangerouslySetInnerHTML={{ __html: publicationPolicy }}
+                        dangerouslySetInnerHTML={{ __html: sanitizeHTML(publicationPolicy || '')}}
                       />
                       <Chip
                         label="Nominal publication fee applies"
@@ -325,7 +326,7 @@ export default function JournalPage() {
                         variant="body1" 
                         color="text.secondary" 
                         sx={{ lineHeight: 1.8 }}
-                        dangerouslySetInnerHTML={{ __html: openAccessPolicy }}
+                        dangerouslySetInnerHTML={{ __html: sanitizeHTML(openAccessPolicy || '')}}
                       />
                     </CardContent>
                   </Card>
@@ -403,7 +404,7 @@ export default function JournalPage() {
                       <Typography 
                         variant="body1" 
                         sx={{ mb: 3, opacity: 0.95 }}
-                        dangerouslySetInnerHTML={{ __html: submissionText }}
+                        dangerouslySetInnerHTML={{ __html: sanitizeHTML(submissionText || '')}}
                       />
                       <Box
                         sx={{
@@ -450,7 +451,7 @@ export default function JournalPage() {
                           variant="body2" 
                           color="text.secondary" 
                           sx={{ lineHeight: 1.8 }}
-                          dangerouslySetInnerHTML={{ __html: typographicGuidance }}
+                          dangerouslySetInnerHTML={{ __html: sanitizeHTML(typographicGuidance || '')}}
                         />
                       </Box>
 
@@ -462,7 +463,7 @@ export default function JournalPage() {
                           variant="body2" 
                           color="text.secondary" 
                           sx={{ lineHeight: 1.8 }}
-                          dangerouslySetInnerHTML={{ __html: maxWordCount }}
+                          dangerouslySetInnerHTML={{ __html: sanitizeHTML(maxWordCount || '')}}
                         />
                       </Box>
 
@@ -474,7 +475,7 @@ export default function JournalPage() {
                           variant="body2" 
                           color="text.secondary" 
                           sx={{ lineHeight: 1.8 }}
-                          dangerouslySetInnerHTML={{ __html: referencingProfessionalism }}
+                          dangerouslySetInnerHTML={{ __html: sanitizeHTML(referencingProfessionalism || '')}}
                         />
                       </Box>
                     </CardContent>

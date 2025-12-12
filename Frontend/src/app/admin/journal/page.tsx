@@ -18,6 +18,7 @@ import { getAllJournalVolumes, deleteJournalVolume } from '@/api/journal-volumes
 import { getJournalContent, updateJournalContent } from '@/api/journal-content'
 import {TabPanelProps} from "@/types/components";
 import { useToast } from '@/hooks/useToast'
+import { sanitizeHTML } from '@/utils/sanitize';
 
 function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props
@@ -586,7 +587,7 @@ export default function JournalPage() {
                   minHeight: 100,
                   backgroundColor: '#f5f5f5',
                 }}
-                dangerouslySetInnerHTML={{ __html: journalContent.welcomeText }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHTML(journalContent.welcomeText || '') }}
               />
             )}
           </Box>
@@ -612,7 +613,7 @@ export default function JournalPage() {
                   minHeight: 120,
                   backgroundColor: '#f5f5f5',
                 }}
-                dangerouslySetInnerHTML={{ __html: journalContent.aimOfJournal }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHTML(journalContent.aimOfJournal || '') }}
               />
             )}
           </Box>
@@ -638,7 +639,7 @@ export default function JournalPage() {
                   minHeight: 120,
                   backgroundColor: '#f5f5f5',
                 }}
-                dangerouslySetInnerHTML={{ __html: journalContent.peerReviewProcess }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHTML(journalContent.peerReviewProcess || '') }}
               />
             )}
           </Box>
@@ -664,7 +665,7 @@ export default function JournalPage() {
                   minHeight: 120,
                   backgroundColor: '#f5f5f5',
                 }}
-                dangerouslySetInnerHTML={{ __html: journalContent.publicationPolicy }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHTML(journalContent.publicationPolicy || '') }}
               />
             )}
           </Box>
@@ -690,7 +691,7 @@ export default function JournalPage() {
                   minHeight: 100,
                   backgroundColor: '#f5f5f5',
                 }}
-                dangerouslySetInnerHTML={{ __html: journalContent.openAccessPolicy }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHTML(journalContent.openAccessPolicy || '') }}
               />
             )}
           </Box>
@@ -792,7 +793,7 @@ export default function JournalPage() {
                   minHeight: 80,
                   backgroundColor: '#f5f5f5',
                 }}
-                dangerouslySetInnerHTML={{ __html: journalContent.submissionText }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHTML(journalContent.submissionText || '') }}
               />
             )}
           </Box>
@@ -818,7 +819,7 @@ export default function JournalPage() {
                   minHeight: 100,
                   backgroundColor: '#f5f5f5',
                 }}
-                dangerouslySetInnerHTML={{ __html: journalContent.typographicGuidance }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHTML(journalContent.typographicGuidance || '') }}
               />
             )}
           </Box>
@@ -844,7 +845,7 @@ export default function JournalPage() {
                   minHeight: 80,
                   backgroundColor: '#f5f5f5',
                 }}
-                dangerouslySetInnerHTML={{ __html: journalContent.maxWordCount }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHTML(journalContent.maxWordCount || '') }}
               />
             )}
           </Box>
@@ -870,7 +871,7 @@ export default function JournalPage() {
                   minHeight: 100,
                   backgroundColor: '#f5f5f5',
                 }}
-                dangerouslySetInnerHTML={{ __html: journalContent.referencingProfessionalism }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHTML(journalContent.referencingProfessionalism || '') }}
               />
             )}
           </Box>

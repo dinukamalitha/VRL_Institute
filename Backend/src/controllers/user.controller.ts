@@ -21,7 +21,8 @@ export const registerUser = async (req: Request, res: Response) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        const user = new User({ name, email, password: hashedPassword, role });
+        const userRole = role || "user";
+        const user = new User({ name, email, password: hashedPassword, role: userRole });
         await user.save();
         res.status(201).json({
             user,
@@ -49,7 +50,7 @@ export const loginUser = async (req: Request, res: Response) => {
         }
 
         // Generate JWT
-        const token = jwt.sign({id: user._id}, JWT_SECRET, {expiresIn: "1h"});
+        const token = jwt.sign({id: user._id, role: user.role}, JWT_SECRET, {expiresIn: "1h"});
 
         res.json({
             message: "Login successful",
