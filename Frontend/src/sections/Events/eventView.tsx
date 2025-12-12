@@ -8,6 +8,7 @@ import TwitterIcon from '@mui/icons-material/Twitter'
 import LinkedInIcon from '@mui/icons-material/LinkedIn'
 import AuthorsSection from '@/sections/Other/authorsSection'
 import {Author} from "@/types/author";
+import { sanitizeHTML } from '@/utils/sanitize';
 
 interface EventViewProps {
     selectedEvent: {
@@ -131,7 +132,7 @@ const EventView: React.FC<EventViewProps> = ({
                 <Box
                     sx={{ mb: 4 }}
                     dangerouslySetInnerHTML={{
-                        __html: selectedEvent?.description || '',
+                        __html: sanitizeHTML(selectedEvent?.description || ''),
                     }}
                 />
 

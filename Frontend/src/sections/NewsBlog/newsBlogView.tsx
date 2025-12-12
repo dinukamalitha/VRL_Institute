@@ -14,6 +14,7 @@ import FacebookIcon from '@mui/icons-material/Facebook'
 import TwitterIcon from '@mui/icons-material/Twitter'
 import LinkedInIcon from '@mui/icons-material/LinkedIn'
 import AuthorsSection from '@/sections/Other/authorsSection'
+import { sanitizeHTML } from '@/utils/sanitize';
 
 interface Author {
     name: string
@@ -164,7 +165,7 @@ const NewsBlogView: React.FC<NewsBlogViewProps> = ({
                             }
                         }}
                         dangerouslySetInnerHTML={{
-                            __html: selectedArticle?.description || ''
+                            __html: sanitizeHTML(selectedArticle?.description || '')
                         }}
                     />
                 </Box>

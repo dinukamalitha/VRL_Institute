@@ -3,8 +3,7 @@
 const config = {
   mongodb: {
     // TODO Change (or review) the url to your MongoDB:
-    // url: process.env.MONGO_URI,
-    url: "mongodb+srv://dinukamalitha2001_db_user:gQrQELtAbxXcKlhH@cluster0.hrbgy2d.mongodb.net/VRL?retryWrites=true&w=majority&appName=Cluster0",
+    url: process.env.MONGO_URI,
 
     // TODO Change this to your database name:
     databaseName: "VRL",

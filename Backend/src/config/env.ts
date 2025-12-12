@@ -9,3 +9,11 @@ export const ENV = {
     MONGO_URI: process.env.MONGO_URI as string,
     JWT_SECRET: process.env.JWT_SECRET as string
 };
+
+// Validate required environment variables
+if (!ENV.MONGO_URI) {
+    throw new Error("MONGO_URI environment variable is required");
+  }
+  if (!ENV.JWT_SECRET) {
+    throw new Error("JWT_SECRET environment variable is required");
+  }
