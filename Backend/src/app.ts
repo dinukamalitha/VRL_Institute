@@ -22,7 +22,6 @@ const app = express();
 const corsOptions = {
     origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
       const allowedOrigins = [
-        process.env.FRONTEND_URL,
         process.env.PRODUCTION_FRONTEND_URL,
         process.env.NEXT_PUBLIC_FRONTEND_URL
       ].filter(Boolean);
