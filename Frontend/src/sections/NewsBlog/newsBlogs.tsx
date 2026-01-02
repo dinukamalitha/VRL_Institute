@@ -107,7 +107,7 @@ export default function NewsBlogSection({ onDataFetched }: NewsBlogSectionProps)
               color="primary"
               onClick={() => router.push('/news-blogs')}
             >
-              Show More News
+              Show More ...
             </Button>
           </Box>
         )}

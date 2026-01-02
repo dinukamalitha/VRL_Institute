@@ -38,7 +38,7 @@ export default function PublicationsSection() {
       count: categoryCounts.Books || 0,
     },
     {
-      category: 'Monographs',
+      category: 'Conference Proceedings',
       image: '/images/monograph.jpg',
       count: categoryCounts.Monographs || 0,
     },
@@ -60,9 +60,9 @@ export default function PublicationsSection() {
         <Box sx={{ textAlign: 'center', mb: 4 }}>
           <Typography variant="h3" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#333' }}>
             Publications
-            <Typography sx={{ maxWidth: 700, mx: 'auto', mb: 2, fontSize: '1.25rem', fontWeight: 'semibold' }}>
-              (Books/Monographs/Dissertations/Thesis)
-            </Typography>
+            {/*<Typography sx={{ maxWidth: 700, mx: 'auto', mb: 2, fontSize: '1.25rem', fontWeight: 'semibold' }}>*/}
+            {/*  (Books/Monographs/Dissertations/Thesis)*/}
+            {/*</Typography>*/}
           </Typography>
 
           <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 700, mx: 'auto', mb: 2 }}>

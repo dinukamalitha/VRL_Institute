@@ -47,11 +47,12 @@ export default function InfoCard({
                 color: colors.primary.contrastText,
                 px: 1.5,
                 py: 0.5,
-                borderRadius: borderRadius.base,
+                borderRadius: borderRadius.full,
                 fontWeight: typography.fontWeight.bold,
                 fontSize: typography.fontSize.xs,
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px',
+
               }}
             >
               {category}

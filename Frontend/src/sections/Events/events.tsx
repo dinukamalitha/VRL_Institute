@@ -87,7 +87,7 @@ export default function EventsSection({ onDataFetched }: EventsSectionProps) {
                   color="primary"
                   onClick={() => setShowAllEvents(true)}
               >
-                Show More News
+                Show More ...
               </Button>
           </Box>
         )}

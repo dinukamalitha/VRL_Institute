@@ -119,7 +119,7 @@ export default function PublicationsPage() {
     // Sample placeholders for categories
     const publicationData = [
         { category: 'Books', image: '/images/books.png', count: categoryCounts.Books || 0 },
-        { category: 'Monographs', image: '/images/monograph.jpg', count: categoryCounts.Monographs || 0 },
+        { category: 'Conference Proceedings', image: '/images/monograph.jpg', count: categoryCounts.Monographs || 0 },
         { category: 'Dissertations', image: '/images/dissertation.jpg', count: categoryCounts.Dissertations || 0 },
         { category: 'Thesis', image: '/images/thesis.jpg', count: categoryCounts.Thesis || 0 },
     ]
@@ -144,7 +144,7 @@ export default function PublicationsPage() {
                             fontWeight: 'semibold',
                         }}
                     >
-                        (Books / Monographs / Dissertations / Thesis)
+                        (Books / Conference Proceedings / Dissertations / Thesis)
                     </Typography>
                 </Typography>
             </Box>
@@ -211,7 +211,7 @@ export default function PublicationsPage() {
                             align: 'center',
                             format: (value) => (
                                 <Chip
-                                    label={value || "Empty"}
+                                    label={value === "Monographs" ? "Conference Proceedings" : value}
                                     size="small"
                                     sx={{ backgroundColor: '#E91E63', color: 'white', fontWeight: 'bold', fontSize: '0.75rem' }}
                                 />

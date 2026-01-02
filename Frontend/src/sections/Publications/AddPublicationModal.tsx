@@ -38,7 +38,7 @@ const PublicationDialog: React.FC<Omit<PublicationDialogProps, 'publication'>> =
     const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
     const [documentFile, setDocumentFile] = useState<File | null>(null);
     const [loading, setLoading] = useState(false);
-    const publicationCategories = ['Books', 'Monographs', 'Dissertations', 'Thesis'];
+    const publicationCategories = ['Books', 'Conference Proceedings', 'Dissertations', 'Thesis'];
 
     useEffect(() => {
         if (open) {
