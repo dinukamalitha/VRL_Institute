@@ -37,9 +37,8 @@ export default function PublicationsCard({
                     sx={{
                         fontWeight: 'bold',
                         color: '#333',
-                        mb: 2,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.8px',
+                        mb: category === "Conference Proceedings" ? 2 : 6,
+                        letterSpacing: '0.8px'
                     }}
                 >
                     {category}
@@ -71,7 +70,7 @@ export default function PublicationsCard({
                 </Typography>
 
                 <Typography variant="body2" color="text.secondary">
-                    Publications
+                    Publication(s)
                 </Typography>
             </CardContent>
         </Card>
