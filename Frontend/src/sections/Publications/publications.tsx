@@ -38,12 +38,12 @@ export default function PublicationsSection() {
       count: categoryCounts.Books || 0,
     },
     {
-      category: 'Conference Proceedings',
+      category: 'Monographs',
       image: '/images/monograph.jpg',
       count: categoryCounts.Monographs || 0,
     },
     {
-      category: 'Dissertations',
+      category: 'Conference Proceedings',
       image: '/images/dissertation.jpg',
       count: categoryCounts.Dissertations || 0,
     },
