@@ -5,12 +5,12 @@ const api = axios.create({
 });
 
 // Automatically attach JWT if present
-// api.interceptors.request.use((config) => {
-//   const token = localStorage.getItem("token");
-//   if (token && config.headers) {
-//     config.headers["Authorization"] = `Bearer ${token}`;
-//   }
-//   return config;
-// });
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token && config.headers) {
+    config.headers["Authorization"] = `Bearer ${token}`;
+  }
+  return config;
+});
 
 export default api;

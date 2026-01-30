@@ -29,7 +29,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useToast } from '@/hooks/useToast';
 
 export default function PublicationCategoryPage() {
-    const { category } = useParams<{ category: string }>();
+    const { category: rawCategory } = useParams<{ category: string }>();
+    const category = decodeURIComponent(rawCategory);
     const { showToast, ToastComponent } = useToast();
     const [publications, setPublications] = useState<Publication[]>([]);
     //const [previewingId, setPreviewingId] = useState<string | null>(null);
@@ -41,9 +42,13 @@ export default function PublicationCategoryPage() {
             try {
                 setLoading(true);
                 const response = await getPublicationsByCategory(category);
-                setPublications(Array.isArray(response.data) ? response.data : []);
-                if (Array.isArray(response.data) && response.data.length === 0) {
-                    showToast('No publications found in this category', 'info');
+                if (response && Array.isArray(response.data)) {
+                    setPublications(response.data);
+                    if (response.data.length === 0) {
+                        showToast('No publications found in this category', 'info');
+                    }
+                } else {
+                     setPublications([]);
                 }
             } catch (err) {
                 console.error('Error fetching category publications:', err);

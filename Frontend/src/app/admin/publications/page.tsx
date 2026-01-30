@@ -120,7 +120,7 @@ export default function PublicationsPage() {
     const publicationData = [
         { category: 'Books', image: '/images/books.png', count: categoryCounts.Books || 0 },
         { category: 'Monographs', image: '/images/monograph.jpg', count: categoryCounts.Monographs || 0 },
-        { category: 'Conference Proceedings', image: '/images/dissertation.jpg', count: categoryCounts.Dissertations || 0 },
+        { category: 'Conference Proceedings', image: '/images/dissertation.jpg', count: categoryCounts['Conference Proceedings'] || 0 },
         { category: 'Thesis', image: '/images/thesis.jpg', count: categoryCounts.Thesis || 0 },
     ]
 
