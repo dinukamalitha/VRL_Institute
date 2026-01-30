@@ -188,13 +188,7 @@ export const getPublicationsByCategory = async (req: Request, res: Response) => 
             category: category
         }).sort({ createdAt: -1 });
 
-        if (publications.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: `No publications found in category '${category}'`,
-            });
-        }
-
+        // Return empty array instead of 404 to avoid frontend errors
         res.status(200).json({
             success: true,
             data: publications,

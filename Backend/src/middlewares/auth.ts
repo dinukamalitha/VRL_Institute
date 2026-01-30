@@ -32,7 +32,12 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
 export const requireRole = (roles: string[]) => {
     return (req: Request, res: Response, next: NextFunction) => {
         const authReq = req as AuthenticatedRequest;
-        if (!authReq.user || !authReq.user.role || !roles.includes(authReq.user.role)) {
+        
+        // Normalize checking to lowercase
+        const userRole = authReq.user?.role?.toLowerCase();
+        const allowedRoles = roles.map(r => r.toLowerCase());
+
+        if (!userRole || !allowedRoles.includes(userRole)) {
             return res.status(403).json({ message: "Forbidden: insufficient permissions" });
         }
         next();

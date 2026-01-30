@@ -45,7 +45,7 @@ export default function PublicationsSection() {
     {
       category: 'Conference Proceedings',
       image: '/images/dissertation.jpg',
-      count: categoryCounts.Dissertations || 0,
+      count: categoryCounts['Conference Proceedings'] || 0,
     },
     {
       category: 'Thesis',
