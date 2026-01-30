@@ -42,7 +42,7 @@ const JournalSection = () => {
         </Typography>
 
         {/* Journal Image */}
-        <Box sx={{ position: 'relative', width: '100%', height: 600, mb: 3 }}>
+        {/* <Box sx={{ position: 'relative', width: '100%', height: 600, mb: 3 }}>
           {!loading && (
               <Box sx={{ position: 'relative', width: '100%', height: 600, mb: 3 }}>
                 <Image
@@ -54,10 +54,35 @@ const JournalSection = () => {
                 />
               </Box>
           )}
+        </Box> */}
+
+        {/* ISSN Number */}
+        <Box sx={{mb: 2, bgcolor: 'background.paper', borderRadius: 2 }}>
+
+          <Typography 
+            variant="h6" 
+            component="div" 
+            sx={{ 
+              fontWeight: 900, 
+              color: 'primary.main', 
+              letterSpacing: 2,
+              textTransform: 'uppercase'
+            }}
+          >
+            ISSN 3121-3073
+          </Typography>
         </Box>
 
 
-        <Typography align="center" color="text.secondary" paragraph>
+        <Typography 
+          align="center" 
+          color="text.secondary" 
+          paragraph
+          sx={{
+            fontWeight: 500,
+            fontSize: '1.2rem'
+          }}
+        >
           Explore - Learn - Transform. <br />
           Multidisciplinary Research for Real-World Impact.
         </Typography>
