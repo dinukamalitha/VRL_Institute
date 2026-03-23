@@ -66,10 +66,10 @@ export default function Footer() {
                             </Typography>
                             <Typography variant="body2"
                                         sx={{color: '#ccc', display: 'flex', alignItems: 'center', mb: 1}}>
-                                📧 info@vrlinstitute.lk
+                                📧 info@vrlinstitute.org
                             </Typography>
                             <Typography variant="body2" sx={{color: '#ccc', display: 'flex', alignItems: 'center'}}>
-                                🌐 www.vrlinstitute.lk
+                                🌐 www.vrlinstitute.org
                             </Typography>
                         </Box>
                     </Grid>

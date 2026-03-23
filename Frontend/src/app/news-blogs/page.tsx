@@ -199,7 +199,7 @@ export default function NewsBlogsPage() {
                           📧 Submit Your News & Blogs
                         </Typography>
                         <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                          Send your articles to: <strong>news@vrlinstitute.com</strong>
+                          Send your articles to: <strong>info@vrlinstitute.org</strong>
                         </Typography>
                       </Box>
                     </Box>
