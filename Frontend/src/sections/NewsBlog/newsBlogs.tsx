@@ -77,7 +77,7 @@ export default function NewsBlogSection({ onDataFetched }: NewsBlogSectionProps)
               📧 Submit Your Blog Articles here...
             </Typography>
             <Typography variant="body2" sx={{ opacity: 0.9 }}>
-              <strong>info@vrlinstitute.lk</strong>
+              <strong>info@vrlinstitute.org</strong>
             </Typography>
           </Box>
         </Box>

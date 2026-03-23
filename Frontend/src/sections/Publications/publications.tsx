@@ -82,7 +82,7 @@ export default function PublicationsSection() {
               📧 Submit Your publications here...
             </Typography>
             <Typography variant="body2" sx={{ opacity: 0.9 }}>
-              Send your articles to: <strong>info@vrlinstitute.lk</strong>
+              Send your articles to: <strong>info@vrlinstitute.org</strong>
             </Typography>
           </Box>
         </Box>
