@@ -417,7 +417,7 @@ export default function JournalPage() {
                         <Typography variant="body1" sx={{ fontWeight: 600 }}>
                           Email your manuscript to:{' '}
                           <Box component="span" sx={{ textDecoration: 'underline' }}>
-                            {submissionEmail}
+                            {submissionEmail || "info@vrlinstitute.org" }
                           </Box>
                         </Typography>
                       </Box>
