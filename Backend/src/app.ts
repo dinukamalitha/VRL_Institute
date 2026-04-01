@@ -3,7 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import routes from "./routes";
 import { errorHandler } from "./middlewares/error.middleware";
-import {connectDB} from "./config/database";
+import { connectDB } from "./config/database";
 import userRoutes from "./routes/userRoutes";
 import newsBlogRoutes from "./routes/newsBlogRoutes";
 import eventsRoutes from "./routes/eventsRoutes";
@@ -20,28 +20,29 @@ const app = express();
 
 // Middleware
 const corsOptions = {
-    origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
-      const allowedOrigins = [
-        process.env.PRODUCTION_FRONTEND_URL,
-        process.env.NEXT_PUBLIC_FRONTEND_URL
-      ].filter(Boolean);
-      
-      // Allow requests with no origin (mobile apps, Postman, etc.) in development
-      if (process.env.NODE_ENV === 'development' && !origin) {
-        return callback(null, true);
-      }
-      
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  };
-  
+  origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+    console.log('CORS Check - Incoming origin:', origin);
+    const allowedOrigins = [
+      process.env.PRODUCTION_FRONTEND_URL,
+      process.env.NEXT_PUBLIC_FRONTEND_URL
+    ].filter(Boolean);
+
+    // Allow requests with no origin (mobile apps, Postman, etc.) in development
+    if (process.env.NODE_ENV === 'development' && !origin) {
+      return callback(null, true);
+    }
+
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
 app.use(cors(corsOptions));
 app.use(helmet());
 app.use(express.json());
