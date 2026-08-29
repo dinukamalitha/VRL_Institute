@@ -33,10 +33,7 @@ const corsOptions = {
     const allowedOrigins = Array.from(new Set([
       ...envOrigins,
       'https://vrlinstitute.org',
-      'https://www.vrlinstitute.org',
-      'https://vrlinstitute.lk',
-      'https://www.vrlinstitute.lk',
-      'http://localhost:3000'
+      'https://www.vrlinstitute.org'
     ]));
 
     // Allow requests with no origin (mobile apps, Postman, etc.) or allowed origins
