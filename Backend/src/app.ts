@@ -22,20 +22,28 @@ const app = express();
 const corsOptions = {
   origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
     console.log('CORS Check - Incoming origin:', origin);
-    const allowedOrigins = [
+
+    const envOrigins = [
       process.env.PRODUCTION_FRONTEND_URL,
       process.env.NEXT_PUBLIC_FRONTEND_URL
-    ].filter(Boolean);
+    ]
+      .filter(Boolean)
+      .flatMap(url => (url ? url.split(',').map(u => u.trim()) : []));
 
-    // Allow requests with no origin (mobile apps, Postman, etc.) in development
-    if (process.env.NODE_ENV === 'development' && !origin) {
-      return callback(null, true);
-    }
+    const allowedOrigins = Array.from(new Set([
+      ...envOrigins,
+      'https://vrlinstitute.org',
+      'https://www.vrlinstitute.org',
+      'https://vrlinstitute.lk',
+      'https://www.vrlinstitute.lk',
+      'http://localhost:3000'
+    ]));
 
+    // Allow requests with no origin (mobile apps, Postman, etc.) or allowed origins
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(null, false);
     }
   },
   credentials: true,
